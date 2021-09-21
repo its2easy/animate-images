@@ -1,0 +1,60 @@
+{
+  "name": "@its2easy/animate-images",
+  "version": "0.1.0",
+  "description": "Javascript library that animates a sequence of images to use in complex animations or pseudo 3d product view",
+  "author": "Dmitry Kovalev",
+  "license": "MIT",
+  "main": "build/animate-images.min.js",
+  "module": "build/animate-images.esm.js",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "webpack --config config/webpack.prod.js && rollup --config config/rollup.config.js && node config/copy-to-examples.js",
+    "start": "webpack-dev-server --progress --config config/webpack.dev.js --open",
+    "test": "echo \"Error: no test specified\"",
+    "version": "npm run build && git add -A build",
+    "postversion": "git push && git push --tags"
+  },
+  "files": [
+    "src",
+    "build/animate-images.min.js",
+    "build/animate-images.esm.js",
+    "build/animate-images.esm.js.map",
+    "build/animate-images.esm.min.js",
+    "build/animate-images.esm.min.js.map"
+  ],
+  "keywords": [
+    "animation",
+    "animate",
+    "sequence",
+    "iamge sequence",
+    "3D",
+    "3D spin",
+    "3Dview",
+    "3d rotation",
+    "360",
+    "view360",
+    "frames"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/its2easy/animate-images"
+  },
+  "sideEffects": false,
+  "devDependencies": {
+    "@babel/core": "^7.15.5",
+    "@babel/preset-env": "^7.15.6",
+    "babel-loader": "^8.2.2",
+    "rollup": "^2.56.3",
+    "rollup-plugin-terser": "^7.0.2",
+    "webpack": "^5.52.1",
+    "webpack-cli": "^4.8.0",
+    "webpack-dev-server": "^4.2.1",
+    "webpack-merge": "^5.8.0"
+  },
+  "dependencies": {
+    "core-js": "^3.17.3"
+  }
+}
+
