@@ -17,35 +17,42 @@ $(function () {
         preload: "partial",
         fps: 1,
         preloadNumber: 15,
+        autoplay: false,
+        reverse: false,
         loop: true,
-        onPreloadFinished: () => {
+        //poster: 'images/motor animation.83.93.jpg',
+        //poster: 'images/501.jpg',
+        onPreloadFinished: (lib) => {
             console.log('onPreloadFinished CB');
-            anim1.setFrame(2);
+            //lib.setFrame(1);
+            // lib.setReverse(true);
+            // lib.play();
+            // anim1.setFrame(2);
+            //anim1.playTo(1);
             anim1.playTo(4).then((lib)=>{
-                //console.log('in promise');
-                //console.log(lib);
-                lib.next().next();
+                console.log('played 1');
+
             });
             //anim1.setReverse(true);
             //anim1.playFrames(6);
-            // setTimeout(()=> {
-            //     //anim1.setReverse(true);
-            //     //anim1.playFrames(3);
-            //     anim1.stop();
-            // }, 4000);
+            setTimeout(()=> {
+                anim1.playTo(1).then((lib)=>{
+                    console.log('played 2');
+                });
+            }, 2500);
         }
     });
 
 
     //anim1.preloadImages(20);
-    //anim1.preloadImages();
+    anim1.preloadImages();
 
     //anim1.setFrame(155);
 
     // anim1.play();
     // setTimeout(() => {
-    //     anim1.setReverse();
-    // }, 3500);
+    //     anim1.play();
+    // }, 3000);
     //
     // setTimeout(() => {
     //     anim1.reset();
