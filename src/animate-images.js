@@ -27,6 +27,10 @@ export function init(node, options = {}) {
         deferredAction: null, // call after full preload
         lastUpdate: 0,
         duration: options.images.length / settings.fps  * 1000,
+        framesLeftToPlay: undefined,
+        deltaFrames: 1,
+        animationPromise: null,
+        animationPromiseResolve: null,
         load: {
             isPreloadFinished: false, // onload on all the images
             preloadOffset: 0, // images already in queue
@@ -48,16 +52,21 @@ export function init(node, options = {}) {
     }
     function changeFrame(frameNumber){
         console.log(`change frame to ${frameNumber}`);
-        if (frameNumber === data.currentFrame) return;
 
+        if (frameNumber === data.currentFrame) return; //todo 1st frame on init
         animateCanvas(frameNumber);
+        if (typeof data.framesLeftToPlay !== 'undefined') {
+            data.framesLeftToPlay = data.framesLeftToPlay - data.deltaFrames;
+        }
         data.currentFrame = frameNumber;
     }
 
     // работает внутри raf
     function animate(time){
+        if (data.framesLeftToPlay <= 0) plugin.stop();
         const progress = ( time - data.lastUpdate ) / data.duration;
         const deltaFrames = progress * data.totalImages; // Ex. 0.45 or 1.25
+        console.log(`animate framesLeftToPlay ${data.framesLeftToPlay}`);
 
         if ( deltaFrames >= 1) { // Animate only if we need to update 1 frame or more
             changeFrame(getNextFrame( Math.floor(deltaFrames) ));
@@ -68,7 +77,7 @@ export function init(node, options = {}) {
 
     function getNextFrame(deltaFrames, reverse){
         deltaFrames = deltaFrames%data.totalImages;
-
+        data.deltaFrames = deltaFrames;
         // Handle reverse
         if ( reverse === undefined ) reverse = settings.reverse;
         let newFrameNumber = (reverse) ? data.currentFrame - deltaFrames : data.currentFrame + deltaFrames;
@@ -151,7 +160,13 @@ export function init(node, options = {}) {
         },
         stop(){
             console.log('stop');
+            if ( data.isAnimating ){
+                console.log('animation end event');
+                node.dispatchEvent( new Event('animate-images:animation-end') );
+                if (typeof data.animationPromiseResolve === 'function') data.animationPromiseResolve(this);
+            }
             data.isAnimating = false;
+            data.framesLeftToPlay = undefined;
             return this;
         },
         togglePlay(){
@@ -184,6 +199,7 @@ export function init(node, options = {}) {
         },
         setFrame(frameNumber){
             console.log('set frame ' + frameNumber);
+
             if (data.load.isPreloadFinished) {
                 plugin.stop();
                 changeFrame(normalizeFrameNumber(frameNumber, data.totalImages));
@@ -196,20 +212,37 @@ export function init(node, options = {}) {
         playTo(frameNumber){
             console.log('playTo ' + frameNumber);
             if (data.load.isPreloadFinished) {
-                // if loop
-                    // play until
-                    //
-                // if no loop
-                    // выставить reverse и stopFrame
-                    // запустить play(), внутри animate проверять stopFrame
+                frameNumber = normalizeFrameNumber(frameNumber, data.totalImages);
+                if (data.currentFrame === frameNumber) return;
+
+                if (frameNumber > data.currentFrame)   plugin.setReverse(false); // move forward
+                else  plugin.setReverse(true); // move backward
+
+                plugin.playFrames(Math.abs(frameNumber - data.currentFrame))
             } else {
                 data.deferredAction = plugin.playTo.bind(this, frameNumber);
                 startLoadingImages(data.totalImages, { settings, data });
             }
-            return this;
-        },
-        playFrames(){
 
+            return new Promise((resolve, reject)=>{
+                data.animationPromiseResolve = resolve;
+            });
+        },
+        playFrames(numberOfFrames = 0){
+            console.log('playFrames ' + numberOfFrames);
+            if (data.load.isPreloadFinished) {
+                numberOfFrames = Math.floor(numberOfFrames);
+                if (numberOfFrames <= 0 ) return; //todo
+                data.framesLeftToPlay = numberOfFrames;
+                plugin.play();
+            } else {
+                data.deferredAction = plugin.playTo.bind(this, numberOfFrames);
+                startLoadingImages(data.totalImages, { settings, data });
+            }
+
+            return new Promise((resolve, reject)=>{
+                data.animationPromiseResolve = resolve;
+            });
         },
         setReverse(reverse = true){
             settings.reverse = !!reverse;

@@ -20,14 +20,19 @@ $(function () {
         loop: true,
         onPreloadFinished: () => {
             console.log('onPreloadFinished CB');
-            // anim1.setFrame(5);
-            // anim1.setFrame(-5);
-            // anim1.setFrame(155);
             anim1.setFrame(2);
-            anim1.setFrame(1);
-            anim1.setReverse();
-            anim1.next();
-            //anim1.play();
+            anim1.playTo(4).then((lib)=>{
+                //console.log('in promise');
+                //console.log(lib);
+                lib.next().next();
+            });
+            //anim1.setReverse(true);
+            //anim1.playFrames(6);
+            // setTimeout(()=> {
+            //     //anim1.setReverse(true);
+            //     //anim1.playFrames(3);
+            //     anim1.stop();
+            // }, 4000);
         }
     });
 

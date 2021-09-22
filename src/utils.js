@@ -36,6 +36,7 @@ export function getDefaultSettings(){
 }
 
 export function normalizeFrameNumber(frameNumber, totalImages){
+    frameNumber = Math.floor(frameNumber);
     if (frameNumber <= 0) {
         return 1;
     } else if (frameNumber > totalImages) {
