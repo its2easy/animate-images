@@ -1,8 +1,9 @@
 $(function () {
     // First example
     let element = document.getElementById('canvas1');
-    let imagesArray = Array.from(new Array(86), (v, k) => {
-        return `images/motor animation.83.${k + 93}.jpg`;
+    let imagesArray = Array.from(new Array(5), (v, k) => {
+        //return `images/motor animation.83.${k + 93}.jpg`;
+        return `images/${k + 501}.jpg`;
     });
     element.addEventListener('animate-images:loading-progress', function (e){
        //console.log(e.detail.progress);
@@ -14,15 +15,36 @@ $(function () {
     let anim1 = animateImages.init(element, {
         images: imagesArray,
         preload: "partial",
+        fps: 1,
         preloadNumber: 15,
+        loop: true,
         onPreloadFinished: () => {
             console.log('onPreloadFinished CB');
+            // anim1.setFrame(5);
+            // anim1.setFrame(-5);
+            // anim1.setFrame(155);
+            anim1.setFrame(2);
+            anim1.setFrame(1);
+            anim1.setReverse();
+            anim1.next();
+            //anim1.play();
         }
     });
 
-    anim1.preloadImages(20);
-    anim1.preloadImages();
-    anim1.setFrame(5);
+
+    //anim1.preloadImages(20);
+    //anim1.preloadImages();
+
+    //anim1.setFrame(155);
+
+    // anim1.play();
+    // setTimeout(() => {
+    //     anim1.setReverse();
+    // }, 3500);
+    //
+    // setTimeout(() => {
+    //     anim1.reset();
+    // }, 5500);
 
     // let variable;
     // function test1(foo){

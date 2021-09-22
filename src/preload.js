@@ -1,5 +1,5 @@
 //============ PRELOAD
-export function startLoadingImages(preloadNumber = 0, { node, settings, data }){
+export function startLoadingImages(preloadNumber = 0, { settings, data }){
     console.log(`Preload ${preloadNumber} images`);
     if (data.load.isPreloadFinished) {
         console.log('preload was finished, return');
@@ -20,7 +20,7 @@ export function startLoadingImages(preloadNumber = 0, { node, settings, data }){
 
     console.log(`start loop, preloadNumber=${preloadNumber}, offset=${data.load.preloadOffset}`);
     for (let i = data.load.preloadOffset; i < (preloadNumber + data.load.preloadOffset); i++){
-        console.log(`preload #${i}`);
+        //console.log(`preload #${i}`);
         let img = new Image();
         img.onload = onImageLoad;
         img.onerror = onImageLoad;
@@ -31,10 +31,10 @@ export function startLoadingImages(preloadNumber = 0, { node, settings, data }){
     function onImageLoad(e){
         data.load.preloadedImagesNumber++;
         let progress = Math.floor((data.load.preloadedImagesNumber/data.totalImages) * 1000) / 1000 ;
-        node.dispatchEvent( new CustomEvent('animate-images:loading-progress', {detail: {progress}}) );
+        data.canvas.element.dispatchEvent( new CustomEvent('animate-images:loading-progress', {detail: {progress}}) );
         if (e.type === "error") {
             data.load.isLoadWithErrors = true;
-            node.dispatchEvent( new Event('animate-images:loading-error') );
+            data.canvas.element.dispatchEvent( new Event('animate-images:loading-error') );
         }
         if (data.load.preloadedImagesNumber === data.totalImages) {
             data.load.isPreloadFinished = true;

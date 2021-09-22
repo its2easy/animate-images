@@ -1,4 +1,4 @@
-import { validateInitParameters, getDefaultSettings } from "./utils";
+import { validateInitParameters, getDefaultSettings, normalizeFrameNumber } from "./utils";
 import { startLoadingImages } from "./preload";
 
 /**
@@ -25,25 +25,107 @@ export function init(node, options = {}) {
         totalImages: options.images.length,
         loadedImagesArray: [], // images objects [0 - (images.length-1)]
         deferredAction: null, // call after full preload
+        lastUpdate: 0,
+        duration: options.images.length / settings.fps  * 1000,
         load: {
             isPreloadFinished: false, // onload on all the images
             preloadOffset: 0, // images already in queue
             preloadedImagesNumber: 0, // count of loaded images
             isLoadWithErrors: false,
             onLoadFinishedCB: afterPreloadFinishes,
+        },
+        canvas: {
+            element: node,
+            /** @type CanvasRenderingContext2D */
+            context: null,
+            imageWidth: 1600,
+            imageHeight: 900,
         }
     }
 
+    function setupCanvas(){
+        data.canvas.context = data.canvas.element.getContext("2d");
+    }
+    function changeFrame(frameNumber){
+        console.log(`change frame to ${frameNumber}`);
+        if (frameNumber === data.currentFrame) return;
+
+        animateCanvas(frameNumber);
+        data.currentFrame = frameNumber;
+    }
+
+    // работает внутри raf
+    function animate(time){
+        const progress = ( time - data.lastUpdate ) / data.duration;
+        const deltaFrames = progress * data.totalImages; // Ex. 0.45 or 1.25
+
+        if ( deltaFrames >= 1) { // Animate only if we need to update 1 frame or more
+            changeFrame(getNextFrame( Math.floor(deltaFrames) ));
+            data.lastUpdate = performance.now();
+        }
+        if ( data.isAnimating ) requestAnimationFrame(animate);
+    }
+
+    function getNextFrame(deltaFrames, reverse){
+        deltaFrames = deltaFrames%data.totalImages;
+
+        // Handle reverse
+        if ( reverse === undefined ) reverse = settings.reverse;
+        let newFrameNumber = (reverse) ? data.currentFrame - deltaFrames : data.currentFrame + deltaFrames;
+
+        // Handle loop
+        if (settings.loop) { // loop and outside of the frames
+            if (newFrameNumber <= 0) {
+                // ex. newFrame = -2, total = 50, newFrame = 50 - abs(-2) = 48
+                newFrameNumber = data.totalImages - Math.abs(newFrameNumber);
+            }
+            else if (newFrameNumber > data.totalImages) {
+                //ex. newFrame = 53, total 50, newFrame = newFrame - totalFrames = 53 - 50 = 3
+                newFrameNumber = newFrameNumber - data.totalImages;
+            }
+        } else { // no loop and outside of the frames
+            if (newFrameNumber <= 0) {
+                newFrameNumber = 1;
+                plugin.stop();
+            }
+            else if (newFrameNumber > data.totalImages) {
+                newFrameNumber = data.totalImages;
+                plugin.stop();
+            }
+        }
+
+        return  newFrameNumber;
+    }
+
+
+
+    //======= DRAW
+    // запускает перерисовку
+    function animateCanvas(frameNumber){
+        clearCanvas();
+        drawFrame(frameNumber);
+    }
+    function drawFrame(frameNumber){
+        console.log(`draw ${frameNumber}`);
+        data.canvas.context.drawImage(data.loadedImagesArray[frameNumber-1],
+            0,0, data.canvas.imageWidth, data.canvas.imageHeight);
+    }
+    function clearCanvas(){
+        data.canvas.context.clearRect(0, 0, data.canvas.imageWidth, data.canvas.imageHeight);
+    }
+    //========
 
     function initPlugin(){
         console.log('init');
+        setupCanvas();
+        data.lastUpdate = performance.now();
         if (settings.preload === 'all' || settings.preload === "partial"){
             let preloadNumber = (settings.preload === 'all') ? data.totalImages : settings.preloadNumber;
             if (preloadNumber === 0) preloadNumber = data.totalImages;
-            startLoadingImages(preloadNumber, { node, settings, data });
+            startLoadingImages(preloadNumber, { settings, data });
         }
+        //console.log('widht ' + data.canvas.element.width);
     }
-
     function afterPreloadFinishes(){ // check what to do next
         console.log('preload finished');
         if ("onPreloadFinished" in settings) settings.onPreloadFinished();
@@ -55,62 +137,79 @@ export function init(node, options = {}) {
     let plugin = {
         play(){
             console.log('play');
+            if ( data.isAnimating ) return;
             if (data.load.isPreloadFinished) {
-
+                data.isAnimating = true;
+                data.lastUpdate = performance.now();
+                requestAnimationFrame(animate);
             } else {
                 console.log('play before preload finish');
                 data.deferredAction = plugin.play;
-                startLoadingImages(data.totalImages, { node, settings, data });
+                startLoadingImages(data.totalImages, { settings, data });
             }
             return this;
         },
         stop(){
             console.log('stop');
+            data.isAnimating = false;
             return this;
         },
         togglePlay(){
             console.log('toggled');
+            if ( !data.isAnimating ) plugin.play();
+            else plugin.stop();
             return this;
         },
         next(){
             console.log('next frame');
             if (data.load.isPreloadFinished) {
-
+                plugin.stop();
+                changeFrame( getNextFrame(1) );
             } else {
                 data.deferredAction = plugin.next;
-                startLoadingImages(data.totalImages, { node, settings, data });
+                startLoadingImages(data.totalImages, { settings, data });
             }
             return this;
         },
         prev(){
             console.log('prev frame');
             if (data.load.isPreloadFinished) {
-
+                plugin.stop();
+                changeFrame( getNextFrame(1, !settings.reverse) );
             } else {
                 data.deferredAction = plugin.prev;
-                startLoadingImages(data.totalImages, { node, settings, data });
+                startLoadingImages(data.totalImages, { settings, data });
             }
             return this;
         },
         setFrame(frameNumber){
             console.log('set frame ' + frameNumber);
             if (data.load.isPreloadFinished) {
-
+                plugin.stop();
+                changeFrame(normalizeFrameNumber(frameNumber, data.totalImages));
             } else {
                 data.deferredAction = plugin.setFrame.bind(this, frameNumber);
-                startLoadingImages(data.totalImages, { node, settings, data });
+                startLoadingImages(data.totalImages, { settings, data });
             }
             return this;
         },
         playTo(frameNumber){
             console.log('playTo ' + frameNumber);
             if (data.load.isPreloadFinished) {
-
+                // if loop
+                    // play until
+                    //
+                // if no loop
+                    // выставить reverse и stopFrame
+                    // запустить play(), внутри animate проверять stopFrame
             } else {
                 data.deferredAction = plugin.playTo.bind(this, frameNumber);
-                startLoadingImages(data.totalImages, { node, settings, data });
+                startLoadingImages(data.totalImages, { settings, data });
             }
             return this;
+        },
+        playFrames(){
+
         },
         setReverse(reverse = true){
             settings.reverse = !!reverse;
@@ -118,23 +217,34 @@ export function init(node, options = {}) {
         },
         preloadImages(number){
             number = number ?? data.totalImages;
-            startLoadingImages(number, { node, settings, data });
+            startLoadingImages(number, { settings, data });
             return this;
         },
         reset(){
             console.log('reset');
             if (data.load.isPreloadFinished) {
-
+                plugin.stop();
+                changeFrame(normalizeFrameNumber(1, data.totalImages));
             } else {
                 data.deferredAction = plugin.reset;
-                startLoadingImages(data.totalImages, { node, settings, data });
+                startLoadingImages(data.totalImages, { settings, data });
             }
             return this;
         },
 
+        setOption: (option, value) => {
+            const allowedOptions = ['fps', 'draggable', 'loop', 'reverse', 'poster'];
+            if (allowedOptions.includes(option)) {
+               settings[option] = value;
+            } else {
+                console.warn(`${option} is not allowed in setOption`);
+            }
+        },
         getCurrentFrame: () => data.currentFrame,
+        getTotalImages:() => data.totalImages,
         isAnimating: () => data.isAnimating,
         isPreloadFinished: () => data.load.isPreloadFinished,
+        isLoadWithErrors: () => data.load.isLoadWithErrors,
         destroy(){
             console.log('destroy');
         }
