@@ -15,56 +15,33 @@ $(function () {
     let anim1 = animateImages.init(element, {
         images: imagesArray,
         preload: "partial",
-        fps: 1,
+        fps: 60,
         preloadNumber: 15,
         autoplay: false,
         reverse: false,
         loop: true,
-        //poster: 'images/motor animation.83.93.jpg',
+        poster: 'images/motor animation.83.93.jpg',
         //poster: 'images/501.jpg',
         onPreloadFinished: (lib) => {
             console.log('onPreloadFinished CB');
-            //lib.setFrame(1);
-            // lib.setReverse(true);
-            // lib.play();
-            // anim1.setFrame(2);
-            //anim1.playTo(1);
-            anim1.playTo(4).then((lib)=>{
-                console.log('played 1');
-
-            });
-            //anim1.setReverse(true);
-            //anim1.playFrames(6);
+           //lib.setFrame(2);
+            //lib.next();
+            //lib.play();
+            //lib.playTo(5);
             setTimeout(()=> {
-                anim1.playTo(1).then((lib)=>{
-                    console.log('played 2');
-                });
-            }, 2500);
+                anim1.setReverse(true);
+            }, 3500);
+        },
+        onPosterLoaded(){
+            console.log('poster loaded cb');
         }
     });
 
 
     //anim1.preloadImages(20);
-    anim1.preloadImages();
+    //anim1.preloadImages();
 
-    //anim1.setFrame(155);
 
-    // anim1.play();
-    // setTimeout(() => {
-    //     anim1.play();
-    // }, 3000);
-    //
-    // setTimeout(() => {
-    //     anim1.reset();
-    // }, 5500);
-
-    // let variable;
-    // function test1(foo){
-    //     console.log(`foo ${foo}`);
-    // }
-    // variable = test1.bind(undefined, 35);
-    //
-    // variable();
 
     // console.log('after init');
     //
