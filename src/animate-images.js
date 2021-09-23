@@ -177,8 +177,8 @@ export function init(node, options = {}) {
     }
     function afterPreloadFinishes(){ // check what to do next
         console.log('preload finished');
-        if ("onPreloadFinished" in settings) settings.onPreloadFinished(plugin);
         node.dispatchEvent( new Event('animate-images:preload-finished') );
+        if ("onPreloadFinished" in settings) settings.onPreloadFinished(plugin);
         if (data.deferredAction) data.deferredAction();
     }
 
@@ -324,6 +324,14 @@ export function init(node, options = {}) {
                if (option === 'fps') data.animation.duration = calculateFullAnimationDuration(settings);
             } else {
                 console.warn(`${option} is not allowed in setOption`);
+            }
+        },
+        getOption: (option) => {
+            const allowedOptions = ['fps', 'draggable', 'loop', 'reverse', 'poster', 'autoplay'];
+            if (allowedOptions.includes(option)) {
+                return settings[option];
+            } else {
+                console.warn(`${option} is not allowed in getOption`);
             }
         },
         getCurrentFrame: () => data.currentFrame,
