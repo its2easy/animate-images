@@ -1,5 +1,3 @@
-//todo allowed options and checks in setOption
-
 export function validateInitParameters(node, options){
     if ( !(node instanceof HTMLCanvasElement) ) { // Check dom node
         throw new TypeError('Node is required and should be canvas element');

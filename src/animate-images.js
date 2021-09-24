@@ -7,19 +7,19 @@ import { clearCanvas, drawFrame } from "./render";
 /**
  * @param {Element|HTMLCanvasElement} node - Canvas DOM Node
  * @param {Object} options - Options
- * @param {Array} options.images - Array with images URLs (required)
+ * @param {Array<String>} options.images - Array with images URLs (required)
  * @param {String} [options.preload="all"] - Preload mode ("all", "none", "partial")
  * @param {Number} [options.preloadNumber=0] - Number of preloaded images for option.preload="partial", 0 for all
  * @param {Number} [options.fps=30] - FPS when playing
- * @param {String} options.poster - Url of a poster image, to show before load
+ * @param {String} [options.poster] - Url of a poster image, to show before load
  * @param {Boolean} [options.draggable = false] - Draggable by mouse or touch
  * @param {Boolean} [options.loop=false] - Whether to start a new cycle at the end
  * @param {Boolean} [options.reverse=false] - Reverse direction
  * @param {Boolean} [options.autoplay=false] - Autoplay
- * @param {Number} options.ratio - Canvas width/height ratio, it takes precedence over inline canvas width and height
+ * @param {Number} [options.ratio] - Canvas width/height ratio, it takes precedence over inline canvas width and height
  * @param {String} [options.fillMode="cover"] - Fill mode to use if canvas and image aspect ratios are different. Could be "cover" or "contain"
- * @param {Function} options.onPreloadFinished - Occurs when all image files have been loaded
- * @param {Function} options.onPosterLoaded - Occurs when poster image is fully loaded
+ * @param {Function} [options.onPreloadFinished] - Occurs when all image files have been loaded
+ * @param {Function} [options.onPosterLoaded] - Occurs when poster image is fully loaded
  */
 export function init(node, options = {}) {
     validateInitParameters(node, options);
@@ -57,47 +57,55 @@ export function init(node, options = {}) {
             /** @type CanvasRenderingContext2D */
             context: null,
             ratio: null,
-            imageWidth: 0,
-            imageHeight: 0,
+            imageWidth: null,
+            imageHeight: null,
         }
     }
 
     function setupCanvas(){
         console.log('setup canvas');
-        /**
-         * <canvas width="" height=""> влияет на ratio, по дефолту 2:1
-         * Если указать то ratio = width/height; если нет то берётся options.ratio, если не указано ничего то дефолт 2:1
-         * Размеры canvas управляется через CSS, при создании внутренний размер будет изменён на реальный размер, учитывая ratio
-         * ratio не будет учитываться если height фиксирована в CSS, произойдёт перерасчёт под реальною высоту
-         * !! изменение width и height не изменяет реальные clientWidth и clientHeight если размер фиксирован в CSS!!
-         */
         data.canvas.context = data.canvas.element.getContext("2d");
+        updateCanvasSizes();
+    }
+
+    function updateCanvasSizes(){
+        console.log('updateCanvasSizes');
+        /**
+         * If no options.ratio, inline canvas width/height will be used (2:1 if not set)
+         * Real canvas size is set by CSS, inner size will be set to CSS width based on ratio (height should be "auto")
+         * If height if fixed in CSS, ratio can't be used and inner height will be equal to CSS-defined height
+         */
         if ( settings.ratio ) data.canvas.ratio = settings.ratio;
         else  data.canvas.ratio = data.canvas.element.width / data.canvas.element.height
 
-        //ratio = 3;
-        console.log(`default width: ${data.canvas.element.width}, default height: ${data.canvas.element.height}` );
+        //console.log(`default width: ${data.canvas.element.width}, default height: ${data.canvas.element.height}` );
         console.log(`ratio ${data.canvas.ratio}`);
+        // changing width and height won't change real clientWidth and clientHeight if size is fixed by CSS
         data.canvas.element.width = data.canvas.element.clientWidth;
         data.canvas.element.height = data.canvas.element.width / data.canvas.ratio;
 
-        console.log(`!!height ${data.canvas.element.height}, clientHeight ${data.canvas.element.clientHeight}`);
+        //console.log(`!!height ${data.canvas.element.height}, clientHeight ${data.canvas.element.clientHeight}`);
         if (data.canvas.element.height !== data.canvas.element.clientHeight) { // if height set by CSS
             console.log('not equal height');
             data.canvas.element.height = data.canvas.element.clientHeight;
             data.canvas.ratio = data.canvas.element.width / data.canvas.element.height;
             console.log(`new adjusted ratio ${data.canvas.ratio}`);
         }
-        console.log(`after height ${data.canvas.element.clientHeight}`);
-        /** Если нет фиксированной CSS высоты (изменение height меняет clientHeight)
-         *      если указан options.ratio то берётся CSS ширина и ставиться в ширину, и через неё и ratio
-         *        ставиться высота, canvas будет точно таким
-         *      если нет options.ratio, берётся width/height либо 2:1, через CSS ширину считается высота
-         *  Если CSS высота фиксирована то изменение height не меняет clientHeight
-         *      высота внутри canvas указывается как clientHeight (CSS)
-         *      рассчитывается новый реальный ratio
-         */
+        //console.log(`after height ${data.canvas.element.clientHeight}`);
+        maybeRedrawFrame();
     }
+    function maybeRedrawFrame(){
+        console.log('maybe redraw');
+        if ( data.isAnyFrameChanged ) { // frames were drawn
+            console.log('redraw, isAnyFrameChanged = true');
+            animateCanvas(data.currentFrame);
+        } else if ( !data.isAnyFrameChanged && data.poster.imageObject ) { // poster was loaded
+            console.log('redraw, isAnyFrameChanged = false and poster');
+            drawFrame(data.poster.imageObject, {settings, data});
+        }
+        // don't redraw in initial state, or if poster onLoad is not finished yet
+    }
+
     function log(){
         //data.canvas.element.width = 1200;
         console.dir(data.canvas.element);
@@ -127,7 +135,6 @@ export function init(node, options = {}) {
 
     // works inside RAF
     function animate(time){
-        //console.log(`animate`);
         console.log(`animate framesLeftToPlay ${data.animation.framesLeftToPlay}`);
         // if 0 frames left, stop immediately, don't wait for the next frame calculation
         // because if isAnimating become true, this will be a new animation
@@ -149,8 +156,7 @@ export function init(node, options = {}) {
                 plugin.stop();
                 data.animation.stopRequested = false;
             } else { // animation on
-                //todo поставить time вместо performance.now() и затестить
-                data.animation.lastUpdate = performance.now();// time update should be before
+                data.animation.lastUpdate = time;// time update should be before
                 changeFrame(newFrame);
             }
         }
@@ -198,7 +204,7 @@ export function init(node, options = {}) {
         console.log('init');
         setupCanvas();
         data.animation.lastUpdate = performance.now();
-        maybeShowPoster({settings, data, drawFrame});
+        maybeShowPoster({settings, data, drawFrame, updateImageSizes});
         if (settings.preload === 'all' || settings.preload === "partial"){
             let preloadNumber = (settings.preload === 'all') ? data.totalImages : settings.preloadNumber;
             if (preloadNumber === 0) preloadNumber = data.totalImages;
@@ -210,15 +216,20 @@ export function init(node, options = {}) {
     function afterPreloadFinishes(){ // check what to do next
         console.log('preload finished');
 
-        data.canvas.imageWidth = data.loadedImagesArray[0].naturalWidth;
-        data.canvas.imageHeight = data.loadedImagesArray[0].naturalHeight;
+        updateImageSizes(data.loadedImagesArray[0], true);
 
         node.dispatchEvent( new Event('animate-images:preload-finished') );
         if ("onPreloadFinished" in settings) settings.onPreloadFinished(plugin);
         if (data.deferredAction) data.deferredAction();
-        log();
+        //log();
     }
+    function updateImageSizes(image, force = false){
+        console.log('updateImageSize, force ' + force);
+        if ( !force && (data.canvas.imageWidth || data.canvas.imageHeight) ) return;
 
+        data.canvas.imageWidth = image.naturalWidth;
+        data.canvas.imageHeight = image.naturalHeight;
+    }
 
     // Pubic API
     let plugin = {
@@ -354,26 +365,30 @@ export function init(node, options = {}) {
             return this;
         },
 
-        setOption: (option, value) => {
-            const allowedOptions = ['fps', 'draggable', 'loop', 'reverse', 'poster'];
-            if (allowedOptions.includes(option)) {
-               settings[option] = value;
-               if (option === 'poster') maybeShowPoster({settings, data, drawFrame});
-               if (option === 'fps') data.animation.duration = calculateFullAnimationDuration(settings);
-            } else {
-                console.warn(`${option} is not allowed in setOption`);
-            }
-        },
         getOption: (option) => {
-            const allowedOptions = ['fps', 'draggable', 'loop', 'reverse', 'poster', 'autoplay'];
+            const allowedOptions = ['fps', 'draggable', 'loop', 'reverse', 'poster', 'autoplay', 'fillMode'];
             if (allowedOptions.includes(option)) {
                 return settings[option];
             } else {
                 console.warn(`${option} is not allowed in getOption`);
             }
         },
+        setOption: (option, value) => {
+            const allowedOptions = ['fps', 'draggable', 'loop', 'reverse', 'poster', 'ratio', 'fillMode'];
+            if (allowedOptions.includes(option)) {
+               settings[option] = value;
+               if (option === 'poster') maybeShowPoster({settings, data, drawFrame, updateImageSizes});
+               if (option === 'fps') data.animation.duration = calculateFullAnimationDuration(settings);
+               if (option === 'ratio') updateCanvasSizes();
+               if (option === 'fillMode') updateCanvasSizes();
+               console.log(`setting in update ${settings[option]}`);
+            } else {
+                console.warn(`${option} is not allowed in setOption`);
+            }
+        },
         getCurrentFrame: () => data.currentFrame,
         getTotalImages:() => data.totalImages,
+        getRatio: () => data.canvas.ratio,
         isAnimating: () => data.isAnimating,
         isPreloadFinished: () => data.load.isPreloadFinished,
         isLoadWithErrors: () => data.load.isLoadWithErrors,
@@ -386,3 +401,9 @@ export function init(node, options = {}) {
     initPlugin();
     return plugin;
 }
+// todo option.images as array of image objects
+// todo поставить time вместо performance.now() и затестить
+// todo offset setting
+// todo allowed options and checks in setOption
+// todo draggable
+// todo updateCanvasSizes api function

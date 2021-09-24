@@ -1,4 +1,4 @@
-export function maybeShowPoster({settings, data, drawFrame}){
+export function maybeShowPoster({settings, data, drawFrame, updateImageSizes}){
     if (settings.poster && !data.isAnyFrameChanged) {
         console.log('start preloading poster');
         let img = new Image();
@@ -15,6 +15,7 @@ export function maybeShowPoster({settings, data, drawFrame}){
             // show only if there wasn't any frame change from initial
             // if poster loaded after all the images and any action, it won't be shown
             if ( !data.isAnyFrameChanged ) {
+                updateImageSizes(img, false);
                 console.log('poster shown');
                 drawFrame(img, {settings, data});
             }

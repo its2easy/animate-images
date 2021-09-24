@@ -14,16 +14,18 @@ document.addEventListener("DOMContentLoaded", function() {
         preloadNumber: 100,
         fps: 30,
         //poster: 'images/motor animation.83.93.jpg',
-        //poster: 'images/501.jpg',
+        poster: 'images/501.jpg',
         draggable: false, //todo
         loop: true,
         reverse: false,
         autoplay: false,
         fillMode: 'cover',
+        //ratio: 2.56,
         onPreloadFinished: (lib) => {
             console.log('Callback: onPreloadFinished');
             setupControls();
             lib.setFrame(1);
+            //lib.setOption('ratio', 3);
         },
         onPosterLoaded(){
             console.log('Callback: onPosterLoaded');
@@ -32,7 +34,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Events
     element.addEventListener('animate-images:loading-progress', function (e){
-        console.log(`Event: loading progress: ${e.detail.progress}`);
+        //console.log(`Event: loading progress: ${e.detail.progress}`);
         loadingBlock.querySelector('span').textContent = e.detail.progress * 100;
     });
     element.addEventListener('animate-images:preload-finished', function (e){
@@ -89,6 +91,26 @@ document.addEventListener("DOMContentLoaded", function() {
         });
         loopButton.classList.add( (loop) ? 'on' : 'off' );
 
+        let fillMode = instance1.getOption('fillMode');
+        let coverBtn = document.querySelector('.js-cover');
+        let containBtn = document.querySelector('.js-contain');
+        let onBtn = (fillMode === 'cover') ? coverBtn : containBtn;
+        onBtn.classList.add('on');
+        coverBtn.addEventListener('click', () => {
+            changeFillMode('cover');
+            containBtn.classList.remove('on');
+            coverBtn.classList.add('on');
+        });
+        containBtn.addEventListener('click', () => {
+            changeFillMode('contain');
+            coverBtn.classList.remove('on');
+            containBtn.classList.add('on');
+        });
+        function changeFillMode(mode){
+            fillMode = mode;
+            instance1.setOption('fillMode', mode);
+        }
+
         let framesInput = document.querySelector('.js-frames-input');
         framesInput.setAttribute('max', instance1.getTotalImages());
         framesInput.addEventListener('input', function() {
@@ -113,6 +135,9 @@ document.addEventListener("DOMContentLoaded", function() {
         });
         document.querySelector('.js-set-fps').addEventListener('click', function() {
             instance1.setOption("fps", this.closest('.js-option-block').querySelector('input').value);
+        });
+        document.querySelector('.js-set-ratio').addEventListener('click', function() {
+            instance1.setOption("ratio", this.closest('.js-option-block').querySelector('input').value);
         });
     }
 

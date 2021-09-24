@@ -1,4 +1,3 @@
-// todo offset setting
 export function drawFrame(frameNumberOrImage, {settings, data}){
     let image;
     if (Number.isInteger(frameNumberOrImage)) {
@@ -8,6 +7,7 @@ export function drawFrame(frameNumberOrImage, {settings, data}){
         console.log('draw image object');
         image = frameNumberOrImage;
     }
+    console.log(`fillMode in draw ${settings.fillMode}`);
 
     let sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight;
     if (settings.fillMode === "cover") {
@@ -16,7 +16,7 @@ export function drawFrame(frameNumberOrImage, {settings, data}){
         ({sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight} = getDrawImageContainProps(settings, data))
     }
 
-    //console.log(`sx= ${sx}, sy=${sy}, sWidth=${sWidth}, sHeight=${sHeight}, dx=${dx}, dy=${dy}, dWidth=${dWidth}, dHeight=${dHeight}`);
+    console.log(`sx= ${sx}, sy=${sy}, sWidth=${sWidth}, sHeight=${sHeight}, dx=${dx}, dy=${dy}, dWidth=${dWidth}, dHeight=${dHeight}`);
     data.canvas.context.drawImage(image, sx, sy, sWidth, sHeight,  dx, dy, dWidth, dHeight);
 }
 

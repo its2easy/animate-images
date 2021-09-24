@@ -32,11 +32,11 @@
         .loading span{
             font-weight: bold;
         }
-        .btn.on{
-            background-color: #26cc49;
-        }
         .btn.off{
             background-color: #6c757d;
+        }
+        .btn.on{
+            background-color: #26cc49;
         }
         @media (max-width: 575px) {
             .btn-group{
@@ -62,19 +62,25 @@
     <div class="text-center">
         <div class="block">
             <div class="row justify-content-center">
-                <div class="col-12 col-lg-6 col-xl-6">
-                    <div class="btn-group mb-2" role="group">
-                        <button type="button" class="btn btn-success js-play">Play</button>
-                        <button type="button" class="btn btn-danger js-stop">Stop</button>
-                        <button type="button" class="btn btn-info js-toggle">Toggle</button>
-                        <button type="button" class="btn btn-info js-next">Next</button>
-                        <button type="button" class="btn btn-info js-prev">Prev</button>
-                        <button type="button" class="btn btn-info js-reset">Reset</button>
-                        <button type="button" class="btn btn-warning link-light js-reverse">Reverse</button>
-                        <button type="button" class="btn btn-warning link-light js-loop">Loop</button>
+                <div class="col-12 col-lg-9 col-xl-9">
+                    <div class="btn-toolbar justify-content-center">
+                        <div class="btn-group mb-2 me-2 justify-content-center" role="group">
+                            <button type="button" class="btn btn-success js-play">Play</button>
+                            <button type="button" class="btn btn-danger js-stop">Stop</button>
+                            <button type="button" class="btn btn-info js-toggle">Toggle</button>
+                            <button type="button" class="btn btn-info js-next">Next</button>
+                            <button type="button" class="btn btn-info js-prev">Prev</button>
+                            <button type="button" class="btn btn-info js-reset">Reset</button>
+                            <button type="button" class="btn btn-warning link-light js-reverse">Reverse</button>
+                            <button type="button" class="btn btn-warning link-light js-loop">Loop</button>
+                        </div>
+                        <div class="btn-group mb-2" role="group">
+                            <button type="button" class="btn btn-warning link-light js-cover off">Cover</button>
+                            <button type="button" class="btn btn-warning link-light js-contain off">Contain</button>
+                        </div>
                     </div>
                 </div>
-                <div class="col-12 col-lg-6 col-xl-6">
+                <div class="col-12 col-lg-3 col-xl-3">
                     <div class="form-group">
                         <label for="formControlRange">Frames</label>
                         <input class="form-control-range js-frames-input" id="formControlRange" max="100" min="1" type="range"
@@ -83,7 +89,7 @@
                 </div>
             </div>
             <div class="row justify-content-center">
-                <div class="col-12 col-sm-6 col-xl-3 js-option-block">
+                <div class="col-auto js-option-block">
                     <div class="input-group mb-2 mx-auto" style="max-width: 150px;">
                         <input type="text" class="form-control" placeholder="1" value="1">
                         <div class="input-group-append">
@@ -91,7 +97,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-12 col-sm-6 col-xl-3">
+                <div class="col-auto">
                     <div class="input-group mb-2 mx-auto js-option-block" style="max-width: 230px;">
                         <input type="text" class="form-control" placeholder="10" value="10">
                         <div class="input-group-append">
@@ -99,7 +105,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-12 col-sm-6 col-xl-3">
+                <div class="col-auto">
                     <div class="input-group mb-2 mx-auto js-option-block" style="max-width: 230px;">
                         <input type="text" class="form-control" placeholder="20" value="20">
                         <div class="input-group-append">
@@ -107,7 +113,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-12 col-sm-6 col-xl-3">
+                <div class="col-auto">
                     <div class="input-group mb-2 mx-auto js-option-block" style="max-width: 150px;">
                         <input type="text" class="form-control" placeholder="60" value="60">
                         <div class="input-group-append">
@@ -115,11 +121,19 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-auto">
+                    <div class="input-group mb-2 mx-auto js-option-block" style="max-width: 150px;">
+                        <input type="text" class="form-control" placeholder="2" value="2">
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary js-set-ratio" type="button">Set ratio</button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!--CANVAS BLOCK-->
             <div class="canvas1-block">
-                <canvas id="canvas1" class="canvas canvas1" width="1600" height="900"></canvas>
+                <canvas id="canvas1" class="canvas canvas1" width="1000" height="700"></canvas>
             </div>
             <!-- ============  -->
             <div class="loading loading1">Loading <span>0</span>%</div>
