@@ -16,7 +16,7 @@ export function maybeShowPoster({settings, data, drawFrame}){
             // if poster loaded after all the images and any action, it won't be shown
             if ( !data.isAnyFrameChanged ) {
                 console.log('poster shown');
-                drawFrame(img);
+                drawFrame(img, {settings, data});
             }
         }
     }

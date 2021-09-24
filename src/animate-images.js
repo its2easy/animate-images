@@ -2,6 +2,7 @@ import { normalizeFrameNumber, calculateFullAnimationDuration } from "./utils";
 import { validateInitParameters, getDefaultSettings } from "./settings";
 import { startLoadingImages } from "./preload";
 import { maybeShowPoster } from "./poster";
+import { clearCanvas, drawFrame } from "./render";
 
 /**
  * @param {Element|HTMLCanvasElement} node - Canvas DOM Node
@@ -15,6 +16,8 @@ import { maybeShowPoster } from "./poster";
  * @param {Boolean} [options.loop=false] - Whether to start a new cycle at the end
  * @param {Boolean} [options.reverse=false] - Reverse direction
  * @param {Boolean} [options.autoplay=false] - Autoplay
+ * @param {Number} options.ratio - Canvas width/height ratio, it takes precedence over inline canvas width and height
+ * @param {String} [options.fillMode="cover"] - Fill mode to use if canvas and image aspect ratios are different. Could be "cover" or "contain"
  * @param {Function} options.onPreloadFinished - Occurs when all image files have been loaded
  * @param {Function} options.onPosterLoaded - Occurs when poster image is fully loaded
  */
@@ -53,14 +56,62 @@ export function init(node, options = {}) {
             element: node,
             /** @type CanvasRenderingContext2D */
             context: null,
-            imageWidth: 1600,
-            imageHeight: 900,
+            ratio: null,
+            imageWidth: 0,
+            imageHeight: 0,
         }
     }
 
     function setupCanvas(){
+        console.log('setup canvas');
+        /**
+         * <canvas width="" height=""> влияет на ratio, по дефолту 2:1
+         * Если указать то ratio = width/height; если нет то берётся options.ratio, если не указано ничего то дефолт 2:1
+         * Размеры canvas управляется через CSS, при создании внутренний размер будет изменён на реальный размер, учитывая ratio
+         * ratio не будет учитываться если height фиксирована в CSS, произойдёт перерасчёт под реальною высоту
+         * !! изменение width и height не изменяет реальные clientWidth и clientHeight если размер фиксирован в CSS!!
+         */
         data.canvas.context = data.canvas.element.getContext("2d");
+        if ( settings.ratio ) data.canvas.ratio = settings.ratio;
+        else  data.canvas.ratio = data.canvas.element.width / data.canvas.element.height
+
+        //ratio = 3;
+        console.log(`default width: ${data.canvas.element.width}, default height: ${data.canvas.element.height}` );
+        console.log(`ratio ${data.canvas.ratio}`);
+        data.canvas.element.width = data.canvas.element.clientWidth;
+        data.canvas.element.height = data.canvas.element.width / data.canvas.ratio;
+
+        console.log(`!!height ${data.canvas.element.height}, clientHeight ${data.canvas.element.clientHeight}`);
+        if (data.canvas.element.height !== data.canvas.element.clientHeight) { // if height set by CSS
+            console.log('not equal height');
+            data.canvas.element.height = data.canvas.element.clientHeight;
+            data.canvas.ratio = data.canvas.element.width / data.canvas.element.height;
+            console.log(`new adjusted ratio ${data.canvas.ratio}`);
+        }
+        console.log(`after height ${data.canvas.element.clientHeight}`);
+        /** Если нет фиксированной CSS высоты (изменение height меняет clientHeight)
+         *      если указан options.ratio то берётся CSS ширина и ставиться в ширину, и через неё и ratio
+         *        ставиться высота, canvas будет точно таким
+         *      если нет options.ratio, берётся width/height либо 2:1, через CSS ширину считается высота
+         *  Если CSS высота фиксирована то изменение height не меняет clientHeight
+         *      высота внутри canvas указывается как clientHeight (CSS)
+         *      рассчитывается новый реальный ratio
+         */
     }
+    function log(){
+        //data.canvas.element.width = 1200;
+        console.dir(data.canvas.element);
+        console.log(`width: ${data.canvas.element.width}, height: ${data.canvas.element.height}` );
+        console.log(`clientWidth: ${data.canvas.element.clientWidth}, clientHeight: ${data.canvas.element.clientHeight}` );
+        console.log(`offsetWidth: ${data.canvas.element.offsetWidth}, offsetHeight: ${data.canvas.element.offsetHeight}` );
+        //console.log(`offsetLeft: ${data.canvas.element.offsetLeft}, offsetTop: ${data.canvas.element.offsetTop}` );
+
+        let img = data.loadedImagesArray[0];
+        console.dir(img);
+        console.log(`width: ${img.width}, height: ${img.height}` );
+        console.log(`naturalWidth: ${img.naturalWidth}, naturalHeight: ${img.naturalHeight}` );
+    }
+
     function changeFrame(frameNumber){
         console.log(`change frame to ${frameNumber}`);
 
@@ -98,8 +149,9 @@ export function init(node, options = {}) {
                 plugin.stop();
                 data.animation.stopRequested = false;
             } else { // animation on
+                //todo поставить time вместо performance.now() и затестить
+                data.animation.lastUpdate = performance.now();// time update should be before
                 changeFrame(newFrame);
-                data.animation.lastUpdate = performance.now();
             }
         }
         if ( data.isAnimating ) requestAnimationFrame(animate);
@@ -136,31 +188,11 @@ export function init(node, options = {}) {
         return  newFrameNumber;
     }
 
-
-
-    //======= DRAW
-    // запускает перерисовку
     function animateCanvas(frameNumber){
-        clearCanvas();
-        drawFrame(frameNumber);
+        clearCanvas(data);
+        drawFrame(frameNumber, {settings, data});
     }
-    function drawFrame(frameNumberOrImage){
-        let image;
-        if (Number.isInteger(frameNumberOrImage)) {
-            console.log(`draw ${frameNumberOrImage}`);
-            image = data.loadedImagesArray[frameNumberOrImage-1]
-        } else {
-            console.log('draw image object');
-            image = frameNumberOrImage;
-        }
 
-        data.canvas.context.drawImage(image,
-            0,0, data.canvas.imageWidth, data.canvas.imageHeight);
-    }
-    function clearCanvas(){
-        data.canvas.context.clearRect(0, 0, data.canvas.imageWidth, data.canvas.imageHeight);
-    }
-    //========
 
     function initPlugin(){
         console.log('init');
@@ -173,14 +205,20 @@ export function init(node, options = {}) {
             startLoadingImages(preloadNumber, { settings, data });
         }
         if (settings.autoplay) plugin.play();
-        //console.log('width ' + data.canvas.element.width);
+
     }
     function afterPreloadFinishes(){ // check what to do next
         console.log('preload finished');
+
+        data.canvas.imageWidth = data.loadedImagesArray[0].naturalWidth;
+        data.canvas.imageHeight = data.loadedImagesArray[0].naturalHeight;
+
         node.dispatchEvent( new Event('animate-images:preload-finished') );
         if ("onPreloadFinished" in settings) settings.onPreloadFinished(plugin);
         if (data.deferredAction) data.deferredAction();
+        log();
     }
+
 
     // Pubic API
     let plugin = {
@@ -272,7 +310,7 @@ export function init(node, options = {}) {
             return data.animation.animationPromise;
         },
         playFrames(numberOfFrames = 0){
-            console.log('playFrames ' + numberOfFrames);
+            console.log('   playFrames ' + numberOfFrames);
             if (data.load.isPreloadFinished) {
                 numberOfFrames = Math.floor(numberOfFrames);
                 if (numberOfFrames < 0) return new Promise((resolve)=> { resolve(this)}); //empty animation

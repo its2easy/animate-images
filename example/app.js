@@ -1,9 +1,9 @@
 document.addEventListener("DOMContentLoaded", function() {
     // First example
     let element = document.getElementById('canvas1');
-    let imagesArray = Array.from(new Array(5), (v, k) => {
-        //return `images/motor animation.83.${k + 93}.jpg`;
-        return `images/${k + 501}.jpg`;
+    let imagesArray = Array.from(new Array(86), (v, k) => {
+        return `images/motor animation.83.${k + 93}.jpg`;
+        //return `images/${k + 501}.jpg`;
     });
     let loadingBlock = document.querySelector('.loading1');
 
@@ -12,16 +12,18 @@ document.addEventListener("DOMContentLoaded", function() {
         images: imagesArray,
         preload: "partial",
         preloadNumber: 100,
-        fps: 10,
-        poster: 'images/motor animation.83.93.jpg',
+        fps: 30,
+        //poster: 'images/motor animation.83.93.jpg',
         //poster: 'images/501.jpg',
         draggable: false, //todo
         loop: true,
         reverse: false,
         autoplay: false,
+        fillMode: 'cover',
         onPreloadFinished: (lib) => {
             console.log('Callback: onPreloadFinished');
             setupControls();
+            lib.setFrame(1);
         },
         onPosterLoaded(){
             console.log('Callback: onPosterLoaded');
