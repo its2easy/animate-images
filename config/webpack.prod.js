@@ -8,6 +8,7 @@ const { LIB_FILE_NAME } = require( './shared');
 module.exports = [
     merge(common, { // Minified
         mode: 'production',
+        devtool: 'source-map',
         optimization: {
             minimizer: [ // fix license.txt from bannerPlugin
                 new TerserPlugin({

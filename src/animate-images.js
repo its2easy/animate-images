@@ -20,6 +20,8 @@ import { clearCanvas, drawFrame } from "./render";
  * @param {String} [options.fillMode="cover"] - Fill mode to use if canvas and image aspect ratios are different. Could be "cover" or "contain"
  * @param {Function} [options.onPreloadFinished] - Occurs when all image files have been loaded
  * @param {Function} [options.onPosterLoaded] - Occurs when poster image is fully loaded
+ *
+ * @returns {Object} - plugin instance
  */
 export function init(node, options = {}) {
     validateInitParameters(node, options);
@@ -62,67 +64,29 @@ export function init(node, options = {}) {
         }
     }
 
-    function setupCanvas(){
-        console.log('setup canvas');
+    function initPlugin(){
         data.canvas.context = data.canvas.element.getContext("2d");
         updateCanvasSizes();
-    }
-
-    function updateCanvasSizes(){
-        console.log('updateCanvasSizes');
-        /**
-         * If no options.ratio, inline canvas width/height will be used (2:1 if not set)
-         * Real canvas size is set by CSS, inner size will be set to CSS width based on ratio (height should be "auto")
-         * If height if fixed in CSS, ratio can't be used and inner height will be equal to CSS-defined height
-         */
-        if ( settings.ratio ) data.canvas.ratio = settings.ratio;
-        else  data.canvas.ratio = data.canvas.element.width / data.canvas.element.height
-
-        //console.log(`default width: ${data.canvas.element.width}, default height: ${data.canvas.element.height}` );
-        console.log(`ratio ${data.canvas.ratio}`);
-        // changing width and height won't change real clientWidth and clientHeight if size is fixed by CSS
-        data.canvas.element.width = data.canvas.element.clientWidth;
-        data.canvas.element.height = data.canvas.element.width / data.canvas.ratio;
-
-        //console.log(`!!height ${data.canvas.element.height}, clientHeight ${data.canvas.element.clientHeight}`);
-        if (data.canvas.element.height !== data.canvas.element.clientHeight) { // if height set by CSS
-            console.log('not equal height');
-            data.canvas.element.height = data.canvas.element.clientHeight;
-            data.canvas.ratio = data.canvas.element.width / data.canvas.element.height;
-            console.log(`new adjusted ratio ${data.canvas.ratio}`);
+        data.animation.lastUpdate = performance.now();
+        maybeShowPoster({settings, data, drawFrame, updateImageSizes});
+        addResizeHandler(updateCanvasSizes);
+        if (settings.preload === 'all' || settings.preload === "partial"){
+            let preloadNumber = (settings.preload === 'all') ? data.totalImages : settings.preloadNumber;
+            if (preloadNumber === 0) preloadNumber = data.totalImages;
+            startLoadingImages(preloadNumber, { settings, data });
         }
-        //console.log(`after height ${data.canvas.element.clientHeight}`);
-        maybeRedrawFrame();
-    }
-    function maybeRedrawFrame(){
-        console.log('maybe redraw');
-        if ( data.isAnyFrameChanged ) { // frames were drawn
-            console.log('redraw, isAnyFrameChanged = true');
-            animateCanvas(data.currentFrame);
-        } else if ( !data.isAnyFrameChanged && data.poster.imageObject ) { // poster was loaded
-            console.log('redraw, isAnyFrameChanged = false and poster');
-            drawFrame(data.poster.imageObject, {settings, data});
-        }
-        // don't redraw in initial state, or if poster onLoad is not finished yet
+        if (settings.autoplay) plugin.play();
     }
 
-    function log(){
-        //data.canvas.element.width = 1200;
-        console.dir(data.canvas.element);
-        console.log(`width: ${data.canvas.element.width}, height: ${data.canvas.element.height}` );
-        console.log(`clientWidth: ${data.canvas.element.clientWidth}, clientHeight: ${data.canvas.element.clientHeight}` );
-        console.log(`offsetWidth: ${data.canvas.element.offsetWidth}, offsetHeight: ${data.canvas.element.offsetHeight}` );
-        //console.log(`offsetLeft: ${data.canvas.element.offsetLeft}, offsetTop: ${data.canvas.element.offsetTop}` );
-
-        let img = data.loadedImagesArray[0];
-        console.dir(img);
-        console.log(`width: ${img.width}, height: ${img.height}` );
-        console.log(`naturalWidth: ${img.naturalWidth}, naturalHeight: ${img.naturalHeight}` );
+    function afterPreloadFinishes(){ // check what to do next
+        updateImageSizes(data.loadedImagesArray[0], true);
+        node.dispatchEvent( new Event('animate-images:preload-finished') );
+        if ("onPreloadFinished" in settings) settings.onPreloadFinished(plugin);
+        if (data.deferredAction) data.deferredAction();
     }
+
 
     function changeFrame(frameNumber){
-        console.log(`change frame to ${frameNumber}`);
-
         if (frameNumber === data.currentFrame && data.isAnyFrameChanged) return;//skip same frame, except first draw
         if ( !data.isAnyFrameChanged ) data.isAnyFrameChanged = true;
 
@@ -135,7 +99,6 @@ export function init(node, options = {}) {
 
     // works inside RAF
     function animate(time){
-        console.log(`animate framesLeftToPlay ${data.animation.framesLeftToPlay}`);
         // if 0 frames left, stop immediately, don't wait for the next frame calculation
         // because if isAnimating become true, this will be a new animation
         if ( typeof data.animation.framesLeftToPlay !== 'undefined' && data.animation.framesLeftToPlay <= 0)
@@ -200,45 +163,50 @@ export function init(node, options = {}) {
     }
 
 
-    function initPlugin(){
-        console.log('init');
-        setupCanvas();
-        data.animation.lastUpdate = performance.now();
-        maybeShowPoster({settings, data, drawFrame, updateImageSizes});
-        if (settings.preload === 'all' || settings.preload === "partial"){
-            let preloadNumber = (settings.preload === 'all') ? data.totalImages : settings.preloadNumber;
-            if (preloadNumber === 0) preloadNumber = data.totalImages;
-            startLoadingImages(preloadNumber, { settings, data });
+    function updateCanvasSizes(){
+        /**
+         * If no options.ratio, inline canvas width/height will be used (2:1 if not set)
+         * Real canvas size is controlled by CSS, inner size will be set based on CSS width and ratio (height should be "auto")
+         * If height if fixed in CSS, ratio can't be used and inner height will be equal to CSS-defined height
+         */
+        if ( settings.ratio ) data.canvas.ratio = settings.ratio;
+        else  data.canvas.ratio = data.canvas.element.width / data.canvas.element.height
+
+        // changing width and height won't change real clientWidth and clientHeight if size is fixed by CSS
+        data.canvas.element.width = data.canvas.element.clientWidth;
+        data.canvas.element.height = data.canvas.element.width / data.canvas.ratio;
+
+        if (data.canvas.element.height !== data.canvas.element.clientHeight) { // if height set by CSS
+            data.canvas.element.height = data.canvas.element.clientHeight;
+            data.canvas.ratio = data.canvas.element.width / data.canvas.element.height;
         }
-        if (settings.autoplay) plugin.play();
-
+        maybeRedrawFrame({settings, data});
     }
-    function afterPreloadFinishes(){ // check what to do next
-        console.log('preload finished');
-
-        updateImageSizes(data.loadedImagesArray[0], true);
-
-        node.dispatchEvent( new Event('animate-images:preload-finished') );
-        if ("onPreloadFinished" in settings) settings.onPreloadFinished(plugin);
-        if (data.deferredAction) data.deferredAction();
-        //log();
+    function maybeRedrawFrame({settings, data}){
+        if ( data.isAnyFrameChanged ) { // frames were drawn
+            animateCanvas(data.currentFrame);
+        } else if ( !data.isAnyFrameChanged && data.poster.imageObject ) { // poster was loaded
+            drawFrame(data.poster.imageObject, {settings, data});
+        }
+        // don't redraw in initial state, or if poster onLoad is not finished yet
     }
     function updateImageSizes(image, force = false){
-        console.log('updateImageSize, force ' + force);
         if ( !force && (data.canvas.imageWidth || data.canvas.imageHeight) ) return;
-
         data.canvas.imageWidth = image.naturalWidth;
         data.canvas.imageHeight = image.naturalHeight;
     }
 
     // Pubic API
     let plugin = {
+        /**
+         * Start animation
+         * @returns {Object} - plugin instance
+         */
         play(){
-            console.log('play');
             if ( data.isAnimating ) return;
             if (data.load.isPreloadFinished) {
                 data.isAnimating = true;
-                // 1st draw, direct call because 1st frame wasn't drawn
+                // 1st paint, direct call because 1st frame wasn't drawn
                 if ( !data.isAnyFrameChanged ) changeFrame(1);
                 data.animation.lastUpdate = performance.now();
                 requestAnimationFrame(animate);
@@ -248,10 +216,12 @@ export function init(node, options = {}) {
             }
             return this;
         },
+        /**
+         * Stop animation
+         * @returns {Object} - plugin instance
+         */
         stop(){
-            console.log('stop');
             if ( data.isAnimating ){
-                console.log('animation end event');
                 node.dispatchEvent( new Event('animate-images:animation-end') );
                 if (typeof data.animation.animationPromiseResolve === 'function') data.animation.animationPromiseResolve(this);
             }
@@ -260,14 +230,20 @@ export function init(node, options = {}) {
             data.animation.animationPromise = null;
             return this;
         },
+        /**
+         * Toggle between start and stop
+         * @returns {Object} - plugin instance
+         */
         togglePlay(){
-            console.log('toggled');
             if ( !data.isAnimating ) plugin.play();
             else plugin.stop();
             return this;
         },
+        /**
+         * Show next frame
+         * @returns {Object} - plugin instance
+         */
         next(){
-            console.log('next frame');
             if (data.load.isPreloadFinished) {
                 plugin.stop();
                 changeFrame( getNextFrame(1) );
@@ -277,8 +253,11 @@ export function init(node, options = {}) {
             }
             return this;
         },
+        /**
+         * Show previous frame
+         * @returns {Object} - plugin instance
+         */
         prev(){
-            console.log('prev frame');
             if (data.load.isPreloadFinished) {
                 plugin.stop();
                 changeFrame( getNextFrame(1, !settings.reverse) );
@@ -288,9 +267,12 @@ export function init(node, options = {}) {
             }
             return this;
         },
+        /**
+         * Show a frame with a specified number
+         * @param {Number} frameNumber - Number of the frame to show
+         * @returns {Object} - plugin instance
+         */
         setFrame(frameNumber){
-            console.log('set frame ' + frameNumber);
-
             if (data.load.isPreloadFinished) {
                 plugin.stop();
                 changeFrame(normalizeFrameNumber(frameNumber, data.totalImages));
@@ -300,11 +282,14 @@ export function init(node, options = {}) {
             }
             return this;
         },
+        /**
+         * Starts the animation. which plays until the specified frame number
+         * @param {Number} frameNumber - Target frame number
+         * @returns {Promise<Object>} - Promise, that resolves after animation end
+         */
         playTo(frameNumber){
-            console.log('playTo ' + frameNumber);
             if (data.load.isPreloadFinished) {
                 frameNumber = normalizeFrameNumber(frameNumber, data.totalImages);
-                //if (data.currentFrame === frameNumber) return;
 
                 if (frameNumber > data.currentFrame)   plugin.setReverse(false); // move forward
                 else  plugin.setReverse(true); // move backward
@@ -320,8 +305,12 @@ export function init(node, options = {}) {
             });
             return data.animation.animationPromise;
         },
+        /**
+         * Starts animation in the current direction with the specified number of frames in queue
+         * @param {Number} [numberOfFrames=0] - Target frame number
+         * @returns {Promise<Object>} - Promise, that resolves after animation end
+         */
         playFrames(numberOfFrames = 0){
-            console.log('   playFrames ' + numberOfFrames);
             if (data.load.isPreloadFinished) {
                 numberOfFrames = Math.floor(numberOfFrames);
                 if (numberOfFrames < 0) return new Promise((resolve)=> { resolve(this)}); //empty animation
@@ -344,17 +333,36 @@ export function init(node, options = {}) {
             });
             return data.animation.animationPromise;
         },
+        /**
+         * Changes reverse option
+         * @param {Boolean} reverse
+         * @returns @returns {Object} - plugin instance
+         */
         setReverse(reverse = true){
             settings.reverse = !!reverse;
             return this;
         },
+        /**
+         * Start preloading specified number of images
+         * @param {Number} number - number of images to preload
+         * @returns @returns {Object} - plugin instance
+         */
         preloadImages(number){
             number = number ?? data.totalImages;
             startLoadingImages(number, { settings, data });
             return this;
         },
+        /**
+         * Calculate new canvas dimensions after the canvas size changed in the browser
+         */
+        updateCanvas(){
+            updateCanvasSizes();
+        },
+        /**
+         * Stop the animation and return to the first frame
+         * @returns @returns {Object} - plugin instance
+         */
         reset(){
-            console.log('reset');
             if (data.load.isPreloadFinished) {
                 plugin.stop();
                 changeFrame(normalizeFrameNumber(1, data.totalImages));
@@ -364,7 +372,20 @@ export function init(node, options = {}) {
             }
             return this;
         },
+        /**
+         * Stop animation and clear the canvas. Method doesn't remove canvas element from the DOM
+         */
+        destroy(){
+            plugin.stop();
+            clearCanvas();
+            removeResizeHandler(updateCanvasSizes);
+        },
 
+        /**
+         * Returns option value
+         * @param {String} option - Option name
+         * @returns {*}
+         */
         getOption: (option) => {
             const allowedOptions = ['fps', 'draggable', 'loop', 'reverse', 'poster', 'autoplay', 'fillMode'];
             if (allowedOptions.includes(option)) {
@@ -373,6 +394,11 @@ export function init(node, options = {}) {
                 console.warn(`${option} is not allowed in getOption`);
             }
         },
+        /**
+         * Set new option value
+         * @param {String} option
+         * @param value - new value
+         */
         setOption: (option, value) => {
             const allowedOptions = ['fps', 'draggable', 'loop', 'reverse', 'poster', 'ratio', 'fillMode'];
             if (allowedOptions.includes(option)) {
@@ -381,7 +407,6 @@ export function init(node, options = {}) {
                if (option === 'fps') data.animation.duration = calculateFullAnimationDuration(settings);
                if (option === 'ratio') updateCanvasSizes();
                if (option === 'fillMode') updateCanvasSizes();
-               console.log(`setting in update ${settings[option]}`);
             } else {
                 console.warn(`${option} is not allowed in setOption`);
             }
@@ -393,17 +418,22 @@ export function init(node, options = {}) {
         isPreloadFinished: () => data.load.isPreloadFinished,
         isLoadWithErrors: () => data.load.isLoadWithErrors,
         isPosterLoaded: () => data.poster.isPosterLoaded,
-        destroy(){
-            console.log('destroy');
-        }
+
     };
 
     initPlugin();
     return plugin;
 }
+
+function addResizeHandler(cb) {
+    window.addEventListener("resize", cb); // todo add debouncing
+}
+function removeResizeHandler(cb) {
+    window.removeEventListener("resize", cb);
+}
+
 // todo option.images as array of image objects
-// todo поставить time вместо performance.now() и затестить
+// todo use time instead of performance.now() and test
 // todo offset setting
 // todo allowed options and checks in setOption
 // todo draggable
-// todo updateCanvasSizes api function

@@ -24,13 +24,13 @@ document.addEventListener("DOMContentLoaded", function() {
         onPreloadFinished: (lib) => {
             console.log('Callback: onPreloadFinished');
             setupControls();
-            lib.setFrame(1);
-            //lib.setOption('ratio', 3);
+            lib.play();
         },
         onPosterLoaded(){
             console.log('Callback: onPosterLoaded');
         }
     });
+    //instance1.play();
 
     // Events
     element.addEventListener('animate-images:loading-progress', function (e){

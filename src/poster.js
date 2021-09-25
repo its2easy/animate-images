@@ -1,13 +1,11 @@
 export function maybeShowPoster({settings, data, drawFrame, updateImageSizes}){
     if (settings.poster && !data.isAnyFrameChanged) {
-        console.log('start preloading poster');
         let img = new Image();
         img.onload = onPosterLoad;
         img.onerror = onPosterLoad;
         img.src = settings.poster;
         function onPosterLoad(e){
             if (e.type === "error") return;
-            console.log('poster loaded');
             data.poster.isPosterLoaded = true;
             data.poster.imageObject = img;
             data.canvas.element.dispatchEvent( new Event('animate-images:poster-loaded') );
@@ -16,7 +14,6 @@ export function maybeShowPoster({settings, data, drawFrame, updateImageSizes}){
             // if poster loaded after all the images and any action, it won't be shown
             if ( !data.isAnyFrameChanged ) {
                 updateImageSizes(img, false);
-                console.log('poster shown');
                 drawFrame(img, {settings, data});
             }
         }

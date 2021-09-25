@@ -1,10 +1,6 @@
 //============ PRELOAD
 export function startLoadingImages(preloadNumber = 0, { settings, data }){
-    console.log(`Preload ${preloadNumber} images`);
-    if (data.load.isPreloadFinished) {
-        console.log('preload was finished, return');
-        return;
-    }
+    if (data.load.isPreloadFinished) return;
 
     // if too many, load just the rest
     let unloadedCount = data.totalImages - data.load.preloadOffset;
@@ -13,14 +9,10 @@ export function startLoadingImages(preloadNumber = 0, { settings, data }){
     }
 
     // true when all the images are in queue but not loaded yet, (unloadedCount = preloadNumber = 0)
-    if (preloadNumber <= 0) {
-        console.log('preloaded <=0. return');
-        return;
-    }
+    if (preloadNumber <= 0) return;
 
-    console.log(`start loop, preloadNumber=${preloadNumber}, offset=${data.load.preloadOffset}`);
+    //console.log(`start loop, preloadNumber=${preloadNumber}, offset=${data.load.preloadOffset}`);
     for (let i = data.load.preloadOffset; i < (preloadNumber + data.load.preloadOffset); i++){
-        //console.log(`preload #${i}`);
         let img = new Image();
         img.onload = onImageLoad;
         img.onerror = onImageLoad;
@@ -28,6 +20,7 @@ export function startLoadingImages(preloadNumber = 0, { settings, data }){
         data.loadedImagesArray[i] = img;
     }
     data.load.preloadOffset = data.load.preloadOffset + preloadNumber;
+
     function onImageLoad(e){
         data.load.preloadedImagesNumber++;
         let progress = Math.floor((data.load.preloadedImagesNumber/data.totalImages) * 1000) / 1000 ;
