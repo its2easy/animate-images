@@ -1,9 +1,9 @@
 document.addEventListener("DOMContentLoaded", function() {
     // First example
     let element = document.getElementById('canvas1');
-    let imagesArray = Array.from(new Array(86), (v, k) => {
-        return `images/motor animation.83.${k + 93}.jpg`;
-        //return `images/${k + 501}.jpg`;
+    let imagesArray = Array.from(new Array(90), (v, k) => {
+        let number = String(k).padStart(4, "0");
+        return `https://distracted-villani-e19534.netlify.app/train/rotation${number}.jpg`;
     });
     let loadingBlock = document.querySelector('.loading1');
 
@@ -11,10 +11,9 @@ document.addEventListener("DOMContentLoaded", function() {
     let instance1 = animateImages.init(element, {
         images: imagesArray,
         preload: "partial",
-        preloadNumber: 100,
-        fps: 30,
-        //poster: 'images/motor animation.83.93.jpg',
-        poster: 'images/501.jpg',
+        preloadNumber: 20,
+        fps: 60,
+        poster: imagesArray[0],
         draggable: false, //todo
         loop: true,
         reverse: false,
@@ -24,18 +23,19 @@ document.addEventListener("DOMContentLoaded", function() {
         onPreloadFinished: (lib) => {
             console.log('Callback: onPreloadFinished');
             setupControls();
-            lib.play();
+            //lib.play();
         },
         onPosterLoaded(){
             console.log('Callback: onPosterLoaded');
         }
     });
+    instance1.preloadImages();
     //instance1.play();
 
     // Events
     element.addEventListener('animate-images:loading-progress', function (e){
         //console.log(`Event: loading progress: ${e.detail.progress}`);
-        loadingBlock.querySelector('span').textContent = e.detail.progress * 100;
+        loadingBlock.querySelector('span').textContent = Math.floor( +e.detail.progress * 100);
     });
     element.addEventListener('animate-images:preload-finished', function (e){
         console.log(`Event: animate-images:preload-finished`);
@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", function() {
         console.log(`Event: animate-images:loading-error`);
     });
 
-// Controls
+    // Controls
     function setupControls(lib){
         console.log('setup controls');
         document.querySelector('.js-play').addEventListener('click', () => {

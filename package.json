@@ -1,6 +1,6 @@
 {
   "name": "@its2easy/animate-images",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "Javascript library that animates a sequence of images to use in complex animations or pseudo 3d product view",
   "author": "Dmitry Kovalev",
   "license": "MIT",
@@ -12,7 +12,7 @@
     "build": "webpack --config config/webpack.prod.js && rollup --config config/rollup.config.js && node config/copy-to-examples.js",
     "start": "webpack-dev-server --progress --config config/webpack.dev.js --open",
     "test": "echo \"Error: no test specified\"",
-    "version": "npm run build && git add -A build",
+    "version": "npm run build && git add .",
     "postversion": "git push && git push --tags"
   },
   "files": [
@@ -22,14 +22,17 @@
     "animation",
     "animate",
     "sequence",
-    "iamge sequence",
+    "frames",
+    "image sequence",
+    "image animation",
+    "frames animation",
+    "360 animation",
     "3D",
     "3D spin",
     "3Dview",
     "3d rotation",
     "360",
-    "view360",
-    "frames"
+    "view360"
   ],
   "repository": {
     "type": "git",

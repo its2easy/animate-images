@@ -437,3 +437,4 @@ function removeResizeHandler(cb) {
 // todo offset setting
 // todo allowed options and checks in setOption
 // todo draggable
+// todo check dpr
