@@ -3,7 +3,7 @@
 </h1>
 
 ![npm](https://img.shields.io/npm/v/@its2easy/animate-images)
-![npm bundle size](https://badges.hiptest.com/bundlephobia/min/@its2easy/animate-images?label=minimied%20%28without%20gzip%29)
+![npm bundle size](https://badges.hiptest.com/bundlephobia/min/@its2easy/animate-images?label=minified%20%28without%20gzip%29)
 
 Demo - [codepen](https://codepen.io/its2easy/pen/powQJmd)
 
@@ -33,6 +33,9 @@ Or download <a href="https://unpkg.com/@its2easy/animate-images">minified versio
 ```html
 <script src="animate-images.min.js"></script>
 ```
+```javascript
+let instance = animateImages.init(element, options)
+```
 ### npm
 ```
 npm i @its2easy/animate-images --save
@@ -45,7 +48,7 @@ It is possible to import untranspiled esm version:
 ```javascript
 import { init as animateImages } from '@its2easy/build/animate-images.esm.js'; //or animate-images.esm.min.js
 ```
-> :warning: You should probably add it your build process if you use esm version. Example for webpack:
+> :warning: You should probably add it to your build process if you use esm version. Example for webpack:
 ```javascript
 rules: [
     {
@@ -88,9 +91,9 @@ Create canvas element
 Initialize with options
 ```javascript
 let element = document.querySelector('.canvas_el');
-let imagesArray = Array.from(new Array(90), (v, k) => {
+let imagesArray = Array.from(new Array(90), (v, k) => { // generate array of urls
     let number = String(k).padStart(4, "0");
-    return `path/to/your/iamges/frame-${number}.jpg`;
+    return `path/to/your/images/frame-${number}.jpg`;
 });
 let instance = animateImages.init(element,
     {
@@ -105,14 +108,14 @@ let instance = animateImages.init(element,
 instance.play();
 ```
 
-Methods called from onPreloadFinished will start immediately, but you have to use options.preload: 'all'
-or call plugin.preload(). The plugin loads each image only once, so it's safe to call `preload` multiple times 
+Methods called from `onPreloadFinished` callback will start immediately, but you have to use `options.preload: 'all'`
+or call `plugin.preload()`. The plugin loads each image only once, so it's safe to call `preload` multiple times, 
 even after the load has been completed. If `autoplay: true`, full preload will start immediately.
 ```javascript
 let instance = animateImages.init(element,
     {
         images: imagesArray,
-        preload: "none", // if 'all' you don't have to call preload()
+        preload: "none", // if 'all', you don't need to call preload()
         onPreloadFinished: function (lib){
             lib.play();
         }
@@ -165,9 +168,9 @@ canvas height.
 
 For example, &lt;canvas width="800" height="400"&gt;, image 1200x600, canvas has css max-width="500px". 
 Image will be scaled to 800x400 inside canvas and fully visible, canvas on the page will be displayed 
-500px x 250px
+500px x 250px.
 
-On page resize sizes will be recalculated automatically, but if canvas is resized by script, call 
+After page resize, the sizes will be recalculated automatically, but if canvas was resized by script, call 
 `instance.updateCanvas()`
 
 ## <a name="options"></a>Options
@@ -183,20 +186,20 @@ options:
 | :--- | :---: | :---:| :---: | :---  |
 | **images** | Array&lt;String&gt; | :heavy_check_mark: | | Array with images URLs |
 | **preload** | String | | 'all' | Preload mode ("all", "none", "partial") |
-| **preloadNumber** | Number | | 0 | Number of images to preload when option.preload="partial" (0 for all images) |
-| **fps** | Number | | 30 | FPS when playing. Determines the duration of the animation (90 images and 60 fps = 1.5s, 90 images and 30fps = 3s)
-| **poster** | String | | | URL of the poster image, to show before full load
+| **preloadNumber** | Number | | 0 | Number of images to preload when `option.preload="partial"` (0 for all images) |
+| **fps** | Number | | 30 | FPS when playing. Determines the duration of the animation (for ex. 90 images and 60 fps = 1.5s, 90 images and 30fps = 3s)
+| **poster** | String | | | URL of the poster image, to show before the full load
 | **loop** | Boolean | | false | Whether to loop the animation
 | **reverse** | Boolean | | false | Reverse direction
 | **autoplay** | Boolean | | false | If true, starts the animation automatically on load
 | **draggable** | Boolean | | false | TODO
 | **ratio** | Number | | false | Canvas width/height ratio, it takes precedence over canvas inline width and height
-| **fillMode** | String | | 'cover' | Fill mode to use if canvas and image aspect ratios are different. Could be "cover" or "contain"
-| **onPreloadFinished** | Function | | | Occurs when all image files have been loaded, receives plugin instance as a parameter
-| **onPosterLoaded** | Function | | | Occurs when poster image is fully loaded, receives plugin instance as a parameter
+| **fillMode** | String | | 'cover' | Fill mode to use if canvas and image aspect ratios are different. Can be "cover" or "contain"
+| **onPreloadFinished** | Function | | | Callback, occurs when all image files have been loaded, receives plugin instance as a parameter
+| **onPosterLoaded** | Function | | | Callback, occurs when poster image is fully loaded, receives plugin instance as a parameter
 
 ## <a name="methods"></a>Methods
->  Most methods can be chained ```instance.setReverse(true).play()```
+>  Most methods can be chained (```instance.setReverse(true).play()```)
 
 ### play
 Start animation
@@ -237,19 +240,22 @@ instance.setFrame(35);
 
 
 ### playTo
-Show a frame with a specified number
+Starts the animation, which plays until the specified frame number
 
 `parameters`
 - frameNumber {Number} - Target frame number
 ```javascript
+// if current frame is 30 of 100, it will play from 30 to 85, 
+// if current frame is 95, it will play from 95 to 85
 instance.playTo(85);
 ```
-`returns` {Promise&lt;Object&gt;} - Promise, that resolves after the animation end
+`returns` {Promise&lt;Object&gt;} - Promise, that resolves after the animation end, 
+receives plugin instance as a parameter to resolve function
 
 
 ### playFrames
 Starts animation in the current direction with the specified number 
-of frames in queue. If options.loop: false animation will stop 
+of frames in queue. If `options.loop: false` animation will stop 
 when it reaches the first or the last frame.
 
 `parameters`
@@ -257,7 +263,8 @@ when it reaches the first or the last frame.
 ```javascript
 instance.playFrames(200);
 ```
-`returns` {Promise&lt;Object&gt;} - Promise, that resolves after the animation end
+`returns` {Promise&lt;Object&gt;} - Promise, that resolves after the animation end,
+receives plugin instance as a parameter to resolve function
 
 
 ### reset
@@ -272,7 +279,7 @@ Method doesn't remove canvas element from the DOM
 
 
 ### setReverse
-Changes reverse option
+Changes `reverse` option
 
 `parameters`
 - reverse {Boolean} - true for backward animation, false for forward
@@ -293,7 +300,7 @@ instance.preloadImages(15);
 `returns` {Object} - plugin instance
 
 ### updateCanvas
-Calculate new canvas dimensions after the canvas size was changed in 
+Calculate new canvas dimensions. Should be called after the canvas size was changed in 
 the browser
 
 `returns` {Object} - plugin instance
@@ -322,7 +329,7 @@ instance.setOption('ratio', 2.56);
 ```
 
 ### getCurrentFrame
-Returns the current frame number
+Returns the current frame number. Frames start from 1
 
 `returns` {Number} - Frame number
 
@@ -354,7 +361,7 @@ Returns true if at least one image wasn't loaded because of error
 `returns` {Boolean}
 
 ### isPosterLoaded
-Returns true if poster is loaded
+Returns true if poster was loaded
 
 `returns` {Boolean}
 
@@ -395,4 +402,4 @@ element.addEventListener('animate-images:loading-progress', function (e){
 * iOS Safari 13+
 
 ## <a name="license"></a>License
-Animate Sprite is provided under the [MIT License](https://opensource.org/licenses/MIT)
+Animate Images is provided under the [MIT License](https://opensource.org/licenses/MIT)
