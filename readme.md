@@ -206,27 +206,35 @@ Start animation
 
 `returns` {Object} - plugin instance
 
+---
+
 ### stop
 Stop animation
 
 `returns` {Object} - plugin instance
+
+---
 
 ### togglePlay
 Toggle between start and stop
 
 `returns` {Object} - plugin instance
 
+---
+
 ### next
 Show next frame
 
 `returns` {Object} - plugin instance
 
+---
 
 ### prev
 Show previous frame
 
 `returns` {Object} - plugin instance
 
+---
 
 ### setFrame
 Show a frame with a specified number
@@ -238,6 +246,7 @@ instance.setFrame(35);
 ```
 `returns` {Object} - plugin instance
 
+---
 
 ### playTo
 Starts the animation, which plays until the specified frame number
@@ -252,6 +261,7 @@ instance.playTo(85);
 `returns` {Promise&lt;Object&gt;} - Promise, that resolves after the animation end, 
 receives plugin instance as a parameter to resolve function
 
+---
 
 ### playFrames
 Starts animation in the current direction with the specified number 
@@ -266,17 +276,20 @@ instance.playFrames(200);
 `returns` {Promise&lt;Object&gt;} - Promise, that resolves after the animation end,
 receives plugin instance as a parameter to resolve function
 
+---
 
 ### reset
 Stop the animation and return to the first frame
 
 `returns` {Object} - plugin instance
 
+---
 
 ### destroy
 Stop animation, clear the canvas and remove event handlers.
 Method doesn't remove canvas element from the DOM
 
+---
 
 ### setReverse
 Changes `reverse` option
@@ -287,6 +300,8 @@ Changes `reverse` option
 instance.setReverse(true);
 ```
 `returns` {Object} - plugin instance
+
+---
 
 ### preloadImages
 Start preloading specified number of images. Сan be called multiple times. 
@@ -299,12 +314,15 @@ instance.preloadImages(15);
 ```
 `returns` {Object} - plugin instance
 
+---
+
 ### updateCanvas
 Calculate new canvas dimensions. Should be called after the canvas size was changed in 
 the browser
 
 `returns` {Object} - plugin instance
 
+---
 
 ### getOption
 Returns option value
@@ -316,6 +334,7 @@ let reverse = instance.getOption('reverse');
 ```
 `returns` {*} - Option value
 
+---
 
 ### setOption
 Set new option value
@@ -328,15 +347,21 @@ instance.setOption('fps', 40);
 instance.setOption('ratio', 2.56);
 ```
 
+---
+
 ### getCurrentFrame
 Returns the current frame number. Frames start from 1
 
 `returns` {Number} - Frame number
 
+---
+
 ### getTotalImages
 Returns the total images count
 
 `returns` {Number}
+
+---
 
 ### getRatio
 Returns the current canvas ratio. It may differ from the 
@@ -344,10 +369,14 @@ value in the options.ratio
 
 `returns` {Number}
 
+---
+
 ### isAnimating
 Returns true if the animation is running, and false if not
 
 `returns` {Boolean}
+
+---
 
 ### isPreloadFinished
 Returns true if all the images are loaded and plugin is ready to 
@@ -355,22 +384,27 @@ change frames
 
 `returns` {Boolean}
 
+---
+
 ### isLoadedWithErrors
 Returns true if at least one image wasn't loaded because of error
 
 `returns` {Boolean}
+
+---
 
 ### isPosterLoaded
 Returns true if poster was loaded
 
 `returns` {Boolean}
 
+---
 
 ## <a name="events"></a>Events
 Plugin fires all the events on the canvas element.
 
 **animate-images:loading-progress** - 
-Fires after every image load. Progress amount is in event.detail.progress
+Fires after every image load. Progress amount is in `event.detail.progress`
 
 **animate-images:loading-error** - 
 Fires after every image.onerror
