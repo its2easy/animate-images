@@ -9,13 +9,13 @@ import { clearCanvas, drawFrame } from "./render";
  * @param {Object} options - Options
  * @param {Array<String>} options.images - Array with images URLs (required)
  * @param {String} [options.preload="all"] - Preload mode ("all", "none", "partial")
- * @param {Number} [options.preloadNumber=0] - Number of preloaded images for option.preload="partial", 0 for all
+ * @param {Number} [options.preloadNumber=0] - Number of preloaded images when option.preload="partial", 0 for all
  * @param {Number} [options.fps=30] - FPS when playing
  * @param {String} [options.poster] - Url of a poster image, to show before load
  * @param {Boolean} [options.draggable = false] - Draggable by mouse or touch
- * @param {Boolean} [options.loop=false] - Whether to start a new cycle at the end
+ * @param {Boolean} [options.loop=false] - Whether to loop the animation
  * @param {Boolean} [options.reverse=false] - Reverse direction
- * @param {Boolean} [options.autoplay=false] - Autoplay
+ * @param {Boolean} [options.autoplay=false] - If true, starts the animation automatically on load
  * @param {Number} [options.ratio] - Canvas width/height ratio, it takes precedence over inline canvas width and height
  * @param {String} [options.fillMode="cover"] - Fill mode to use if canvas and image aspect ratios are different. Could be "cover" or "contain"
  * @param {Function} [options.onPreloadFinished] - Occurs when all image files have been loaded
@@ -307,7 +307,7 @@ export function init(node, options = {}) {
         },
         /**
          * Starts animation in the current direction with the specified number of frames in queue
-         * @param {Number} [numberOfFrames=0] - Target frame number
+         * @param {Number} [numberOfFrames=0] - Number of frames to play
          * @returns {Promise<Object>} - Promise, that resolves after animation end
          */
         playFrames(numberOfFrames = 0){
@@ -344,7 +344,7 @@ export function init(node, options = {}) {
         },
         /**
          * Start preloading specified number of images
-         * @param {Number} number - number of images to preload
+         * @param {Number} number - number of images to load
          * @returns @returns {Object} - plugin instance
          */
         preloadImages(number){
@@ -354,9 +354,11 @@ export function init(node, options = {}) {
         },
         /**
          * Calculate new canvas dimensions after the canvas size changed in the browser
+         * @returns @returns {Object} - plugin instance
          */
         updateCanvas(){
             updateCanvasSizes();
+            return this;
         },
         /**
          * Stop the animation and return to the first frame
@@ -383,8 +385,8 @@ export function init(node, options = {}) {
 
         /**
          * Returns option value
-         * @param {String} option - Option name
-         * @returns {*}
+         * @param {String} option - Option name. Allowed options: fps, draggable, loop, reverse, poster, autoplay, fillMode
+         * @returns {*} - Option value
          */
         getOption: (option) => {
             const allowedOptions = ['fps', 'draggable', 'loop', 'reverse', 'poster', 'autoplay', 'fillMode'];
@@ -396,7 +398,7 @@ export function init(node, options = {}) {
         },
         /**
          * Set new option value
-         * @param {String} option
+         * @param {String} option - Option name. Allowed options: fps, draggable, loop, reverse, poster, ratio, fillMode
          * @param value - new value
          */
         setOption: (option, value) => {
@@ -416,7 +418,7 @@ export function init(node, options = {}) {
         getRatio: () => data.canvas.ratio,
         isAnimating: () => data.isAnimating,
         isPreloadFinished: () => data.load.isPreloadFinished,
-        isLoadWithErrors: () => data.load.isLoadWithErrors,
+        isLoadedWithErrors: () => data.load.isLoadWithErrors,
         isPosterLoaded: () => data.poster.isPosterLoaded,
 
     };
@@ -432,9 +434,6 @@ function removeResizeHandler(cb) {
     window.removeEventListener("resize", cb);
 }
 
-// todo option.images as array of image objects
 // todo use time instead of performance.now() and test
-// todo offset setting
-// todo allowed options and checks in setOption
 // todo draggable
 // todo check dpr
