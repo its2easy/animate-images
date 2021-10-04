@@ -1,5 +1,5 @@
 import { normalizeFrameNumber, calculateFullAnimationDuration } from "./utils";
-import { validateInitParameters, getDefaultSettings } from "./settings";
+import { validateInitParameters, getDefaultSettings, SWIPE_EVENTS } from "./settings";
 import { startLoadingImages } from "./preload";
 import { maybeShowPoster } from "./poster";
 import { clearCanvas, drawFrame } from "./render";
@@ -61,7 +61,105 @@ export function init(node, options = {}) {
             ratio: null,
             imageWidth: null,
             imageHeight: null,
+        },
+        swipe: {
+            curX: null,
+            curY: null,
+            prevX: null,
+            prevY: null,
+            isSwiping: false,
+            threshold: null,
+            pixelsCorrection: 0,
         }
+    }
+
+    //===================== SWIPE ROTATION ====================//
+    function swipeHandler(event){
+        // get current click/touch point
+        let touches;
+        if ( event.touches !== undefined && event.touches.length ) touches = event.touches;
+        data.swipe.curX = (touches) ? touches[0].pageX : event.clientX;
+        data.swipe.curY = (touches) ? touches[0].pageY : event.clientY;
+
+        switch (event.type){
+            case 'mousedown': // start
+            case 'touchstart':
+                if ( event.type === 'touchstart') event.preventDefault();
+                document.addEventListener('mouseup', swipeHandler); // move outside of the canvas
+                document.addEventListener('mousemove', swipeHandler);
+                swipeStart();
+                break;
+            case 'mousemove':
+            case 'touchmove': //move
+                if ( event.type === 'touchmove') event.preventDefault();
+                if ( data.swipe.isSwiping ) swipeMove();
+                break;
+            case 'mouseup':
+            case 'touchend':
+            case 'touchcancel': // end
+                if ( event.type === 'touchend' || event.type === 'touchcancel') event.preventDefault();
+                document.removeEventListener('mouseup', swipeHandler);
+                document.removeEventListener('mousemove', swipeHandler);
+                swipeEnd();
+                break;
+        }
+    }
+    function swipeStart(){
+        if ( !data.load.isPreloadFinished ) return;
+        plugin.stop();
+        data.swipe.isSwiping = true;
+        node.style.cursor = 'grabbing';
+        data.swipe.prevX = data.swipe.curX;
+        data.swipe.prevY = data.swipe.curY;
+    }
+    function swipeMove(){
+        const direction = swipeDirection();
+        data.swipe.prevY = data.swipe.curY; // Update Y to get right angle
+
+        const swipeLength = Math.round( Math.abs(data.swipe.curX - data.swipe.prevX) ) + data.swipe.pixelsCorrection;
+        if ( swipeLength <= data.swipe.threshold) return; // Ignore if less than 1 frame
+        if ( direction !== 'left' && direction !== 'right') return; // Ignore vertical directions
+        data.swipe.prevX = data.swipe.curX;
+
+        const progress = swipeLength / data.canvas.element.width; // full width swipe means full animation
+        const deltaFrames = Math.floor(progress * data.totalImages);
+        // Add pixels to the next swipeMove if frames equivalent of swipe is not an integer number,
+        // e.g one frame is 10px, swipeLength is 13px, we change 1 frame and add 3px to the next swipe,
+        // so fullwidth swipe is always rotate sprite for 1 turn
+        data.swipe.pixelsCorrection = swipeLength - (data.swipe.threshold * deltaFrames);
+        changeFrame(getNextFrame( deltaFrames, (direction === 'left') )); // left means backward (reverse: true)
+    }
+    function swipeEnd(){
+        //if ( swipeObject.curX === undefined ) return; // there is no x coord on touch end
+        data.swipe.curX = data.swipe.curY = data.swipe.prevX = data.swipe.prevY = null;
+        data.swipe.isSwiping = false;
+        node.style.cursor = null;
+    }
+    function swipeDirection(){
+        let xDist, yDist, r, swipeAngle;
+        xDist = data.swipe.prevX - data.swipe.curX;
+        yDist = data.swipe.prevY - data.swipe.curY;
+        r = Math.atan2(yDist, xDist);
+        swipeAngle = Math.round(r * 180 / Math.PI);
+        if (swipeAngle < 0) swipeAngle = 360 - Math.abs(swipeAngle);
+        if ( (swipeAngle >= 0 && swipeAngle <= 60) || (swipeAngle <= 360 && swipeAngle >= 300 )) return 'left';
+        else if ( swipeAngle >= 120 && swipeAngle <= 240 ) return 'right';
+        else if ( swipeAngle >= 241 && swipeAngle <= 299 ) return 'bottom';
+        else return 'up';
+    }
+    //===================== END SWIPE ====================//
+
+    function setupSwipeEvents(node, swipeHandler, swipeEvents) {
+        swipeEvents.forEach( (value) => {
+            node.addEventListener(value, swipeHandler);
+        })
+    }
+    function removeSwipeEvents(node, swipeHandler, swipeEvents) {
+        swipeEvents.forEach( (value) => {
+            node.removeEventListener(value, swipeHandler);
+        })
+        document.removeEventListener('mouseup', swipeHandler);
+        document.removeEventListener('mousemove', swipeHandler);
     }
 
     function initPlugin(){
@@ -76,6 +174,9 @@ export function init(node, options = {}) {
             startLoadingImages(preloadNumber, { settings, data });
         }
         if (settings.autoplay) plugin.play();
+        if ( settings.draggable ) {
+            setupSwipeEvents(node, swipeHandler, SWIPE_EVENTS);
+        }
     }
 
     function afterPreloadFinishes(){ // check what to do next
@@ -180,6 +281,7 @@ export function init(node, options = {}) {
             data.canvas.element.height = data.canvas.element.clientHeight;
             data.canvas.ratio = data.canvas.element.width / data.canvas.element.height;
         }
+        data.swipe.threshold = data.canvas.element.width / data.totalImages;
         maybeRedrawFrame({settings, data});
     }
     function maybeRedrawFrame({settings, data}){
@@ -380,6 +482,7 @@ export function init(node, options = {}) {
         destroy(){
             plugin.stop();
             clearCanvas();
+            removeSwipeEvents( node, swipeHandler, SWIPE_EVENTS );
             removeResizeHandler(updateCanvasSizes);
         },
 
@@ -389,7 +492,7 @@ export function init(node, options = {}) {
          * @returns {*} - Option value
          */
         getOption: (option) => {
-            const allowedOptions = ['fps', 'draggable', 'loop', 'reverse', 'poster', 'autoplay', 'fillMode'];
+            const allowedOptions = ['fps', 'draggable', 'loop', 'reverse', 'draggable', 'poster', 'autoplay', 'fillMode'];
             if (allowedOptions.includes(option)) {
                 return settings[option];
             } else {
@@ -402,13 +505,17 @@ export function init(node, options = {}) {
          * @param value - new value
          */
         setOption: (option, value) => {
-            const allowedOptions = ['fps', 'draggable', 'loop', 'reverse', 'poster', 'ratio', 'fillMode'];
+            const allowedOptions = ['fps', 'draggable', 'loop', 'reverse', 'draggable', 'poster', 'ratio', 'fillMode'];
             if (allowedOptions.includes(option)) {
                settings[option] = value;
                if (option === 'poster') maybeShowPoster({settings, data, drawFrame, updateImageSizes});
                if (option === 'fps') data.animation.duration = calculateFullAnimationDuration(settings);
                if (option === 'ratio') updateCanvasSizes();
                if (option === 'fillMode') updateCanvasSizes();
+               if (option === 'draggable') {
+                   if (value) setupSwipeEvents(node, swipeHandler, SWIPE_EVENTS);
+                   else removeSwipeEvents(node, swipeHandler, SWIPE_EVENTS);
+               }
             } else {
                 console.warn(`${option} is not allowed in setOption`);
             }
@@ -435,5 +542,4 @@ function removeResizeHandler(cb) {
 }
 
 // todo use time instead of performance.now() and test
-// todo draggable
 // todo check dpr

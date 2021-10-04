@@ -192,7 +192,7 @@ options:
 | **loop** | Boolean | | false | Whether to loop the animation
 | **reverse** | Boolean | | false | Reverse direction
 | **autoplay** | Boolean | | false | If true, starts the animation automatically on load
-| **draggable** | Boolean | | false | TODO
+| **draggable** | Boolean | | false | Draggable by mouse or touch
 | **ratio** | Number | | false | Canvas width/height ratio, it takes precedence over canvas inline width and height
 | **fillMode** | String | | 'cover' | Fill mode to use if canvas and image aspect ratios are different. Can be "cover" or "contain"
 | **onPreloadFinished** | Function | | | Callback, occurs when all image files have been loaded, receives plugin instance as a parameter

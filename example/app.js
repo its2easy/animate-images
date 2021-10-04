@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", function() {
         preloadNumber: 20,
         fps: 60,
         poster: imagesArray[0],
-        draggable: false, //todo
+        draggable: true,
         loop: true,
         reverse: false,
         autoplay: false,
@@ -90,6 +90,16 @@ document.addEventListener("DOMContentLoaded", function() {
             loopButton.classList.add( (loop) ? 'on' : 'off' );
         });
         loopButton.classList.add( (loop) ? 'on' : 'off' );
+
+        let draggable = instance1.getOption('draggable');
+        let draggableButton = document.querySelector('.js-draggable');
+        draggableButton.addEventListener('click', () => {
+            draggable = !draggable;
+            instance1.setOption('draggable', draggable);
+            draggableButton.classList.remove('on', 'off');
+            draggableButton.classList.add( (draggable) ? 'on' : 'off' );
+        });
+        draggableButton.classList.add( (draggable) ? 'on' : 'off' );
 
         let fillMode = instance1.getOption('fillMode');
         let coverBtn = document.querySelector('.js-cover');
