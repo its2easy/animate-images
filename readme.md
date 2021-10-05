@@ -340,7 +340,7 @@ let reverse = instance.getOption('reverse');
 Set new option value
 
 `parameters`
-- option {String} -  Option name. Allowed options: fps, draggable, loop, reverse, poster, ratio, fillMode.
+- option {String} -  Option name. Allowed options: fps, draggable, loop, reverse, ratio, fillMode.
 - value {*} -  New value
 ```javascript
 instance.setOption('fps', 40);
@@ -393,12 +393,6 @@ Returns true if at least one image wasn't loaded because of error
 
 ---
 
-### isPosterLoaded
-Returns true if poster was loaded
-
-`returns` {Boolean}
-
----
 
 ## <a name="events"></a>Events
 Plugin fires all the events on the canvas element.

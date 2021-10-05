@@ -1,8 +1,8 @@
 import { normalizeFrameNumber, calculateFullAnimationDuration } from "./utils";
 import { validateInitParameters, getDefaultSettings } from "./settings";
 import { startLoadingImages } from "./preload";
-import { maybeShowPoster } from "./poster";
 import { clearCanvas, drawFrame } from "./render";
+import { Poster } from "./poster";
 import { DragInput } from "./drag";
 
 /**
@@ -45,10 +45,6 @@ export function init(node, options = {}) {
             animationPromiseResolve: null,
             stopRequested: false,
         },
-        poster: {
-            imageObject: null,
-            isPosterLoaded: false,
-        },
         load: {
             isPreloadFinished: false, // onload on all the images
             preloadOffset: 0, // images already in queue
@@ -65,14 +61,15 @@ export function init(node, options = {}) {
             imageHeight: null,
         },
     }
-    let dragInput;
+    let dragInput,
+        poster;
 
 
     function initPlugin(){
         data.canvas.context = data.canvas.element.getContext("2d");
         updateCanvasSizes();
         data.animation.lastUpdate = performance.now();
-        maybeShowPoster({settings, data, drawFrame, updateImageSizes});
+        if ( settings.poster ) setupPoster();
         addResizeHandler(updateCanvasSizes);
         if (settings.preload === 'all' || settings.preload === "partial"){
             let preloadNumber = (settings.preload === 'all') ? data.totalImages : settings.preloadNumber;
@@ -191,8 +188,8 @@ export function init(node, options = {}) {
     function maybeRedrawFrame({settings, data}){
         if ( data.isAnyFrameChanged ) { // frames were drawn
             animateCanvas(data.currentFrame);
-        } else if ( !data.isAnyFrameChanged && data.poster.imageObject ) { // poster was loaded
-            drawFrame(data.poster.imageObject, {settings, data});
+        } else if ( poster ) { // poster exists
+            poster.redrawPoster();
         }
         // don't redraw in initial state, or if poster onLoad is not finished yet
     }
@@ -209,6 +206,11 @@ export function init(node, options = {}) {
         } else {
             if (dragInput) dragInput.disableDrag();
         }
+    }
+
+    function setupPoster(){
+        if ( !poster ) poster = new Poster({settings, data, drawFrame, updateImageSizes});
+        poster.loadAndShowPoster();
     }
 
     // Pubic API
@@ -414,14 +416,13 @@ export function init(node, options = {}) {
         },
         /**
          * Set new option value
-         * @param {String} option - Option name. Allowed options: fps, draggable, loop, reverse, poster, ratio, fillMode
+         * @param {String} option - Option name. Allowed options: fps, draggable, loop, reverse, ratio, fillMode
          * @param value - new value
          */
         setOption: (option, value) => {
-            const allowedOptions = ['fps', 'draggable', 'loop', 'reverse', 'draggable', 'poster', 'ratio', 'fillMode'];
+            const allowedOptions = ['fps', 'draggable', 'loop', 'reverse', 'draggable', 'ratio', 'fillMode'];
             if (allowedOptions.includes(option)) {
                settings[option] = value;
-               if (option === 'poster') maybeShowPoster({settings, data, drawFrame, updateImageSizes});
                if (option === 'fps') data.animation.duration = calculateFullAnimationDuration(settings);
                if (option === 'ratio') updateCanvasSizes();
                if (option === 'fillMode') updateCanvasSizes();
@@ -436,8 +437,6 @@ export function init(node, options = {}) {
         isAnimating: () => data.isAnimating,
         isPreloadFinished: () => data.load.isPreloadFinished,
         isLoadedWithErrors: () => data.load.isLoadWithErrors,
-        isPosterLoaded: () => data.poster.isPosterLoaded,
-
     };
     data.pluginApi = plugin;
 
