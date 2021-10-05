@@ -7,7 +7,7 @@
 
 Demo - [codepen](https://codepen.io/its2easy/pen/powQJmd)
 
-**animate-images** is a lightweight (9.5kb without gzip) library that animates a sequence of images 
+**animate-images** is a lightweight (13.5kb without gzip) library that animates a sequence of images 
 to use in animations or pseudo 3d product view. It works WITHOUT UI and mainly 
 developed for complex animations.
 
@@ -44,9 +44,9 @@ npm i @its2easy/animate-images --save
 import { init as animateImages } from '@its2easy/animate-images';
 let instance = animateImages(element, options);
 ```
-It is possible to import untranspiled esm version:
+It is possible to import untranspiled esm version, which is smaller:
 ```javascript
-import { init as animateImages } from '@its2easy/build/animate-images.esm.js'; //or animate-images.esm.min.js
+import { init as animateImages } from '@its2easy/build/animate-images.esm.min.js'; //or animate-images.esm.js
 ```
 > :warning: You should probably add it to your build process if you use esm version. Example for webpack:
 ```javascript
@@ -432,8 +432,8 @@ element.addEventListener('animate-images:loading-progress', function (e){
 ## <a name="browser_support"></a>Browser support
 
 * latest versions of Chrome, android Chrome, Edge, Firefox
-* Safari 13+,
-* iOS Safari 13+
+* Safari 13.1+,
+* iOS Safari 13.4+
 
 ## <a name="license"></a>License
 Animate Images is provided under the [MIT License](https://opensource.org/licenses/MIT)

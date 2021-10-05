@@ -42,5 +42,3 @@ export function getDefaultSettings(){
         fillMode: "cover",
     }
 }
-
-export const SWIPE_EVENTS = ['mousedown', 'mousemove', 'mouseup', 'touchstart', 'touchmove', 'touchend', 'touchcancel'];

@@ -18,3 +18,5 @@ ehthumbs.db
 *.lnk
 example/images/*.jpg
 example/images/*.png
+example/animate-images.min.js
+example/animate-images.min.js.map
