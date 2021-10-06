@@ -7,7 +7,7 @@
 
 Demo - [codepen](https://codepen.io/its2easy/pen/powQJmd)
 
-**animate-images** is a lightweight (13.5kb without gzip) library that animates a sequence of images 
+**animate-images** is a lightweight (19kb without gzip) library that animates a sequence of images 
 to use in animations or pseudo 3d product view. It works WITHOUT UI and mainly 
 developed for complex animations.
 

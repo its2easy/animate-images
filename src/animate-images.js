@@ -1,7 +1,9 @@
-import { normalizeFrameNumber, calculateFullAnimationDuration } from "./utils";
+// TODO make a class from main plugin module
+import { normalizeFrameNumber } from "./utils";
 import { validateInitParameters, getDefaultSettings } from "./settings";
 import ImagePreloader from "./ImagePreloader";
 import Render from "./Render";
+import Animation from "./Animation";
 import Poster from "./Poster";
 import DragInput from "./DragInput";
 
@@ -31,21 +33,11 @@ export function init(node, options = {}) {
     // Plugin state
     let data = {
         currentFrame: 1,
-        isAnimating: false,
         totalImages: options.images.length,
         loadedImagesArray: [], // images objects [0 - (images.length-1)]
         deferredAction: null, // call after full preload
         isAnyFrameChanged: false,
         pluginApi: {},
-        animation: {
-            lastUpdate: 0, //time from RAF
-            duration: calculateFullAnimationDuration(settings.images.length, settings.fps),// time of the full animation sequence
-            framesLeftToPlay: undefined, // frames from playTo() and playFrames()
-            deltaFrames: 1, // frame change step
-            animationPromise: null,
-            animationPromiseResolve: null,
-            stopRequested: false,
-        },
         canvas: {
             element: node,
             ratio: null,
@@ -54,14 +46,15 @@ export function init(node, options = {}) {
     // Classes
     let preloader,
         render,
+        animation,
         poster,
         dragInput;
 
 
     function initPlugin(){
-        render = new Render( {settings, data} )
+        render = new Render( {settings, data} );
+        animation = new Animation( {settings, data, changeFrame} );
         updateCanvasSizes();
-        data.animation.lastUpdate = performance.now();
         if ( settings.poster ) setupPoster();
         addResizeHandler(updateCanvasSizes);
         preloader = new ImagePreloader({settings, data, afterPreloadFinishes, updateImagesCount});
@@ -80,76 +73,12 @@ export function init(node, options = {}) {
         if (data.deferredAction) data.deferredAction();
     }
 
-
     function changeFrame(frameNumber){
-        if (frameNumber === data.currentFrame && data.isAnyFrameChanged) return;//skip same frame, except first draw
+        if (frameNumber === data.currentFrame && data.isAnyFrameChanged) return;//skip same frame, except first drawing
         if ( !data.isAnyFrameChanged ) data.isAnyFrameChanged = true;
 
         animateCanvas(frameNumber);
-        if (typeof data.animation.framesLeftToPlay !== 'undefined') {
-            data.animation.framesLeftToPlay = data.animation.framesLeftToPlay - data.animation.deltaFrames;
-        }
         data.currentFrame = frameNumber;
-    }
-
-    // works inside RAF
-    function animate(time){
-        // if 0 frames left, stop immediately, don't wait for the next frame calculation
-        // because if isAnimating become true, this will be a new animation
-        if ( typeof data.animation.framesLeftToPlay !== 'undefined' && data.animation.framesLeftToPlay <= 0)
-            plugin.stop();
-        if ( !data.isAnimating ) return;
-
-        const progress = ( time - data.animation.lastUpdate ) / data.animation.duration; // ex. 0.01
-        const deltaFrames = progress * data.totalImages; // Ex. 0.45 or 1.25
-
-        if ( deltaFrames >= 1) { // Animate only if we need to update 1 frame or more
-            // calculate next frame only when we want to render
-            // if the getNextFrame check was outside, getNextFrame would be called at screen fps rate, not animation fps
-            // if screen fps 144 and animation fps 30, getNextFrame is calling now 30/s instead of 144/s,
-            // so after the last frame, raf is repeating until the next frame calculation
-            // Between the last frame drawing and new frame time, reverse or loop could be changed, and animation won't stop
-            let newFrame = getNextFrame( Math.floor(deltaFrames) );
-            if ( data.animation.stopRequested ) { // animation ended from check in getNextFrame()
-                plugin.stop();
-                data.animation.stopRequested = false;
-            } else { // animation on
-                data.animation.lastUpdate = time;// time update should be before
-                changeFrame(newFrame);
-            }
-        }
-        if ( data.isAnimating ) requestAnimationFrame(animate);
-    }
-
-    function getNextFrame(deltaFrames, reverse){
-        deltaFrames = deltaFrames%data.totalImages;// handle if deltaFrames > totalImages
-        data.animation.deltaFrames = deltaFrames;// it's using in changeFrame to recalculate framesLeftToPlay
-        // Handle reverse
-        if ( reverse === undefined ) reverse = settings.reverse;
-        let newFrameNumber = (reverse) ? data.currentFrame - deltaFrames : data.currentFrame + deltaFrames;
-
-        // Handle loop
-        if (settings.loop) { // loop and outside of the frames
-            if (newFrameNumber <= 0) {
-                // ex. newFrame = -2, total = 50, newFrame = 50 - abs(-2) = 48
-                newFrameNumber = data.totalImages - Math.abs(newFrameNumber);
-            }
-            else if (newFrameNumber > data.totalImages) {
-                //ex. newFrame = 53, total 50, newFrame = newFrame - totalFrames = 53 - 50 = 3
-                newFrameNumber = newFrameNumber - data.totalImages;
-            }
-        } else { // no loop and outside of the frames
-            if (newFrameNumber <= 0) {
-                newFrameNumber = 1;
-                data.animation.stopRequested = true;
-            }
-            else if (newFrameNumber > data.totalImages) {
-                newFrameNumber = data.totalImages;
-                data.animation.stopRequested = true;
-            }
-        }
-
-        return  newFrameNumber;
     }
 
     function animateCanvas(frameNumber){
@@ -180,7 +109,7 @@ export function init(node, options = {}) {
     }
     function updateImagesCount(){
         if ( dragInput ) dragInput.updateThreshold( data.canvas.element.width / data.totalImages );
-        data.animation.duration = calculateFullAnimationDuration(data.totalImages, settings.fps);
+        animation.updateDuration();
     }
     function maybeRedrawFrame({settings, data}){
         if ( data.isAnyFrameChanged ) { // frames were drawn
@@ -193,7 +122,11 @@ export function init(node, options = {}) {
 
     function toggleDrag(enable){
         if (enable) {
-            if ( !dragInput ) dragInput = new DragInput({data, changeFrame, getNextFrame });
+            if ( !dragInput ) dragInput = new DragInput({
+                data,
+                changeFrame,
+                getNextFrame: animation.getNextFrame.bind(animation)
+            });
             dragInput.enableDrag();
         } else {
             if (dragInput) dragInput.disableDrag();
@@ -217,13 +150,9 @@ export function init(node, options = {}) {
          * @returns {Object} - plugin instance
          */
         play(){
-            if ( data.isAnimating ) return;
+            if ( animation.isAnimating ) return;
             if ( preloader.isPreloadFinished() ) {
-                data.isAnimating = true;
-                // 1st paint, direct call because 1st frame wasn't drawn
-                if ( !data.isAnyFrameChanged ) changeFrame(1);
-                data.animation.lastUpdate = performance.now();
-                requestAnimationFrame(animate);
+                animation.play();
             } else {
                 data.deferredAction = plugin.play;
                 preloader.startLoadingImages(data.totalImages);
@@ -235,13 +164,7 @@ export function init(node, options = {}) {
          * @returns {Object} - plugin instance
          */
         stop(){
-            if ( data.isAnimating ){
-                node.dispatchEvent( new Event('animate-images:animation-end') );
-                if (typeof data.animation.animationPromiseResolve === 'function') data.animation.animationPromiseResolve(this);
-            }
-            data.isAnimating = false;
-            data.animation.framesLeftToPlay = undefined;
-            data.animation.animationPromise = null;
+            animation.stop();
             return this;
         },
         /**
@@ -249,7 +172,7 @@ export function init(node, options = {}) {
          * @returns {Object} - plugin instance
          */
         togglePlay(){
-            if ( !data.isAnimating ) plugin.play();
+            if ( !animation.isAnimating ) plugin.play();
             else plugin.stop();
             return this;
         },
@@ -260,7 +183,7 @@ export function init(node, options = {}) {
         next(){
             if ( preloader.isPreloadFinished() ) {
                 plugin.stop();
-                changeFrame( getNextFrame(1) );
+                changeFrame( animation.getNextFrame(1) );
             } else {
                 data.deferredAction = plugin.next;
                 preloader.startLoadingImages(data.totalImages);
@@ -274,7 +197,7 @@ export function init(node, options = {}) {
         prev(){
             if ( preloader.isPreloadFinished() ) {
                 plugin.stop();
-                changeFrame( getNextFrame(1, !settings.reverse) );
+                changeFrame( animation.getNextFrame(1, !settings.reverse) );
             } else {
                 data.deferredAction = plugin.prev;
                 preloader.startLoadingImages(data.totalImages);
@@ -308,16 +231,14 @@ export function init(node, options = {}) {
                 if (frameNumber > data.currentFrame)   plugin.setReverse(false); // move forward
                 else  plugin.setReverse(true); // move backward
 
-                data.animation.animationPromise = plugin.playFrames(Math.abs(frameNumber - data.currentFrame))
+                return plugin.playFrames(Math.abs(frameNumber - data.currentFrame))
             } else {
                 data.deferredAction = plugin.playTo.bind(this, frameNumber);
                 preloader.startLoadingImages(data.totalImages);
-            }
 
-            if ( !data.animation.animationPromise ) data.animation.animationPromise =new Promise((resolve, reject)=>{
-                data.animation.animationPromiseResolve = resolve;
-            });
-            return data.animation.animationPromise;
+                animation.setupAnimationPromise(true);
+                return animation.animationPromise;
+            }
         },
         /**
          * Starts animation in the current direction with the specified number of frames in queue
@@ -334,18 +255,19 @@ export function init(node, options = {}) {
                 if (!data.isAnyFrameChanged) numberOfFrames += 1;
                 if (numberOfFrames <= 0) return new Promise((resolve)=> { resolve(this)}); //empty animation
 
-                data.animation.framesLeftToPlay = numberOfFrames;
+                animation.framesLeftToPlay = numberOfFrames;
                 plugin.play();
 
+                animation.maybeResolveAnimationPromise(); // resolve old before the new one, if exists
+                animation.setupAnimationPromise();
+                return animation.animationPromise;
             } else {
                 data.deferredAction = plugin.playTo.bind(this, numberOfFrames);
                 preloader.startLoadingImages(data.totalImages);
-            }
 
-            if ( !data.animation.animationPromise ) data.animation.animationPromise =new Promise((resolve, reject)=>{
-                data.animation.animationPromiseResolve = resolve;
-            });
-            return data.animation.animationPromise;
+                animation.setupAnimationPromise(true);
+                return animation.animationPromise;
+            }
         },
         /**
          * Changes reverse option
@@ -420,7 +342,7 @@ export function init(node, options = {}) {
             const allowedOptions = ['fps', 'draggable', 'loop', 'reverse', 'draggable', 'ratio', 'fillMode'];
             if (allowedOptions.includes(option)) {
                settings[option] = value;
-               if (option === 'fps') data.animation.duration = calculateFullAnimationDuration(data.totalImages, settings.fps);
+               if (option === 'fps') animation.updateDuration();
                if (option === 'ratio') updateCanvasSizes();
                if (option === 'fillMode') updateCanvasSizes();
                if (option === 'draggable') toggleDrag(value);
@@ -431,7 +353,7 @@ export function init(node, options = {}) {
         getCurrentFrame: () => data.currentFrame,
         getTotalImages:() => data.totalImages,
         getRatio: () => data.canvas.ratio,
-        isAnimating: () => data.isAnimating,
+        isAnimating: () => animation.isAnimating,
         isPreloadFinished: () => preloader.isPreloadFinished(),
         isLoadedWithErrors: () => preloader.isLoadedWithErrors(),
     };

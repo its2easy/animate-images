@@ -100,7 +100,8 @@ export default class DragInput{
         this.#prevX = this.#curX;
 
         const progress = swipeLength / this.#data.canvas.element.width; // full width swipe means full animation
-        const deltaFrames = Math.floor(progress * this.#data.totalImages);
+        let deltaFrames = Math.floor(progress * this.#data.totalImages);
+        deltaFrames = deltaFrames % this.#data.totalImages;
         // Add pixels to the next swipeMove if frames equivalent of swipe is not an integer number,
         // e.g one frame is 10px, swipeLength is 13px, we change 1 frame and add 3px to the next swipe,
         // so fullwidth swipe is always rotate sprite for 1 turn
