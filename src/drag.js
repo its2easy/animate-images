@@ -19,7 +19,7 @@ export class DragInput{
         this.#changeFrame = changeFrame;
         this.#getNextFrame = getNextFrame;
         this.#boundSwipeHandler = this.#swipeHandler.bind(this);
-        this.#threshold = this.#data.canvas.element.width / this.#data.totalImages
+        this.#threshold = this.#data.canvas.element.width / this.#data.totalImages;
     }
 
     /**
@@ -83,7 +83,7 @@ export class DragInput{
         }
     }
     #swipeStart(){
-        if ( !this.#data.load.isPreloadFinished ) return;
+        if ( !this.#data.pluginApi.isPreloadFinished() ) return;
         this.#data.pluginApi.stop();
         this.#isSwiping = true;
         this.#data.canvas.element.style.cursor = 'grabbing';

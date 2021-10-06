@@ -22,7 +22,6 @@ document.addEventListener("DOMContentLoaded", function() {
         //ratio: 2.56,
         onPreloadFinished: (lib) => {
             console.log('Callback: onPreloadFinished');
-            setupControls();
             //lib.play();
         },
         onPosterLoaded(){
@@ -30,6 +29,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
     instance1.preloadImages();
+    setupControls();
     //instance1.play();
 
     // Events

@@ -12,8 +12,8 @@ export function isOutOfRange(frameNumber, totalImages){
     return ( frameNumber <= 0 || frameNumber > totalImages );
 }
 
-export function calculateFullAnimationDuration(settings){
-    return settings.images.length / settings.fps  * 1000;
+export function calculateFullAnimationDuration(imagesNumber, fps){
+    return imagesNumber / fps  * 1000;
 }
 
 export function pixelRatio(context) {
