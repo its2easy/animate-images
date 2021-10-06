@@ -173,6 +173,23 @@ Image will be scaled to 800x400 inside canvas and fully visible, canvas on the p
 After page resize, the sizes will be recalculated automatically, but if canvas was resized by script, call 
 `instance.updateCanvas()`
 
+### Loading error
+All images that were loaded with errors will be removed from the array of frames. Duration 
+of the animation will be recalculated.  
+
+New frames count could be obtained in preload callback:
+```javascript
+animateImages.init(element,
+    {
+        ...
+        onPreloadFinished: function (instance){
+            if ( instance.isLoadedWithErrors() ) {
+                let newFramesCount = instance.getTotalImages();
+            }
+        },
+    }
+```
+
 ## <a name="options"></a>Options
 
 ```javascript
