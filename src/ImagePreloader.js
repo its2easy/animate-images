@@ -1,4 +1,4 @@
-export class ImagePreloader{
+export default class ImagePreloader{
     #settings;
     #data;
     #afterPreloadFinishesCallback;
@@ -17,6 +17,10 @@ export class ImagePreloader{
         this.#updateImagesCount = updateImagesCount;
     }
 
+    /**
+     * Add number of images to loading queue
+     * @param {Number }preloadNumber=0 - number of images to load
+     */
     startLoadingImages(preloadNumber = 0){
         if (this.#isPreloadFinished) return;
 

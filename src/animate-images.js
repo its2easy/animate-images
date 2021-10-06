@@ -1,9 +1,9 @@
 import { normalizeFrameNumber, calculateFullAnimationDuration } from "./utils";
 import { validateInitParameters, getDefaultSettings } from "./settings";
-import { ImagePreloader } from "./preload";
-import { clearCanvas, drawFrame } from "./render";
-import { Poster } from "./poster";
-import { DragInput } from "./drag";
+import ImagePreloader from "./ImagePreloader";
+import Render from "./Render";
+import Poster from "./Poster";
+import DragInput from "./DragInput";
 
 /**
  * @param {Element|HTMLCanvasElement} node - Canvas DOM Node
@@ -48,21 +48,18 @@ export function init(node, options = {}) {
         },
         canvas: {
             element: node,
-            /** @type CanvasRenderingContext2D */
-            context: null,
             ratio: null,
-            imageWidth: null,
-            imageHeight: null,
         },
     }
     // Classes
     let preloader,
+        render,
         poster,
         dragInput;
 
 
     function initPlugin(){
-        data.canvas.context = data.canvas.element.getContext("2d");
+        render = new Render( {settings, data} )
         updateCanvasSizes();
         data.animation.lastUpdate = performance.now();
         if ( settings.poster ) setupPoster();
@@ -78,7 +75,6 @@ export function init(node, options = {}) {
     }
 
     function afterPreloadFinishes(){ // check what to do next
-        updateImageSizes(data.loadedImagesArray[0], true);
         node.dispatchEvent( new Event('animate-images:preload-finished') );
         if ("onPreloadFinished" in settings) settings.onPreloadFinished(plugin);
         if (data.deferredAction) data.deferredAction();
@@ -157,8 +153,8 @@ export function init(node, options = {}) {
     }
 
     function animateCanvas(frameNumber){
-        clearCanvas(data);
-        drawFrame(frameNumber, {settings, data});
+        render.clearCanvas();
+        render.drawFrame(frameNumber);
     }
 
 
@@ -194,11 +190,6 @@ export function init(node, options = {}) {
         }
         // don't redraw in initial state, or if poster onLoad is not finished yet
     }
-    function updateImageSizes(image, force = false){
-        if ( !force && (data.canvas.imageWidth || data.canvas.imageHeight) ) return;
-        data.canvas.imageWidth = image.naturalWidth;
-        data.canvas.imageHeight = image.naturalHeight;
-    }
 
     function toggleDrag(enable){
         if (enable) {
@@ -210,7 +201,12 @@ export function init(node, options = {}) {
     }
 
     function setupPoster(){
-        if ( !poster ) poster = new Poster({settings, data, drawFrame, updateImageSizes});
+        if (!poster) poster = new Poster(
+            {
+                settings,
+                data,
+                drawFrame: render.drawFrame.bind(render)
+            });
         poster.loadAndShowPoster();
     }
 
@@ -397,7 +393,7 @@ export function init(node, options = {}) {
          */
         destroy(){
             plugin.stop();
-            clearCanvas( data );
+            render.clearCanvas();
             toggleDrag(false);
             removeResizeHandler(updateCanvasSizes);
         },

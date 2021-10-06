@@ -1,4 +1,4 @@
-export class DragInput{
+export default class DragInput{
     static #SWIPE_EVENTS = ['mousedown', 'mousemove', 'mouseup', 'touchstart', 'touchmove', 'touchend', 'touchcancel'];
 
     #data;

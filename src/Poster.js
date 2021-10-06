@@ -1,19 +1,20 @@
-export class Poster{
+export default class Poster{
     #settings;
     #data;
     #drawFrame;
-    #updateImageSizes;
 
     #imageObject = null;
     #isPosterLoaded = false;
 
-    constructor({settings, data, drawFrame, updateImageSizes}) {
+    constructor({settings, data, drawFrame}) {
         this.#settings = settings;
         this.#data = data;
         this.#drawFrame = drawFrame;
-        this.#updateImageSizes = updateImageSizes;
     }
 
+    /**
+     * Start loading poster, then  show if needed
+     */
     loadAndShowPoster(){
         if (this.#settings.poster && !this.#data.isAnyFrameChanged) {
             this.#imageObject = new Image();
@@ -21,6 +22,10 @@ export class Poster{
             this.#imageObject.src = this.#settings.poster;
         }
     }
+
+    /**
+     * Redraw poster after canvas change if the poster was loaded
+     */
     redrawPoster(){
         if ( this.#data.isAnyFrameChanged || !this.#isPosterLoaded ) return;
         this.#drawPoster();
@@ -39,7 +44,6 @@ export class Poster{
     }
 
     #drawPoster(){
-        this.#updateImageSizes(this.#imageObject, false);
         this.#drawFrame(this.#imageObject, { settings: this.#settings, data: this.#data });
     }
 }
