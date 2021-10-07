@@ -9,7 +9,7 @@ const config = {
         library: {
             name: LIB_NAME,
             type: 'this',
-            //export: 'init',
+            export: 'init',
         }
         // library: LIB_NAME,
         // globalObject: 'this',
