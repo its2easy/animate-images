@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", function() {
     let loadingBlock = document.querySelector('.loading1');
 
     // Initialization
-    let instance1 = animateImages(element, {
+    let instance1 = animateImages.init(element, {
         images: imagesArray,
         preload: "partial",
         preloadNumber: 20,

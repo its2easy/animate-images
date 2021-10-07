@@ -8,12 +8,11 @@ const config = {
         filename: `${LIB_FILE_NAME}.min.js`,
         library: {
             name: LIB_NAME,
-            type: 'this',
-            export: 'init',
+            type: 'umd',
+            //export: 'init',
         }
         // library: LIB_NAME,
         // globalObject: 'this',
-        // //libraryExport: 'default',
         // libraryTarget: 'umd',
         // umdNamedDefine: true
     },

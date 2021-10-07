@@ -41,7 +41,10 @@ let instance = animateImages.init(element, options)
 npm i @its2easy/animate-images --save
 ```
 ```javascript
-import  * as animateImages from '@its2easy/animate-images';
+import { init as animateImages } from '@its2easy/animate-images';
+let instance = animateImages(element, options);
+// OR
+import * as animateImages from '@its2easy/animate-images';
 let instance = animateImages.init(element, options);
 ```
 It is possible to import untranspiled esm version, which is smaller:
