@@ -8,7 +8,7 @@ const config = {
         filename: `${LIB_FILE_NAME}.min.js`,
         library: {
             name: LIB_NAME,
-            type: 'var',
+            type: 'this',
             //export: 'init',
         }
         // library: LIB_NAME,
