@@ -3,12 +3,13 @@ const common = require('./webpack.common.js');
 const webpack = require("webpack");
 const banner = require("./banner");
 const TerserPlugin = require("terser-webpack-plugin");
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const { LIB_FILE_NAME } = require( './shared');
 
 module.exports = [
     merge(common, { // Minified
         mode: 'production',
-        devtool: 'source-map',
+        //devtool: 'source-map',
         optimization: {
             minimizer: [ // fix license.txt from bannerPlugin
                 new TerserPlugin({
@@ -17,20 +18,21 @@ module.exports = [
             ]
         },
         plugins: [
-            new webpack.BannerPlugin(banner)
+            new webpack.BannerPlugin(banner),
+            new CleanWebpackPlugin(),
         ],
     }),
-    merge(common, { // Not minified
-        mode: 'production',
-        devtool: 'source-map',
-        plugins: [
-            new webpack.BannerPlugin(banner)
-        ],
-        output: {
-            filename: `${LIB_FILE_NAME}.js`,
-        },
-        optimization: {
-            minimize: false
-        }
-    })
+    // merge(common, { // Not minified
+    //     mode: 'production',
+    //     //devtool: 'source-map',
+    //     plugins: [
+    //         new webpack.BannerPlugin(banner)
+    //     ],
+    //     output: {
+    //         filename: `${LIB_FILE_NAME}.js`,
+    //     },
+    //     optimization: {
+    //         minimize: false
+    //     }
+    // })
 ];

@@ -1,4 +1,4 @@
-// TODO make a class from main plugin module
+// TODO make a class from the main plugin module
 import { normalizeFrameNumber } from "./utils";
 import { validateInitParameters, getDefaultSettings } from "./settings";
 import ImagePreloader from "./ImagePreloader";
@@ -283,7 +283,7 @@ export function init(node, options = {}) {
          * @param {Number} number - number of images to load
          * @returns @returns {Object} - plugin instance
          */
-        preloadImages(number){
+        preloadImages(number= undefined){
             number = number ?? data.totalImages;
             preloader.startLoadingImages(number);
             return this;
@@ -370,5 +370,5 @@ function removeResizeHandler(cb) {
     window.removeEventListener("resize", cb);
 }
 
-// todo use time instead of performance.now() and test
+// todo check raf time instead of performance
 // todo check dpr

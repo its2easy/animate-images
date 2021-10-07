@@ -6,11 +6,16 @@ const config = {
     output: {
         path: path.resolve(__dirname, '../build'),
         filename: `${LIB_FILE_NAME}.min.js`,
-        library: LIB_NAME,
-        globalObject: 'this',
-        //libraryExport: 'default',
-        libraryTarget: 'umd',
-        umdNamedDefine: true
+        library: {
+            name: LIB_NAME,
+            type: 'var',
+            export: 'init',
+        }
+        // library: LIB_NAME,
+        // globalObject: 'this',
+        // //libraryExport: 'default',
+        // libraryTarget: 'umd',
+        // umdNamedDefine: true
     },
     module: {
         rules: [

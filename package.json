@@ -43,6 +43,7 @@
     "@babel/core": "^7.15.5",
     "@babel/preset-env": "^7.15.6",
     "babel-loader": "^8.2.2",
+    "clean-webpack-plugin": "^4.0.0",
     "rollup": "^2.56.3",
     "rollup-plugin-terser": "^7.0.2",
     "webpack": "^5.52.1",
