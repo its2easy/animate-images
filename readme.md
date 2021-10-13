@@ -7,8 +7,8 @@
 
 Demo - [codepen](https://codepen.io/its2easy/pen/powQJmd)
 
-**animate-images** is a lightweight (19kb without gzip) library that animates a sequence of images 
-to use in animations or pseudo 3d product view. It works WITHOUT UI and mainly 
+**animate-images** is a lightweight (16kb without gzip) library that animates a sequence of images 
+to use in animations or pseudo 3d product view. It works WITHOUT BUILT-IN UI and mainly 
 developed for complex animations.
 
 To use it you have to get a series of frames from a video or 3d app. 
@@ -31,7 +31,7 @@ Add with CDN link:
 Or download <a href="https://unpkg.com/@its2easy/animate-images">minified version</a>
  and include in html:
 ```html
-<script src="animate-images.min.js"></script>
+<script src="animate-images.umd.min.js"></script>
 ```
 ```javascript
 let instance = animateImages.init(element, options)
@@ -43,13 +43,11 @@ npm i @its2easy/animate-images --save
 ```javascript
 import { init as animateImages } from '@its2easy/animate-images';
 let instance = animateImages(element, options);
-// OR
-import * as animateImages from '@its2easy/animate-images';
-let instance = animateImages.init(element, options);
 ```
-It is possible to import untranspiled esm version, which is smaller:
+
+It is possible to directly import untranspiled esm version, which is smaller:
 ```javascript
-import { init as animateImages } from '@its2easy/animate-images/build/animate-images.esm.min.js'; //or animate-images.esm.js
+import { init as animateImages } from '@its2easy/animate-images/build/untranspiled/animate-images.esm.min.js'; //or animate-images.esm.js
 let instance = animateImages(element, options);
 ```
 > :warning: You should probably add it to your build process if you use esm version. Example for webpack:
@@ -57,7 +55,7 @@ let instance = animateImages(element, options);
 rules: [
     {
         test: /\.js$/,
-        exclude: /node_modules(?!(\/|\\)@its2easy(\/|\\)animate-images)/,
+        exclude: /node_modules(?!(\/|\\)@its2easy(\/|\\)animate-images(\/|\\)build)/,
         use: {
             loader: 'babel-loader',
         }
@@ -78,13 +76,34 @@ rules: [
     {
         // additional rule
         test: /\.js$/,
-        include: /node_modules(\/|\\)@its2easy(\/|\\)animate-images/,
+        include: /node_modules(\/|\\)@its2easy(\/|\\)animate-images(\/|\\)build/,
         use: {
             loader: 'babel-loader',
         }
     },
 ]
 ```
+#### All available versions:
+umd build:
+
+`@its2easy/animate-images/build/animate-images.umd.min.js` - default for browser script tag and legacy bundlers
+
+esm builds processed whit babel:
+
+`@its2easy/animate-images/build/animate-images.esm.min.js` - default for webpack and module environments
+
+`@its2easy/animate-images/build/animate-images.esm.js`
+
+esm builds without babel transformation:
+
+`@its2easy/animate-images/build/untranspiled/animate-images.esm.min.js`
+
+`@its2easy/animate-images/build/untranspiled/animate-images.esm.js`
+
+:information_source: If you are using **webpack 4** and babel with quite modern target browsers,
+then you might get an error while importing, because webpack 4 doesn't support some modern js
+syntax and babel doesn't transpile it because browsers support for this syntax is high enough now.
+Use **webpack 5** to fix it.
 
 ## <a name="usage"></a>Usage
 Create canvas element 
