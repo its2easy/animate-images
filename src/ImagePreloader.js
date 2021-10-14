@@ -23,6 +23,7 @@ export default class ImagePreloader{
      */
     startLoadingImages(preloadNumber = 0){
         if (this.#isPreloadFinished) return;
+        preloadNumber = Math.round(preloadNumber);
 
         // if too many, load just the rest
         let unloadedCount = this.#data.totalImages - this.#preloadOffset;

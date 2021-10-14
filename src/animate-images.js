@@ -94,7 +94,11 @@ export function init(node, options = {}) {
          * If height if fixed in CSS, ratio can't be used and inner height will be equal to CSS-defined height
          */
         if ( settings.ratio ) data.canvas.ratio = settings.ratio;
-        else  data.canvas.ratio = data.canvas.element.width / data.canvas.element.height
+        // Initial ratio shouldn't be changed. Ratio will only modified after setOption("ratio", newRatio),
+        // or after setting css height and plugin.updateCanvas()
+        else if ( !data.canvas.ratio ) {
+            data.canvas.ratio = data.canvas.element.width / data.canvas.element.height;
+        }
 
         // changing width and height won't change real clientWidth and clientHeight if size is fixed by CSS
         data.canvas.element.width = data.canvas.element.clientWidth;

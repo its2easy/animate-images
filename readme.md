@@ -348,7 +348,7 @@ Start preloading specified number of images. Сan be called multiple times.
 If all the images are already loaded then nothing will happen
 
 `parameters`
-- number {Number} - number of images to load
+- number {Number} - number of images to load. If not specified, all remaining images will be loaded.
 ```javascript
 instance.preloadImages(15);
 ```
