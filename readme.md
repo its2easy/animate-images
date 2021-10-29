@@ -3,7 +3,6 @@
 </h1>
 
 ![npm](https://img.shields.io/npm/v/@its2easy/animate-images)
-![npm bundle size](https://badges.hiptest.com/bundlephobia/min/@its2easy/animate-images?label=minified%20%28without%20gzip%29)
 
 Demo - [codepen](https://codepen.io/its2easy/pen/powQJmd)
 
@@ -453,6 +452,15 @@ Fires when poster has been loaded
 Fires after the animation end. If the second animation was started 
 while the first was active, this event will be fired only after the 
 second animation end.
+
+**animate-images:drag-start** -
+Fires when user starts dragging. Frame number is in `event.detail.frame`
+
+**animate-images:drag-change** -
+Fires on every frame change while dragging. Frame number is in `event.detail.frame`
+
+**animate-images:drag-end** -
+Fires when user stops dragging. Frame number is in `event.detail.frame`
 
 Example:
 ```javascript

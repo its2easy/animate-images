@@ -89,6 +89,9 @@ export default class DragInput{
         this.#data.canvas.element.style.cursor = 'grabbing';
         this.#prevX = this.#curX;
         this.#prevY = this.#curY;
+        this.#data.canvas.element.dispatchEvent( new CustomEvent('animate-images:drag-start',
+            { detail: {frame: this.#data.currentFrame} })
+        );
     }
     #swipeMove(){
         const direction = this.#swipeDirection();
@@ -107,12 +110,18 @@ export default class DragInput{
         // so fullwidth swipe is always rotate sprite for 1 turn
         this.#pixelsCorrection = swipeLength - (this.#threshold * deltaFrames);
         this.#changeFrame(this.#getNextFrame( deltaFrames, (direction === 'left') )); // left means backward (reverse: true)
+        this.#data.canvas.element.dispatchEvent( new CustomEvent('animate-images:drag-change',
+            { detail: {frame: this.#data.currentFrame} })
+        );
     }
     #swipeEnd(){
         //if ( swipeObject.curX === undefined ) return; // there is no x coord on touch end
         this.#curX = this.#curY = this.#prevX = this.#prevY = null;
         this.#isSwiping = false;
         this.#data.canvas.element.style.cursor = null;
+        this.#data.canvas.element.dispatchEvent( new CustomEvent('animate-images:drag-end',
+            { detail: {frame: this.#data.currentFrame} })
+        );
     }
     #swipeDirection(){
         let xDist, yDist, r, swipeAngle;

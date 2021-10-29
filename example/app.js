@@ -49,6 +49,15 @@ document.addEventListener("DOMContentLoaded", function() {
     element.addEventListener('animate-images:loading-error', function () {
         console.log(`Event: animate-images:loading-error`);
     });
+    element.addEventListener('animate-images:drag-start', function () {
+        console.log(`Event: animate-images:drag-start`);
+    });
+    element.addEventListener('animate-images:drag-change', function (e) {
+        console.log(`Event: animate-images:drag-change`);
+    });
+    element.addEventListener('animate-images:drag-end', function () {
+        console.log(`Event: animate-images:drag-end`);
+    });
 
     // Controls
     function setupControls(lib){
