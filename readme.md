@@ -25,7 +25,7 @@ The frames must be separate images of the same size.
 ### Browser script tag
 Add with CDN link:
 ```html
-<script src="https://unpkg.com/@its2easy/animate-images"></script>
+<script src="https://cdn.jsdelivr.net/npm/@its2easy/animate-images"></script>
 ```
 Or download <a href="https://unpkg.com/@its2easy/animate-images">minified version</a>
  and include in html:
