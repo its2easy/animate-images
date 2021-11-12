@@ -15,6 +15,7 @@ document.addEventListener("DOMContentLoaded", function() {
         fps: 60,
         poster: imagesArray[0],
         draggable: true,
+        //preventTouchScroll: false,
         loop: true,
         reverse: false,
         autoplay: false,

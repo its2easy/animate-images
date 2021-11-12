@@ -16,6 +16,7 @@ import DragInput from "./DragInput";
  * @param {Number} [options.fps=30] - FPS when playing
  * @param {String} [options.poster] - Url of a poster image, to show before load
  * @param {Boolean} [options.draggable = false] - Draggable by mouse or touch
+ * @param {Boolean} [options.preventTouchScroll = true] - Prevents default scroll with 'touchmove' events on canvas
  * @param {Boolean} [options.loop=false] - Whether to loop the animation
  * @param {Boolean} [options.reverse=false] - Reverse direction
  * @param {Boolean} [options.autoplay=false] - If true, starts the animation automatically on load
@@ -141,6 +142,7 @@ export function init(node, options = {}) {
         if (enable) {
             if ( !dragInput ) dragInput = new DragInput({
                 data,
+                settings,
                 changeFrame,
                 getNextFrame: animation.getNextFrame.bind(animation)
             });

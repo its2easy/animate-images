@@ -232,6 +232,7 @@ options:
 | **reverse** | Boolean | | false | Reverse direction |
 | **autoplay** | Boolean | | false | If true, starts the animation automatically on load |
 | **draggable** | Boolean | | false | Draggable by mouse or touch |
+| **preventTouchScroll** | Boolean | | true | Prevents default scroll with 'touchmove' events on canvas (works only if draggable is true) |
 | **ratio** | Number | | false | Canvas width/height ratio, it takes precedence over canvas inline width and height |
 | **fillMode** | String | | 'cover' | Fill mode to use if canvas and image aspect ratios are different. Can be "cover" or "contain" |
 | **onPreloadFinished** | Function | | | Callback, occurs when all image files have been loaded, receives plugin instance as a parameter |
@@ -500,6 +501,8 @@ element.addEventListener('animate-images:loading-progress', function (e){
 Animate Images is provided under the [MIT License](https://opensource.org/licenses/MIT)
 
 ## <a name="changelog"></a>Changelog
+### 1.5.1
+- add ```preventTouchScroll``` option
 ### 1.5.0
 - fix blurry images when devicePixelRatio > 1
 - add ```onBeforeFrame``` and ```onAfterFrame``` callbacks with access to the 

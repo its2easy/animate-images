@@ -2,6 +2,7 @@ export default class DragInput{
     static #SWIPE_EVENTS = ['mousedown', 'mousemove', 'mouseup', 'touchstart', 'touchmove', 'touchend', 'touchcancel'];
 
     #data;
+    #settings;
     #changeFrame;
     #getNextFrame;
     #boundSwipeHandler;
@@ -14,8 +15,9 @@ export default class DragInput{
     #threshold;
     #pixelsCorrection = 0;
 
-    constructor({ data, changeFrame, getNextFrame }) {
+    constructor({ data, settings, changeFrame, getNextFrame }) {
         this.#data = data;
+        this.#settings = settings;
         this.#changeFrame = changeFrame;
         this.#getNextFrame = getNextFrame;
         this.#boundSwipeHandler = this.#swipeHandler.bind(this);
@@ -68,20 +70,22 @@ export default class DragInput{
         switch (event.type){
             case 'mousedown': // start
             case 'touchstart':
-                if ( event.type === 'touchstart') event.preventDefault();
+                if ( event.type === 'touchstart' && event.cancelable && this.#settings.preventTouchScroll ) event.preventDefault();
                 document.addEventListener('mouseup', this.#boundSwipeHandler); // move outside of the canvas
                 document.addEventListener('mousemove', this.#boundSwipeHandler);
                 this.#swipeStart();
                 break;
             case 'mousemove':
             case 'touchmove': //move
-                if ( event.type === 'touchmove') event.preventDefault();
-                if ( this.#isSwiping ) this.#swipeMove();
+                if ( this.#isSwiping ) {
+                    if ( event.type === 'touchmove' && event.cancelable && this.#settings.preventTouchScroll) event.preventDefault();
+                    this.#swipeMove();
+                }
                 break;
             case 'mouseup':
             case 'touchend':
             case 'touchcancel': // end
-                if ( event.type === 'touchend' || event.type === 'touchcancel') event.preventDefault();
+                //if ( (event.type === 'touchend' || event.type === 'touchcancel') && event.cancelable) event.preventDefault();
                 document.removeEventListener('mouseup', this.#boundSwipeHandler);
                 document.removeEventListener('mousemove', this.#boundSwipeHandler);
                 this.#swipeEnd();
@@ -101,12 +105,13 @@ export default class DragInput{
     }
     #swipeMove(){
         const direction = this.#swipeDirection();
-        this.#prevY = this.#curY; // Update Y to get right angle
-
         const swipeLength = Math.round( Math.abs(this.#curX - this.#prevX) ) + this.#pixelsCorrection;
+
         if ( swipeLength <= this.#threshold) return; // Ignore if less than 1 frame
         if ( direction !== 'left' && direction !== 'right') return; // Ignore vertical directions
+
         this.#prevX = this.#curX;
+        this.#prevY = this.#curY; // Update Y to get right angle
 
         const progress = swipeLength / this.#data.canvas.element.width; // full width swipe means full animation
         let deltaFrames = Math.floor(progress * this.#data.totalImages);
@@ -136,6 +141,7 @@ export default class DragInput{
         r = Math.atan2(yDist, xDist);
         swipeAngle = Math.round(r * 180 / Math.PI);
         if (swipeAngle < 0) swipeAngle = 360 - Math.abs(swipeAngle);
+
         if ( (swipeAngle >= 0 && swipeAngle <= 60) || (swipeAngle <= 360 && swipeAngle >= 300 )) return 'left';
         else if ( swipeAngle >= 120 && swipeAngle <= 240 ) return 'right';
         else if ( swipeAngle >= 241 && swipeAngle <= 299 ) return 'bottom';

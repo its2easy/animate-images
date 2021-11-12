@@ -33,6 +33,7 @@ export function getDefaultSettings(){
     return {
         poster: false,
         draggable: false,
+        preventTouchScroll: true,
         loop: false,
         reverse: false,
         autoplay: false,
