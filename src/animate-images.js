@@ -100,19 +100,30 @@ export function init(node, options = {}) {
             data.canvas.ratio = data.canvas.element.width / data.canvas.element.height;
         }
 
+        let dpr = window.devicePixelRatio || 1;
         // changing width and height won't change real clientWidth and clientHeight if size is fixed by CSS
-        data.canvas.element.width = data.canvas.element.clientWidth;
-        data.canvas.element.height = data.canvas.element.width / data.canvas.ratio;
-
-        if (data.canvas.element.height !== data.canvas.element.clientHeight) { // if height set by CSS
-            data.canvas.element.height = data.canvas.element.clientHeight;
-            data.canvas.ratio = data.canvas.element.width / data.canvas.element.height;
+        let initialClientWidth = data.canvas.element.clientWidth;
+        data.canvas.element.width = data.canvas.element.clientWidth * dpr;
+        // if canvas css width was not defined, clientWidth was changed based on new width, we need to recalculate width based on new clientWidth
+        if (initialClientWidth !== data.canvas.element.clientWidth) {
+            data.canvas.element.width = data.canvas.element.clientWidth * dpr;
         }
-        if ( dragInput ) dragInput.updateThreshold( data.canvas.element.width / data.totalImages )
-        maybeRedrawFrame({settings, data});
+        data.canvas.element.height = Math.round(data.canvas.element.clientWidth / data.canvas.ratio) * dpr; // "round" for partial fix to rounding pixels error
+
+        let heightDifference = Math.abs(data.canvas.element.height - data.canvas.element.clientHeight * dpr);// diff in pixels
+        if ( heightDifference >= 1) { // if height set by CSS
+            data.canvas.element.height = data.canvas.element.clientHeight * dpr;
+            data.canvas.ratio = data.canvas.element.width / data.canvas.element.height;
+        } else if (heightDifference > 0 && heightDifference <1 ) { // rare case, height is auto, but pixels are fractional
+            data.canvas.element.height = data.canvas.element.clientHeight * dpr; // so just update inner canvas size baser on rounded real height
+        }
+
+        if ( dragInput ) dragInput.updateThreshold()
+        maybeRedrawFrame({settings, data}); // canvas is clear after resize
     }
+
     function updateImagesCount(){
-        if ( dragInput ) dragInput.updateThreshold( data.canvas.element.width / data.totalImages );
+        if ( dragInput ) dragInput.updateThreshold();
         animation.updateDuration();
     }
     function maybeRedrawFrame({settings, data}){
@@ -374,5 +385,4 @@ function removeResizeHandler(cb) {
     window.removeEventListener("resize", cb);
 }
 
-// todo check raf time instead of performance
-// todo check dpr
+// todo check raf time instead of performance.now

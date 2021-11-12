@@ -19,7 +19,7 @@ export default class DragInput{
         this.#changeFrame = changeFrame;
         this.#getNextFrame = getNextFrame;
         this.#boundSwipeHandler = this.#swipeHandler.bind(this);
-        this.#threshold = this.#data.canvas.element.width / this.#data.totalImages;
+        this.updateThreshold();
     }
 
     /**
@@ -41,14 +41,20 @@ export default class DragInput{
         // if disabling while swipeMove is running
         document.removeEventListener('mouseup', this.#boundSwipeHandler);
         document.removeEventListener('mousemove', this.#boundSwipeHandler);
+        this.#data.canvas.element.style.cursor = null;
     }
 
     /**
      * Update one frame threshold in pixels
      * @param newValue
      */
-    updateThreshold(newValue){
-        this.#threshold = newValue;
+    updateThreshold(newValue = null){
+        if (newValue) {
+            this.#threshold = newValue;
+        }
+        else {
+            this.#threshold = this.#data.canvas.element.clientWidth / this.#data.totalImages;
+        }
     }
 
 
