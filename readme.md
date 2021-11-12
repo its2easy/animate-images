@@ -498,3 +498,22 @@ element.addEventListener('animate-images:loading-progress', function (e){
 
 ## <a name="license"></a>License
 Animate Images is provided under the [MIT License](https://opensource.org/licenses/MIT)
+
+## <a name="changelog"></a>Changelog
+### 1.5.0
+- fix blurry images when devicePixelRatio > 1
+- add ```onBeforeFrame``` and ```onAfterFrame``` callbacks with access to the 
+  canvas context
+### 1.4.0
+- add ```animate-images:drag-start```, ```animate-images:drag-change``` and 
+```animate-images:drag-end ``` events
+### 1.3.2
+- fix wrong height after resize when canvas width/height ratio is 
+  a fractional number
+### 1.3.1
+- fix readme
+### 1.3.0
+- change build
+### 1.2.0
+- plugin has been rewritten with classes
+  
