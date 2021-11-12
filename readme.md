@@ -226,16 +226,35 @@ options:
 | **images** | Array&lt;String&gt; | :heavy_check_mark: | | Array with images URLs |
 | **preload** | String | | 'all' | Preload mode ("all", "none", "partial") |
 | **preloadNumber** | Number | | 0 | Number of images to preload when `option.preload="partial"` (0 for all images) |
-| **fps** | Number | | 30 | FPS when playing. Determines the duration of the animation (for ex. 90 images and 60 fps = 1.5s, 90 images and 30fps = 3s)
-| **poster** | String | | | URL of the poster image, to show before the full load
-| **loop** | Boolean | | false | Whether to loop the animation
-| **reverse** | Boolean | | false | Reverse direction
-| **autoplay** | Boolean | | false | If true, starts the animation automatically on load
-| **draggable** | Boolean | | false | Draggable by mouse or touch
-| **ratio** | Number | | false | Canvas width/height ratio, it takes precedence over canvas inline width and height
-| **fillMode** | String | | 'cover' | Fill mode to use if canvas and image aspect ratios are different. Can be "cover" or "contain"
-| **onPreloadFinished** | Function | | | Callback, occurs when all image files have been loaded, receives plugin instance as a parameter
-| **onPosterLoaded** | Function | | | Callback, occurs when poster image is fully loaded, receives plugin instance as a parameter
+| **fps** | Number | | 30 | FPS when playing. Determines the duration of the animation (for ex. 90 images and 60 fps = 1.5s, 90 images and 30fps = 3s) |
+| **poster** | String | | | URL of the poster image, to show before the full load |
+| **loop** | Boolean | | false | Whether to loop the animation | 
+| **reverse** | Boolean | | false | Reverse direction |
+| **autoplay** | Boolean | | false | If true, starts the animation automatically on load |
+| **draggable** | Boolean | | false | Draggable by mouse or touch |
+| **ratio** | Number | | false | Canvas width/height ratio, it takes precedence over canvas inline width and height |
+| **fillMode** | String | | 'cover' | Fill mode to use if canvas and image aspect ratios are different. Can be "cover" or "contain" |
+| **onPreloadFinished** | Function | | | Callback, occurs when all image files have been loaded, receives plugin instance as a parameter |
+| **onPosterLoaded** | Function | | | Callback, occurs when poster image is fully loaded, receives plugin instance as a parameter |
+| **onBeforeFrame** | Function | | | Callback, occurs before new frame, receives canvas context as a parameter. Can be used to change settings, for example ```imageSmoothingEnabled``` |
+| **onAfterFrame** | Function | | | Callback, occurs after the frame was drawn, receives canvas context as a parameter. Can be used to change the image. |
+
+##### Callback example:
+```javascript
+ let instance1 = animateImages.init(element, {
+    images: imagesArray,
+    ...
+    onBeforeFrame(context, {width, height}){
+        context.imageSmoothingEnabled = false;
+    },
+    onAfterFrame(context, {width, height}){
+        context.fillStyle = "green";
+        context.fillRect(10, 10, 100, 100);
+    },
+ });
+```
+> ```width``` and  ```height``` are internal canvas dimensions, they 
+> depend on ```devicePixelRatio```
 
 ## <a name="methods"></a>Methods
 >  Most methods can be chained (```instance.setReverse(true).play()```)

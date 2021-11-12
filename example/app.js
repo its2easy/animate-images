@@ -26,7 +26,13 @@ document.addEventListener("DOMContentLoaded", function() {
         },
         onPosterLoaded(){
             console.log('Callback: onPosterLoaded');
-        }
+        },
+        // onBeforeFrame(context, {width, height }){
+        //
+        // },
+        // onAfterFrame(context, {width, height }){
+        //
+        // },
     });
     instance1.preloadImages();
     setupControls();

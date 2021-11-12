@@ -23,6 +23,8 @@ import DragInput from "./DragInput";
  * @param {String} [options.fillMode="cover"] - Fill mode to use if canvas and image aspect ratios are different. Could be "cover" or "contain"
  * @param {Function} [options.onPreloadFinished] - Occurs when all image files have been loaded
  * @param {Function} [options.onPosterLoaded] - Occurs when poster image is fully loaded
+ * @param {Function} [options.onBeforeFrame] - Occurs before new frame
+ * @param {Function} [options.onAfterFrame] - Occurs after the frame was drawn
  *
  * @returns {Object} - plugin instance
  */
