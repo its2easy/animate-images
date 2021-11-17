@@ -15,12 +15,13 @@ document.addEventListener("DOMContentLoaded", function() {
         fps: 60,
         poster: imagesArray[0],
         draggable: true,
-        //preventTouchScroll: false,
         loop: true,
         reverse: false,
         autoplay: false,
         fillMode: 'cover',
         //ratio: 2.56,
+        //touchScrollMode: "preventPageScroll",
+        //pageScrollTimerDelay: 2500,
         onPreloadFinished: (lib) => {
             console.log('Callback: onPreloadFinished');
             //lib.play();

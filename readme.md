@@ -6,7 +6,7 @@
 
 Demo - [codepen](https://codepen.io/its2easy/pen/powQJmd)
 
-**animate-images** is a lightweight (16kb without gzip) library that animates a sequence of images 
+**animate-images** is a lightweight (17kb without gzip) library that animates a sequence of images 
 to use in animations or pseudo 3d product view. It works WITHOUT BUILT-IN UI and mainly 
 developed for complex animations.
 
@@ -20,6 +20,7 @@ The frames must be separate images of the same size.
 * [Events](#events)
 * [Browser support](#browser_support)
 * [License](#license)
+* [Changelog](#changelog)
 
 ## <a name="installation"></a>Installation
 ### Browser script tag
@@ -232,7 +233,8 @@ options:
 | **reverse** | Boolean | | false | Reverse direction |
 | **autoplay** | Boolean | | false | If true, starts the animation automatically on load |
 | **draggable** | Boolean | | false | Draggable by mouse or touch |
-| **preventTouchScroll** | Boolean | | true | Prevents default scroll with 'touchmove' events on canvas (works only if draggable is true) |
+| **touchScrollMode** | String | | "pageScrollTimer" | Page scroll behavior with touch events _(only for events that fire in the plugin area)_. Available modes: **preventPageScroll** - touch scroll is always disabled. **allowPageScroll** - touch scroll is always enabled. **pageScrollTimer** - after the first interaction the scroll is not disabled; if the time between the end of the previous interaction and the start of a new one is less than _pageScrollTimerDelay_, then scroll will be disabled; if more time has passed, then scroll will be enabled again    |
+| **pageScrollTimerDelay** | Number | | 1500 | Time in ms when touch scroll will be disabled after the last user interaction, if touchScrollMode = "pageScrollTimer" |
 | **ratio** | Number | | false | Canvas width/height ratio, it takes precedence over canvas inline width and height |
 | **fillMode** | String | | 'cover' | Fill mode to use if canvas and image aspect ratios are different. Can be "cover" or "contain" |
 | **onPreloadFinished** | Function | | | Callback, occurs when all image files have been loaded, receives plugin instance as a parameter |
@@ -387,7 +389,8 @@ the browser
 Returns option value
 
 `parameters`
-- option {String} -  Option name. Allowed options: fps, draggable, loop, reverse, poster, autoplay, fillMode.
+- option {String} -  Option name. Allowed options: fps, loop, reverse, poster, autoplay, fillMode, 
+  draggable, touchScrollMode, pageScrollTimerDelay.
 ```javascript
 let reverse = instance.getOption('reverse');
 ```
@@ -399,7 +402,8 @@ let reverse = instance.getOption('reverse');
 Set new option value
 
 `parameters`
-- option {String} -  Option name. Allowed options: fps, draggable, loop, reverse, ratio, fillMode.
+- option {String} -  Option name. Allowed options: fps, loop, reverse, ratio, fillMode, 
+  draggable, touchScrollMode, pageScrollTimerDelay.
 - value {*} -  New value
 ```javascript
 instance.setOption('fps', 40);
@@ -501,6 +505,8 @@ element.addEventListener('animate-images:loading-progress', function (e){
 Animate Images is provided under the [MIT License](https://opensource.org/licenses/MIT)
 
 ## <a name="changelog"></a>Changelog
+### 1.5.2
+- ```preventTouchScroll``` replaced with ```touchScrollMode``` and ```pageScrollTimerDelay```
 ### 1.5.1
 - add ```preventTouchScroll``` option
 ### 1.5.0

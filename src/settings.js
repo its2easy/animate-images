@@ -32,14 +32,15 @@ export function validateInitParameters(node, options){
 export function getDefaultSettings(){
     return {
         poster: false,
-        draggable: false,
-        preventTouchScroll: true,
         loop: false,
         reverse: false,
         autoplay: false,
         preload: "all",
         preloadNumber: 0,
         fps: 30,
+        draggable: false,
+        touchScrollMode: "pageScrollTimer",
+        pageScrollTimerDelay: 1500,
         fillMode: "cover",
     }
 }

@@ -14,6 +14,7 @@ export default class DragInput{
     #isSwiping = false;
     #threshold;
     #pixelsCorrection = 0;
+    #lastInteractionTime;
 
     constructor({ data, settings, changeFrame, getNextFrame }) {
         this.#data = data;
@@ -70,7 +71,10 @@ export default class DragInput{
         switch (event.type){
             case 'mousedown': // start
             case 'touchstart':
-                if ( event.type === 'touchstart' && event.cancelable && this.#settings.preventTouchScroll ) event.preventDefault();
+                if ( event.type === 'touchstart' && event.cancelable ) {
+                    //event.preventDefault();
+                    this.#maybeDisableScroll(event);
+                }
                 document.addEventListener('mouseup', this.#boundSwipeHandler); // move outside of the canvas
                 document.addEventListener('mousemove', this.#boundSwipeHandler);
                 this.#swipeStart();
@@ -78,7 +82,7 @@ export default class DragInput{
             case 'mousemove':
             case 'touchmove': //move
                 if ( this.#isSwiping ) {
-                    if ( event.type === 'touchmove' && event.cancelable && this.#settings.preventTouchScroll) event.preventDefault();
+                    //if ( event.type === 'touchmove' && event.cancelable) event.preventDefault();
                     this.#swipeMove();
                 }
                 break;
@@ -130,6 +134,8 @@ export default class DragInput{
         this.#curX = this.#curY = this.#prevX = this.#prevY = null;
         this.#isSwiping = false;
         this.#data.canvas.element.style.cursor = null;
+        this.#lastInteractionTime = new Date().getTime();
+        console.log('timer set');
         this.#data.canvas.element.dispatchEvent( new CustomEvent('animate-images:drag-end',
             { detail: {frame: this.#data.currentFrame} })
         );
@@ -146,5 +152,25 @@ export default class DragInput{
         else if ( swipeAngle >= 120 && swipeAngle <= 240 ) return 'right';
         else if ( swipeAngle >= 241 && swipeAngle <= 299 ) return 'bottom';
         else return 'up';
+    }
+
+    /**
+     * Idea from https://github.com/giniedp/spritespin/blob/master/src/plugins/input-drag.ts#L45
+     * @param {Event} event
+     */
+    #maybeDisableScroll(event){
+        // always prevent
+        if (this.#settings.touchScrollMode === "preventPageScroll") event.preventDefault();
+        // check timer
+        if (this.#settings.touchScrollMode === "pageScrollTimer") {
+            let now = new Date().getTime();
+            // less time than delay => prevent page scroll
+            if (this.#lastInteractionTime && (now - this.#lastInteractionTime < this.#settings.pageScrollTimerDelay) ){
+                event.preventDefault();
+            } else { // more time than delay or first interaction => clear timer
+                this.#lastInteractionTime = null;
+            }
+        }
+        // if touchScrollMode="allowPageScroll" => don't prevent scroll
     }
 }

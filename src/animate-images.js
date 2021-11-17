@@ -15,11 +15,14 @@ import DragInput from "./DragInput";
  * @param {Number} [options.preloadNumber=0] - Number of preloaded images when option.preload="partial", 0 for all
  * @param {Number} [options.fps=30] - FPS when playing
  * @param {String} [options.poster] - Url of a poster image, to show before load
- * @param {Boolean} [options.draggable = false] - Draggable by mouse or touch
- * @param {Boolean} [options.preventTouchScroll = true] - Prevents default scroll with 'touchmove' events on canvas
  * @param {Boolean} [options.loop=false] - Whether to loop the animation
  * @param {Boolean} [options.reverse=false] - Reverse direction
  * @param {Boolean} [options.autoplay=false] - If true, starts the animation automatically on load
+ * @param {Boolean} [options.draggable = false] - Draggable by mouse or touch
+ * @param {String} [options.touchScrollMode = "pageScrollTimer"] - Page scroll behavior with touch events
+ * (preventPageScroll,allowPageScroll, pageScrollTimer)
+ * @param {Number} [options.pageScrollTimerDelay = 1500] - Time in ms when touch scroll will be disabled during interaction
+ * if options.touchScrollMode = "pageScrollTimer"
  * @param {Number} [options.ratio] - Canvas width/height ratio, it takes precedence over inline canvas width and height
  * @param {String} [options.fillMode="cover"] - Fill mode to use if canvas and image aspect ratios are different. Could be "cover" or "contain"
  * @param {Function} [options.onPreloadFinished] - Occurs when all image files have been loaded
@@ -345,7 +348,8 @@ export function init(node, options = {}) {
          * @returns {*} - Option value
          */
         getOption: (option) => {
-            const allowedOptions = ['fps', 'draggable', 'loop', 'reverse', 'draggable', 'poster', 'autoplay', 'fillMode'];
+            const allowedOptions = ['fps', 'loop', 'reverse', 'poster', 'autoplay', 'fillMode', 'draggable',
+                'touchScrollMode', 'pageScrollTimerDelay'];
             if (allowedOptions.includes(option)) {
                 return settings[option];
             } else {
@@ -358,7 +362,7 @@ export function init(node, options = {}) {
          * @param value - new value
          */
         setOption: (option, value) => {
-            const allowedOptions = ['fps', 'draggable', 'loop', 'reverse', 'draggable', 'ratio', 'fillMode'];
+            const allowedOptions = ['fps', 'loop', 'reverse', 'ratio', 'fillMode', 'draggable', 'touchScrollMode', 'pageScrollTimerDelay'];
             if (allowedOptions.includes(option)) {
                settings[option] = value;
                if (option === 'fps') animation.updateDuration();
@@ -388,5 +392,3 @@ function addResizeHandler(cb) {
 function removeResizeHandler(cb) {
     window.removeEventListener("resize", cb);
 }
-
-// todo check raf time instead of performance.now
