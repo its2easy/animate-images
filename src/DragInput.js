@@ -135,7 +135,6 @@ export default class DragInput{
         this.#isSwiping = false;
         this.#data.canvas.element.style.cursor = null;
         this.#lastInteractionTime = new Date().getTime();
-        console.log('timer set');
         this.#data.canvas.element.dispatchEvent( new CustomEvent('animate-images:drag-end',
             { detail: {frame: this.#data.currentFrame} })
         );

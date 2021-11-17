@@ -505,6 +505,8 @@ element.addEventListener('animate-images:loading-progress', function (e){
 Animate Images is provided under the [MIT License](https://opensource.org/licenses/MIT)
 
 ## <a name="changelog"></a>Changelog
+### 1.5.3
+- fix console.log()
 ### 1.5.2
 - ```preventTouchScroll``` replaced with ```touchScrollMode``` and ```pageScrollTimerDelay```
 ### 1.5.1
