@@ -5,7 +5,6 @@ export function validateInitParameters(node, options){
     if (!options.images || !Array.isArray(options.images) || options.images.length <= 1 ) { // Check images list
         throw new TypeError('options.images is required and must be an array with more than 1 element');
     }
-    //console.log(Number.isInteger(Number.parseInt(options.preload)));
     if ( ("preload" in options) && // Check preload type
         (
             !(typeof options.preload  === "string")
@@ -34,6 +33,7 @@ export function getDefaultSettings(){
         poster: false,
         loop: false,
         reverse: false,
+        inversion: false,
         autoplay: false,
         preload: "all",
         preloadNumber: 0,

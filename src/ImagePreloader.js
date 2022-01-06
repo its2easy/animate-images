@@ -72,7 +72,6 @@ export default class ImagePreloader{
      */
     #clearImagesArray(){
         if ( this.#failedImages.length < 1) return;
-        console.log('clearImagesArray');
         this.#data.loadedImagesArray = this.#data.loadedImagesArray.filter((el) => {
             return !this.#failedImages.includes(el);
         });

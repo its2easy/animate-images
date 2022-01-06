@@ -20,7 +20,6 @@ The frames must be separate images of the same size.
 * [Events](#events)
 * [Browser support](#browser_support)
 * [License](#license)
-* [Changelog](#changelog)
 
 ## <a name="installation"></a>Installation
 ### Browser script tag
@@ -231,6 +230,7 @@ options:
 | **poster** | String | | | URL of the poster image, to show before the full load |
 | **loop** | Boolean | | false | Whether to loop the animation | 
 | **reverse** | Boolean | | false | Reverse direction |
+| **inversion** | Boolean |  | false |  Inversion defines base direction. It differs from ```reverse``` in that reverse means forward or backward, and inversion determines which direction is forward. Affects animation and drag |
 | **autoplay** | Boolean | | false | If true, starts the animation automatically on load |
 | **draggable** | Boolean | | false | Draggable by mouse or touch |
 | **touchScrollMode** | String | | "pageScrollTimer" | Page scroll behavior with touch events _(only for events that fire in the plugin area)_. Available modes: **preventPageScroll** - touch scroll is always disabled. **allowPageScroll** - touch scroll is always enabled. **pageScrollTimer** - after the first interaction the scroll is not disabled; if the time between the end of the previous interaction and the start of a new one is less than _pageScrollTimerDelay_, then scroll will be disabled; if more time has passed, then scroll will be enabled again    |
@@ -504,27 +504,5 @@ element.addEventListener('animate-images:loading-progress', function (e){
 ## <a name="license"></a>License
 Animate Images is provided under the [MIT License](https://opensource.org/licenses/MIT)
 
-## <a name="changelog"></a>Changelog
-### 1.5.3
-- fix console.log()
-### 1.5.2
-- ```preventTouchScroll``` replaced with ```touchScrollMode``` and ```pageScrollTimerDelay```
-### 1.5.1
-- add ```preventTouchScroll``` option
-### 1.5.0
-- fix blurry images when devicePixelRatio > 1
-- add ```onBeforeFrame``` and ```onAfterFrame``` callbacks with access to the 
-  canvas context
-### 1.4.0
-- add ```animate-images:drag-start```, ```animate-images:drag-change``` and 
-```animate-images:drag-end ``` events
-### 1.3.2
-- fix wrong height after resize when canvas width/height ratio is 
-  a fractional number
-### 1.3.1
-- fix readme
-### 1.3.0
-- change build
-### 1.2.0
-- plugin has been rewritten with classes
+
   

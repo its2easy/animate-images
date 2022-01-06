@@ -17,6 +17,8 @@ import DragInput from "./DragInput";
  * @param {String} [options.poster] - Url of a poster image, to show before load
  * @param {Boolean} [options.loop=false] - Whether to loop the animation
  * @param {Boolean} [options.reverse=false] - Reverse direction
+ * @param {Boolean} [options.inversion=false] - Inversion defines base direction. It differs from reverse in that
+ * reverse means forward or backward, and inversion determines which direction is forward. Affects animation and drag
  * @param {Boolean} [options.autoplay=false] - If true, starts the animation automatically on load
  * @param {Boolean} [options.draggable = false] - Draggable by mouse or touch
  * @param {String} [options.touchScrollMode = "pageScrollTimer"] - Page scroll behavior with touch events
@@ -387,7 +389,7 @@ export function init(node, options = {}) {
 }
 
 function addResizeHandler(cb) {
-    window.addEventListener("resize", cb); // todo add debouncing
+    window.addEventListener("resize", cb);
 }
 function removeResizeHandler(cb) {
     window.removeEventListener("resize", cb);

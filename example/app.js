@@ -17,6 +17,7 @@ document.addEventListener("DOMContentLoaded", function() {
         draggable: true,
         loop: true,
         reverse: false,
+        //inversion: true,
         autoplay: false,
         fillMode: 'cover',
         //ratio: 2.56,
