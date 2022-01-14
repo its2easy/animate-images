@@ -9,9 +9,6 @@ export default class Animation{
 
     isAnimating = false;
     framesLeftToPlay = undefined; // frames from playTo() and playFrames()
-    animationPromise = null;
-    animationPromiseResolve = null;
-    isPromiseCreatedBeforeLoad = false; // promise created from deferred action shouldn't be recreated after that action start
     #isFirstRAFCall = true;
 
     constructor( {settings, data, changeFrame} ) {
@@ -35,7 +32,7 @@ export default class Animation{
     stop(){
         if ( this.isAnimating ){
             this.#data.canvas.element.dispatchEvent( new Event('animate-images:animation-end') );
-            if (typeof this.animationPromiseResolve === 'function') this.animationPromiseResolve(this.#data.pluginApi);
+            if ( this.#settings.onAnimationEnd ) this.#settings.onAnimationEnd(this.#data.pluginApi);
         }
         this.isAnimating = false;
         this.framesLeftToPlay = undefined;
@@ -152,21 +149,4 @@ export default class Animation{
     updateDuration(){
         this.#duration =  this.#data.totalImages / this.#settings.fps  * 1000;
     }
-
-    // Promises
-    setupAnimationPromise(isCalledFromDeferredAction = false){
-        if ( !this.animationPromise ) this.animationPromise =new Promise((resolve, reject)=>{
-            this.animationPromiseResolve = resolve;
-        });
-        if (isCalledFromDeferredAction) this.isPromiseCreatedBeforeLoad = true;
-    }
-    maybeResolveAnimationPromise(){
-        if ( this.isPromiseCreatedBeforeLoad ) { // call from deferredAction, dont resolve promise
-            this.isPromiseCreatedBeforeLoad = false;
-        } else if (typeof this.animationPromiseResolve === 'function') {// normal call, fire previous resolve if exist
-            this.animationPromiseResolve(this.#data.pluginApi);
-            this.animationPromise = null;
-        }
-    }
-
 }

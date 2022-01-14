@@ -235,7 +235,7 @@ export default class AnimateImages{
     /**
      * Start animation. that plays until the specified frame number
      * @param {number} frameNumber - Target frame number
-     * @returns {Promise<AnimateImages>} - Promise, that resolves after the animation end
+     * @returns {AnimateImages} - plugin instance
      */
     playTo(frameNumber){
         frameNumber = normalizeFrameNumber(frameNumber, this.#data.totalImages);
@@ -247,7 +247,7 @@ export default class AnimateImages{
     /**
      * Start animation in the current direction with the specified number of frames in queue
      * @param {number} [numberOfFrames=0] - Number of frames to play
-     * @returns {Promise<AnimateImages>} - Promise, that resolves after the animation end
+     * @returns {AnimateImages} - plugin instance
      */
     playFrames(numberOfFrames = 0){
         if ( this.#preloader.isPreloadFinished() ) {
@@ -261,17 +261,11 @@ export default class AnimateImages{
 
             this.#animation.framesLeftToPlay = numberOfFrames;
             this.play();
-
-            this.#animation.maybeResolveAnimationPromise(); // resolve old before the new one, if exists
-            this.#animation.setupAnimationPromise();
-            return this.#animation.animationPromise;
         } else {
-            this.#data.deferredAction = this.playTo.bind(this, numberOfFrames);
+            this.#data.deferredAction = this.playFrames.bind(this, numberOfFrames);
             this.#preloader.startLoadingImages();
-
-            this.#animation.setupAnimationPromise(true);
-            return this.#animation.animationPromise;
         }
+        return this;
     }
     /**
      * Change the direction of the animation. Alias to setOption('reverse', true)
@@ -397,6 +391,7 @@ export default class AnimateImages{
  * if touchScrollMode = "pageScrollTimer"
  * @property {OnPreloadFinishedCallback} [onPreloadFinished] - Occurs when all image files have been loaded
  * @property {Function} [onPosterLoaded] - Occurs when poster image is fully loaded
+ * @property {Function} [onAnimationEnd] - Occurs when animation has ended
  * @property {Function} [onBeforeFrame] - Occurs before new frame (CanvasRenderingContext2D)
  * @property {Function} [onAfterFrame] - Occurs after the frame was drawn
  */

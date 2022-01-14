@@ -81,8 +81,8 @@ export default class ImagePreloader{
 
     #afterPreloadFinishes(){ // check what to do next
         this.#data.canvas.element.dispatchEvent( new Event('animate-images:preload-finished') );
-        if ("onPreloadFinished" in this.#settings) this.#settings.onPreloadFinished(this.#data.pluginApi);
         if (this.#data.deferredAction) this.#data.deferredAction();
+        if ("onPreloadFinished" in this.#settings) this.#settings.onPreloadFinished(this.#data.pluginApi);
     }
 
 }

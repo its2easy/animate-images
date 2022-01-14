@@ -46,6 +46,7 @@ export const defaultSettings = {
 
     onPreloadFinished: undefined,
     onPosterLoaded: undefined,
+    onAnimationEnd: undefined,
     onBeforeFrame: undefined,
-    onAfterFrame: undefined
+    onAfterFrame: undefined,
 }

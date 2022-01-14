@@ -5,7 +5,6 @@ document.addEventListener("DOMContentLoaded", function() {
         let number = String(k).padStart(4, "0");
         return `https://distracted-villani-e19534.netlify.app/train/rotation${number}.jpg`;
     });
-    //imagesArray[5] = 'https://distracted-vi.jpg'
     let loadingBlock = document.querySelector('.loading1');
 
     // Initialization
@@ -15,7 +14,7 @@ document.addEventListener("DOMContentLoaded", function() {
         preloadNumber: 20,
         poster: imagesArray[0],
         fps: 45,
-        loop: false,
+        loop: true,
         reverse: false,
         //inversion: true,
         autoplay: false,
@@ -24,21 +23,16 @@ document.addEventListener("DOMContentLoaded", function() {
         draggable: true,
         touchScrollMode: "allowPageScroll",
         //pageScrollTimerDelay: 2500,
-        onPreloadFinished: (lib) => {
+        onPreloadFinished: (plugin) => {
             console.log('Callback: onPreloadFinished');
-            //lib.play();
-            console.log('after play');
-            // let result = 0;
-            // for (let i = 0; i <= 18000000; i++){
-            //     if (i===0) console.log('first');
-            //     if (i===18000000) console.log('last');
-            //    // console.log('wait');
-            //     result += performance.now();
-            // }
+            //plugin.play();
         },
-        onPosterLoaded(lib){
+        onPosterLoaded(plugin){
             console.log('Callback: onPosterLoaded');
         },
+        onAnimationEnd(plugin){
+            console.log('Callback: onAnimationEnd');
+        }
         // onBeforeFrame(context, {width, height }){
         //
         // },
@@ -48,21 +42,7 @@ document.addEventListener("DOMContentLoaded", function() {
     });
     instance1.preloadImages();
     setupControls();
-    // instance1.play();
-    // for (let i = 0; i < 50000; i++){
-    //     console.log('wait');
-    // }
-    //instance1.next();
-    // instance1.playFrames(40).then((lib)=> {
-    //     console.log(lib);
-    //     lib.setOption('fps', 10);
-    // });
-    // setTimeout(()=> {
-    //     instance1.destroy();
-    // }, 2500)
-    // setTimeout(()=> {
-    //     console.log(instance1.isLoadedWithErrors());
-    // }, 3000)
+    // instance1.playTo(10);
 
     // Events
     element.addEventListener('animate-images:loading-progress', function (e){
@@ -170,19 +150,13 @@ document.addEventListener("DOMContentLoaded", function() {
 
         // Inputs
         document.querySelector('.js-set-frame').addEventListener('click', function() {
-            instance1.setFrame(this.closest('.js-option-block').querySelector('input').value);
+            instance1.setFrame(+this.closest('.js-option-block').querySelector('input').value);
         });
         document.querySelector('.js-play-to').addEventListener('click', function() {
-            instance1.playTo(this.closest('.js-option-block').querySelector('input').value)
-                .then((instance)=> {
-                    console.log('play to animation finished');
-                });
+            instance1.playTo(+this.closest('.js-option-block').querySelector('input').value);
         });
         document.querySelector('.js-play-frames').addEventListener('click', function() {
-            instance1.playFrames(this.closest('.js-option-block').querySelector('input').value)
-                .then((instance)=> {
-                    console.log('playFrames animation finished');
-                });
+            instance1.playFrames(+this.closest('.js-option-block').querySelector('input').value);
         });
         document.querySelector('.js-set-fps').addEventListener('click', function() {
             instance1.setOption("fps", this.closest('.js-option-block').querySelector('input').value);
