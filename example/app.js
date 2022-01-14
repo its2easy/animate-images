@@ -8,20 +8,20 @@ document.addEventListener("DOMContentLoaded", function() {
     let loadingBlock = document.querySelector('.loading1');
 
     // Initialization
-    let instance1 = animateImages.init(element, {
+    let instance1 = new AnimateImages(element, {
         images: imagesArray,
         preload: "partial",
         preloadNumber: 20,
-        fps: 60,
         poster: imagesArray[0],
-        draggable: true,
+        fps: 45,
         loop: true,
         reverse: false,
         //inversion: true,
         autoplay: false,
-        fillMode: 'cover',
         //ratio: 2.56,
-        //touchScrollMode: "preventPageScroll",
+        fillMode: 'cover',
+        draggable: true,
+        touchScrollMode: "allowPageScroll",
         //pageScrollTimerDelay: 2500,
         onPreloadFinished: (lib) => {
             console.log('Callback: onPreloadFinished');
@@ -37,9 +37,19 @@ document.addEventListener("DOMContentLoaded", function() {
         //
         // },
     });
-    instance1.preloadImages();
+    //instance1.preloadImages();
     setupControls();
-    //instance1.play();
+    instance1.next();
+    // instance1.playFrames(40).then((lib)=> {
+    //     console.log(lib);
+    //     lib.setOption('fps', 10);
+    // });
+    // setTimeout(()=> {
+    //     instance1.destroy();
+    // }, 2500)
+    // setTimeout(()=> {
+    //     console.log(instance1.isLoadedWithErrors());
+    // }, 3000)
 
     // Events
     element.addEventListener('animate-images:loading-progress', function (e){
@@ -78,7 +88,7 @@ document.addEventListener("DOMContentLoaded", function() {
             instance1.stop();
         });
         document.querySelector('.js-toggle').addEventListener('click', () => {
-            instance1.togglePlay();
+            instance1.toggle();
         });
         document.querySelector('.js-next').addEventListener('click', () => {
             instance1.next();

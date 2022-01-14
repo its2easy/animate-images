@@ -13,7 +13,7 @@ export default class Render{
     }
 
     /**
-     * @param {Number|HTMLImageElement} frameNumberOrImage - frame number or image object
+     * @param {number|HTMLImageElement} frameNumberOrImage - frame number or image object
      */
     drawFrame(frameNumberOrImage){
         //this.#context.imageSmoothingEnabled = false; // may reduce blurriness, but could make the image worse (resets to true  after resize)

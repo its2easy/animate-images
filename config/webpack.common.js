@@ -2,14 +2,14 @@ const path = require('path');
 const { LIB_FILE_NAME, LIB_NAME } = require( './shared');
 
 const config = {
-    entry: path.join(__dirname, "../src/animate-images.js"),
+    entry: path.join(__dirname, "../src/index.js"),
     output: {
         path: path.resolve(__dirname, '../build'),
         filename: `${LIB_FILE_NAME}.umd.min.js`,
         library: {
             name: LIB_NAME,
             type: 'umd',
-            //export: 'init',
+            export: 'default',
             //umdNamedDefine: true,
         },
         globalObject: 'this',

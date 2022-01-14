@@ -1,7 +1,6 @@
 export default class ImagePreloader{
     #settings;
     #data;
-    #afterPreloadFinishesCallback;
     #updateImagesCount;
 
     #isPreloadFinished = false; // onload on all the images
@@ -10,18 +9,18 @@ export default class ImagePreloader{
     #isLoadedWithErrors = false;
     #failedImages = [];
 
-    constructor( {settings, data, afterPreloadFinishes, updateImagesCount} ) {
+    constructor( {settings, data, updateImagesCount} ) {
         this.#settings = settings;
         this.#data = data;
-        this.#afterPreloadFinishesCallback = afterPreloadFinishes;
         this.#updateImagesCount = updateImagesCount;
     }
 
     /**
      * Add number of images to loading queue
-     * @param {Number }preloadNumber=0 - number of images to load
+     * @param {number} [preloadNumber] - number of images to load
      */
-    startLoadingImages(preloadNumber = 0){
+    startLoadingImages(preloadNumber){
+        if ( !preloadNumber ) preloadNumber = this.#data.totalImages;
         if (this.#isPreloadFinished) return;
         preloadNumber = Math.round(preloadNumber);
 
@@ -63,7 +62,7 @@ export default class ImagePreloader{
         if (this.#preloadedImagesNumber >= this.#data.totalImages) {
             if ( this.#isLoadedWithErrors ) this.#clearImagesArray();
             this.#isPreloadFinished = true;
-            this.#afterPreloadFinishesCallback();
+            this.#afterPreloadFinishes();
         }
     }
 
@@ -78,4 +77,11 @@ export default class ImagePreloader{
         this.#data.totalImages = this.#data.loadedImagesArray.length;
         this.#updateImagesCount();
     }
+
+    #afterPreloadFinishes(){ // check what to do next
+        this.#data.canvas.element.dispatchEvent( new Event('animate-images:preload-finished') );
+        if ("onPreloadFinished" in this.#settings) this.#settings.onPreloadFinished(this);
+        if (this.#data.deferredAction) this.#data.deferredAction();
+    }
+
 }

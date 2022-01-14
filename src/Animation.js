@@ -27,6 +27,7 @@ export default class Animation{
             // subtract 1 manually, because changeFrame is calling not from animate(), but directly
             this.framesLeftToPlay--;
         }
+        console.log(this.#lastUpdate);
         this.updateLastUpdate();
         requestAnimationFrame(this.#animate.bind(this));
     }
@@ -82,6 +83,7 @@ export default class Animation{
 
     // works inside RAF
     #animate(time){
+        //console.log(time);
         if ( !this.isAnimating ) return;
 
         const progress = ( time - this.#lastUpdate ) / this.#duration; // ex. 0.01

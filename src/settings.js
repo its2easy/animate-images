@@ -28,19 +28,24 @@ export function validateInitParameters(node, options){
     }
 }
 
-export function getDefaultSettings(){
-    return {
-        poster: false,
-        loop: false,
-        reverse: false,
-        inversion: false,
-        autoplay: false,
-        preload: "all",
-        preloadNumber: 0,
-        fps: 30,
-        draggable: false,
-        touchScrollMode: "pageScrollTimer",
-        pageScrollTimerDelay: 1500,
-        fillMode: "cover",
-    }
+export const defaultSettings = {
+    preload: "all",
+    preloadNumber: 0,
+    poster: false,
+    fps: 30,
+    loop: false,
+    reverse: false,
+    inversion: false,
+    autoplay: false,
+    ratio: undefined,
+    fillMode: "cover",
+
+    draggable: false,
+    touchScrollMode: "pageScrollTimer",
+    pageScrollTimerDelay: 1500,
+
+    onPreloadFinished: undefined,
+    onPosterLoaded: undefined,
+    onBeforeFrame: undefined,
+    onAfterFrame: undefined
 }

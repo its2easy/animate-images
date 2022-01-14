@@ -1,10 +1,10 @@
-const { merge } = require('webpack-merge');
-const common = require('./webpack.common.js');
 const webpack = require("webpack");
-const banner = require("./banner");
+const { merge } = require('webpack-merge');
 const TerserPlugin = require("terser-webpack-plugin");
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const { LIB_FILE_NAME } = require( './shared');
+
+const common = require('./webpack.common.js');
+const banner = require("./banner");
 
 module.exports = [
     merge(common, { // Minified
@@ -22,17 +22,4 @@ module.exports = [
             new CleanWebpackPlugin(),
         ],
     }),
-    // merge(common, { // Not minified
-    //     mode: 'production',
-    //     //devtool: 'source-map',
-    //     plugins: [
-    //         new webpack.BannerPlugin(banner)
-    //     ],
-    //     output: {
-    //         filename: `${LIB_FILE_NAME}.js`,
-    //     },
-    //     optimization: {
-    //         minimize: false
-    //     }
-    // })
 ];
