@@ -1,57 +1,57 @@
 export default class Render{
-    #settings;
-    #data;
+    settings;
+    data;
 
     /** @type CanvasRenderingContext2D */
-    #context;
-    #image;
+    context;
+    image;
 
     constructor( {settings, data} ) {
-        this.#settings = settings;
-        this.#data = data;
-        this.#context = this.#data.canvas.element.getContext("2d");
+        this.settings = settings;
+        this.data = data;
+        this.context = this.data.canvas.element.getContext("2d");
     }
 
     /**
      * @param {number|HTMLImageElement} frameNumberOrImage - frame number or image object
      */
     drawFrame(frameNumberOrImage){
-        //this.#context.imageSmoothingEnabled = false; // may reduce blurriness, but could make the image worse (resets to true  after resize)
+        //this.context.imageSmoothingEnabled = false; // may reduce blurriness, but could make the image worse (resets to true  after resize)
         if (Number.isInteger(frameNumberOrImage)) {
-            this.#image = this.#data.loadedImagesArray[frameNumberOrImage-1]
+            this.image = this.data.loadedImagesArray[frameNumberOrImage-1]
         } else {
-            this.#image = frameNumberOrImage;
+            this.image = frameNumberOrImage;
         }
 
         let sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight;
-        if (this.#settings.fillMode === "cover") {
+        if (this.settings.fillMode === "cover") {
             ( {sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight} = this.#getDrawImageCoverProps() )
-        } else if ( this.#settings.fillMode === "contain" ) {
+        } else if ( this.settings.fillMode === "contain" ) {
             ( {sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight} = this.#getDrawImageContainProps() )
         }
 
         //console.log(`sx= ${sx}, sy=${sy}, sWidth=${sWidth}, sHeight=${sHeight}, dx=${dx}, dy=${dy}, dWidth=${dWidth}, dHeight=${dHeight}`);
-        if ( this.#settings.onBeforeFrame ) this.#settings.onBeforeFrame(this.#context,
-            { width: this.#data.canvas.element.width, height: this.#data.canvas.element.height });
+        if ( this.settings.onBeforeFrame ) this.settings.onBeforeFrame(this.context,
+            { width: this.data.canvas.element.width, height: this.data.canvas.element.height });
 
-        this.#context.drawImage(this.#image, sx, sy, sWidth, sHeight,  dx, dy, dWidth, dHeight);
+        this.context.drawImage(this.image, sx, sy, sWidth, sHeight,  dx, dy, dWidth, dHeight);
 
-        if ( this.#settings.onAfterFrame ) this.#settings.onAfterFrame(this.#context,
-            { width: this.#data.canvas.element.width, height: this.#data.canvas.element.height });
+        if ( this.settings.onAfterFrame ) this.settings.onAfterFrame(this.context,
+            { width: this.data.canvas.element.width, height: this.data.canvas.element.height });
     }
 
     clearCanvas(){
-        this.#context.clearRect(0, 0, this.#data.canvas.element.width, this.#data.canvas.element.height);
+        this.context.clearRect(0, 0, this.data.canvas.element.width, this.data.canvas.element.height);
     }
 
     #getDrawImageCoverProps(){
         //https://stackoverflow.com/questions/21961839/simulation-background-size-cover-in-canvas
         let dx = 0,
             dy = 0,
-            canvasWidth = this.#data.canvas.element.width,
-            canvasHeight = this.#data.canvas.element.height,
-            imageWidth = this.#image.naturalWidth,
-            imageHeight = this.#image.naturalHeight,
+            canvasWidth = this.data.canvas.element.width,
+            canvasHeight = this.data.canvas.element.height,
+            imageWidth = this.image.naturalWidth,
+            imageHeight = this.image.naturalHeight,
             offsetX = 0.5,
             offsetY = 0.5,
             minRatio = Math.min(canvasWidth / imageWidth, canvasHeight / imageHeight),
@@ -81,10 +81,10 @@ export default class Render{
         return { sx, sy, sWidth, sHeight, dx, dy, dWidth: canvasWidth, dHeight: canvasHeight };
     }
     #getDrawImageContainProps(){
-        let canvasWidth = this.#data.canvas.element.width,
-            canvasHeight = this.#data.canvas.element.height,
-            imageWidth = this.#image.naturalWidth,
-            imageHeight = this.#image.naturalHeight,
+        let canvasWidth = this.data.canvas.element.width,
+            canvasHeight = this.data.canvas.element.height,
+            imageWidth = this.image.naturalWidth,
+            imageHeight = this.image.naturalHeight,
             sx = 0,
             sy = 0,
             sWidth = imageWidth,

@@ -164,7 +164,7 @@ export default class AnimateImages{
      */
     play(){
         if ( this.#animation.isAnimating ) return this;
-        if ( this.#preloader.isPreloadFinished() ) {
+        if ( this.#preloader.isPreloadFinished ) {
             this.#animation.play();
         } else {
             this.#data.deferredAction = this.play.bind(this);
@@ -194,7 +194,7 @@ export default class AnimateImages{
      * @returns {AnimateImages} - plugin instance
      */
     next(){
-        if ( this.#preloader.isPreloadFinished() ) {
+        if ( this.#preloader.isPreloadFinished ) {
             this.stop();
             this.#changeFrame( this.#animation.getNextFrame(1) );
         } else {
@@ -208,7 +208,7 @@ export default class AnimateImages{
      * @returns {AnimateImages} - plugin instance
      */
     prev(){
-        if ( this.#preloader.isPreloadFinished() ) {
+        if ( this.#preloader.isPreloadFinished ) {
             this.stop();
             this.#changeFrame( this.#animation.getNextFrame(1, !this.#settings.reverse) );
         } else {
@@ -223,7 +223,7 @@ export default class AnimateImages{
      * @returns {AnimateImages} - plugin instance
      */
     setFrame(frameNumber){
-        if ( this.#preloader.isPreloadFinished() ) {
+        if ( this.#preloader.isPreloadFinished ) {
             this.stop();
             this.#changeFrame(normalizeFrameNumber(frameNumber, this.#data.totalImages));
         } else {
@@ -250,7 +250,7 @@ export default class AnimateImages{
      * @returns {AnimateImages} - plugin instance
      */
     playFrames(numberOfFrames = 0){
-        if ( this.#preloader.isPreloadFinished() ) {
+        if ( this.#preloader.isPreloadFinished ) {
             numberOfFrames = Math.floor(numberOfFrames);
             if (numberOfFrames < 0) return new Promise((resolve)=> { resolve(this)}); //empty animation
 
@@ -340,16 +340,16 @@ export default class AnimateImages{
     /** @returns {boolean} - animating or not */
     isAnimating() { return this.#animation.isAnimating }
     /** @returns {boolean} - is preload finished */
-    isPreloadFinished() { return this.#preloader.isPreloadFinished() }
+    isPreloadFinished() { return this.#preloader.isPreloadFinished }
     /** @returns {boolean} - is loaded with errors */
-    isLoadedWithErrors() { return this.#preloader.isLoadedWithErrors() }
+    isLoadedWithErrors() { return this.#preloader.isLoadedWithErrors }
 
     /**
      * Stop the animation and return to the first frame
      * @returns {AnimateImages} - plugin instance
      */
     reset(){
-        if ( this.#preloader.isPreloadFinished() ) {
+        if ( this.#preloader.isPreloadFinished ) {
             this.stop();
             this.#changeFrame(normalizeFrameNumber(1, this.#data.totalImages));
         } else {
