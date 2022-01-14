@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", function() {
         let number = String(k).padStart(4, "0");
         return `https://distracted-villani-e19534.netlify.app/train/rotation${number}.jpg`;
     });
+    //imagesArray[5] = 'https://distracted-vi.jpg'
     let loadingBlock = document.querySelector('.loading1');
 
     // Initialization
@@ -14,7 +15,7 @@ document.addEventListener("DOMContentLoaded", function() {
         preloadNumber: 20,
         poster: imagesArray[0],
         fps: 45,
-        loop: true,
+        loop: false,
         reverse: false,
         //inversion: true,
         autoplay: false,
@@ -26,8 +27,16 @@ document.addEventListener("DOMContentLoaded", function() {
         onPreloadFinished: (lib) => {
             console.log('Callback: onPreloadFinished');
             //lib.play();
+            console.log('after play');
+            // let result = 0;
+            // for (let i = 0; i <= 18000000; i++){
+            //     if (i===0) console.log('first');
+            //     if (i===18000000) console.log('last');
+            //    // console.log('wait');
+            //     result += performance.now();
+            // }
         },
-        onPosterLoaded(){
+        onPosterLoaded(lib){
             console.log('Callback: onPosterLoaded');
         },
         // onBeforeFrame(context, {width, height }){
@@ -37,9 +46,13 @@ document.addEventListener("DOMContentLoaded", function() {
         //
         // },
     });
-    //instance1.preloadImages();
+    instance1.preloadImages();
     setupControls();
-    instance1.next();
+    // instance1.play();
+    // for (let i = 0; i < 50000; i++){
+    //     console.log('wait');
+    // }
+    //instance1.next();
     // instance1.playFrames(40).then((lib)=> {
     //     console.log(lib);
     //     lib.setOption('fps', 10);

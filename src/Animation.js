@@ -12,6 +12,7 @@ export default class Animation{
     animationPromise = null;
     animationPromiseResolve = null;
     isPromiseCreatedBeforeLoad = false; // promise created from deferred action shouldn't be recreated after that action start
+    #isFirstRAFCall = true;
 
     constructor( {settings, data, changeFrame} ) {
         this.#settings = settings;
@@ -27,9 +28,9 @@ export default class Animation{
             // subtract 1 manually, because changeFrame is calling not from animate(), but directly
             this.framesLeftToPlay--;
         }
-        console.log(this.#lastUpdate);
-        this.updateLastUpdate();
-        requestAnimationFrame(this.#animate.bind(this));
+        //this.updateLastUpdate();
+        this.#isFirstRAFCall = true;
+        requestAnimationFrame(this.#animate.bind(this)); //todo second argument
     }
     stop(){
         if ( this.isAnimating ){
@@ -83,13 +84,36 @@ export default class Animation{
 
     // works inside RAF
     #animate(time){
-        //console.log(time);
         if ( !this.isAnimating ) return;
+        // (chrome) 'time' is timestamp from the moment the RAF callback was queued, not timestamp from when it was called,
+        // so if there are long task after raf, 'time' will differ from the actual time inside of this callback by the
+        // duration of the main thread
 
-        const progress = ( time - this.#lastUpdate ) / this.#duration; // ex. 0.01
-        let deltaFrames = progress * this.#data.totalImages; // Frame change step, Ex. 0.45 or 1.25
+        // (firefox) 'time' is timestamp from when raf cb is called, so to prevent jump we have to skip first frame and
+        // set 'lastUpdate' = 'time' when first raf cb was called. Skip one possible frame (if fps>=screen fps) is more
+        // reliable than compare the difference between 'time' and 'lastUpdate' to the animation duration
+        if (this.#isFirstRAFCall) {
+            this.#isFirstRAFCall = false;
+            this.#lastUpdate = time;
+        }
+
+        let deltaFrames = 0;
+        // more than 35% of the full duration in 1 raf.
+        // duration = 1000ms, main thread long task after play() = 700ms, so without this correction only the last 300ms will be played,
+        // which is more correct because exactly 'duration' time will elapse between play() and the last frame, but this will
+        // cause the animation looks shorter, to fix that new frame is changed by 1 and 'lastUpdate' will be timestamp after long task,
+        // and not 'time' which is timestamp before the long task
+        const isLongTaskBeforeRaf = (Math.abs(time - performance.now()) / this.#duration) > 0.35;
+        if (isLongTaskBeforeRaf) deltaFrames = 1;
+        else { // normal execution
+            let progress = ( time - this.#lastUpdate ) / this.#duration; // ex. 0.01
+            if (progress < 0) progress = 0; //it happens somehow
+            deltaFrames = progress * this.#data.totalImages; // Frame change step, Ex. 0.45 or 1.25
+        }
+
 
         if ( deltaFrames >= 1) { // Animate only if we need to update 1 frame or more
+            const newLastUpdate = isLongTaskBeforeRaf ? performance.now() : time;
             // calculate next frame only when we want to render
             // if the getNextFrame check was outside, getNextFrame would be called at screen fps rate, not animation fps
             // if screen fps 144 and animation fps 30, getNextFrame is calling now 30/s instead of 144/s,
@@ -102,7 +126,7 @@ export default class Animation{
                 this.#data.pluginApi.stop();
                 this.#stopRequested = false;
             } else { // animation on
-                this.#lastUpdate = time;
+                this.#lastUpdate = newLastUpdate;
                 this.#changeFrame(newFrame);
                 if (typeof this.framesLeftToPlay !== 'undefined') {
                     this.framesLeftToPlay = this.framesLeftToPlay - deltaFrames;

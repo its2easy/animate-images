@@ -56,7 +56,8 @@ export default class ImagePreloader{
         this.#data.canvas.element.dispatchEvent( new CustomEvent('animate-images:loading-progress', {detail: {progress}}) );
         if (e.type === "error") {
             this.#isLoadedWithErrors = true;
-            this.#failedImages.push(e.path[0]);
+            const path = e.path || (e.composedPath && e.composedPath());
+            this.#failedImages.push(path[0]);
             this.#data.canvas.element.dispatchEvent( new Event('animate-images:loading-error') );
         }
         if (this.#preloadedImagesNumber >= this.#data.totalImages) {
@@ -80,7 +81,7 @@ export default class ImagePreloader{
 
     #afterPreloadFinishes(){ // check what to do next
         this.#data.canvas.element.dispatchEvent( new Event('animate-images:preload-finished') );
-        if ("onPreloadFinished" in this.#settings) this.#settings.onPreloadFinished(this);
+        if ("onPreloadFinished" in this.#settings) this.#settings.onPreloadFinished(this.#data.pluginApi);
         if (this.#data.deferredAction) this.#data.deferredAction();
     }
 
