@@ -20,3 +20,4 @@ example/images/*.jpg
 example/images/*.png
 example/animate-images*.js
 example/animate-images*.map
+types

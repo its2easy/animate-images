@@ -6,7 +6,16 @@ import Animation from "./Animation";
 import Poster from "./Poster";
 import DragInput from "./DragInput";
 
-
+/**
+ * Animate Images {@link https://github.com/its2easy/animate-images/}
+ * @example
+ * let pluginInstance = new AnimateImages(document.querySelector('canvas'), {
+ *    images: ['img1.jpg', 'img2.jpg', 'img3.jpg'],
+ *    loop: true,
+ *    draggable: true,
+ *    fps: 60,
+ * });
+ */
 export default class AnimateImages{
     #settings;
     #data = {
@@ -372,32 +381,34 @@ export default class AnimateImages{
 
 /**
  * @typedef {Object} PluginOptions
- * @property {Array.<string>} images - Array with images URLs (required)
- * @property {string} [preload="all"] - Preload mode ("all", "none", "partial")
+ * @property {Array<string>} images - Array with images URLs (required)
+ * @property {'all'|'partial'|'none'} [preload="all"] - Preload mode ("all", "none", "partial")
  * @property {number} [preloadNumber=0] - Number of preloaded images when option.preload="partial", 0 for all
  * @property {string} [poster] - Url of a poster image, to show before load
  * @property {number} [fps=30] - FPS when playing
  * @property {boolean} [loop=false] - Whether to loop the animation
+ * @property {boolean} [autoplay=false] - Autoplay
  * @property {boolean} [reverse=false] - Reverse direction
  * @property {boolean} [inversion=false] - Inversion defines base direction. It differs from reverse in that
  * reverse means forward or backward, and inversion determines which direction is forward. Affects animation and drag
- * @property {boolean} [autoplay=false] - If true, starts the animation automatically on load
- * @property {number} [ratio] - Canvas width/height ratio, it takes precedence over inline canvas width and height
- * @property {string} [fillMode="cover"] - Fill mode to use if canvas and image aspect ratios are different. Could be "cover" or "contain"
- * @property {Boolean} [draggable = false] - Draggable by mouse or touch
- * @property {string} [touchScrollMode = "pageScrollTimer"] - Page scroll behavior with touch events
- * (preventPageScroll,allowPageScroll, pageScrollTimer)
- * @property {number} [pageScrollTimerDelay = 1500] - Time in ms when touch scroll will be disabled during interaction
- * if touchScrollMode = "pageScrollTimer"
- * @property {OnPreloadFinishedCallback} [onPreloadFinished] - Occurs when all image files have been loaded
- * @property {Function} [onPosterLoaded] - Occurs when poster image is fully loaded
- * @property {Function} [onAnimationEnd] - Occurs when animation has ended
- * @property {Function} [onBeforeFrame] - Occurs before new frame (CanvasRenderingContext2D)
- * @property {Function} [onAfterFrame] - Occurs after the frame was drawn
+ * @property {number} [ratio] - Canvas width/height ratio, it has higher priority than inline canvas width and height
+ * @property {'cover'|'contain'} [fillMode="cover"] - Fill mode to use if canvas and image aspect ratios are different.
+ * Could be "cover" or "contain"
+ * @property {boolean} [draggable=false] - Draggable by mouse or touch
+ * @property {'pageScrollTimer' | 'preventPageScroll' | 'allowPageScroll'} [touchScrollMode = "pageScrollTimer"] - Page
+ * scroll behavior with touch events (preventPageScroll,allowPageScroll, pageScrollTimer)
+ * @property {number} [pageScrollTimerDelay=1500] - Time in ms when touch scroll will be disabled during interaction
+ * if touchScrollMode="pageScrollTimer"
+ * @property {function(AnimateImages):void} [onPreloadFinished] - Occurs when all image files have been loaded
+ * @property {function(AnimateImages):void} [onPosterLoaded] - Occurs when poster image is fully loaded
+ * @property {function(AnimateImages):void} [onAnimationEnd] - Occurs when animation has ended
+ * @property {function(AnimateImages, FrameInfo):void} [onBeforeFrame] - Occurs before new frame
+ * @property {function(AnimateImages, FrameInfo):void} [onAfterFrame] - Occurs after the frame was drawn
  */
-
 
 /**
- * @callback OnPreloadFinishedCallback
- * @param {this} responseCode
- */
+ * @typedef {Object} FrameInfo
+ * @property {CanvasRenderingContext2D} context - canvas context
+ * @property {number} width - internal canvas width
+ * @property {number} height - internal canvas height
+ * */

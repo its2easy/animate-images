@@ -28,9 +28,9 @@ export const defaultSettings = {
     poster: false,
     fps: 30,
     loop: false,
+    autoplay: false,
     reverse: false,
     inversion: false,
-    autoplay: false,
     ratio: undefined,
     fillMode: "cover",
 
