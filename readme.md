@@ -233,7 +233,7 @@ options:
 | **pageScrollTimerDelay** | number | | 1500 | Time in ms when touch scroll will be disabled after the last user interaction, if `touchScrollMode: "pageScrollTimer"` |
 | **onPreloadFinished** | function(AnimateImages) | | | Callback, occurs when all image files have been loaded, receives plugin instance as a parameter |
 | **onPosterLoaded** | function(AnimateImages) | | | Callback, occurs when poster image is fully loaded, receives plugin instance as a parameter |
-| **onAnimationEnd** | function(AnimateImages) | | |  Occurs when animation has ended, receives plugin instance as a parameter |
+| **onAnimationEnd** | function(AnimateImages) | | |  Callback, occurs when animation has ended, receives plugin instance as a parameter |
 | **onBeforeFrame** | function(AnimateImages, {context, width, height}) | | | Callback, occurs before new frame, receives canvas context as a parameter. Can be used to change settings, for example ```imageSmoothingEnabled``` |
 | **onAfterFrame** | function(AnimateImages, {context, width, height}) | | | Callback, occurs after the frame was drawn, receives canvas context as a parameter. Can be used to change the image. |
 

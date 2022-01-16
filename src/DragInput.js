@@ -97,7 +97,7 @@ export default class DragInput{
         }
     }
     #swipeStart(){
-        if ( !this.data.pluginApi.isPreloadFinished ) return;
+        if ( !this.data.pluginApi.isPreloadFinished() ) return;
         this.data.pluginApi.stop();
         this.isSwiping = true;
         this.data.canvas.element.style.cursor = 'grabbing';

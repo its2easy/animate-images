@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", function() {
-    // First example
     let element = document.getElementById('canvas1');
     let imagesArray = Array.from(new Array(90), (v, k) => {
         let number = String(k).padStart(4, "0");
@@ -32,17 +31,16 @@ document.addEventListener("DOMContentLoaded", function() {
         },
         onAnimationEnd(plugin){
             console.log('Callback: onAnimationEnd');
-        }
-        // onBeforeFrame(context, {width, height }){
+        },
+        // onBeforeFrame(plugin, {context, width, height }){
         //
         // },
-        // onAfterFrame(context, {width, height }){
+        // onAfterFrame(plugin, {context, width, height }){
         //
         // },
     });
     instance1.preloadImages();
     setupControls();
-    // instance1.playTo(10);
 
     // Events
     element.addEventListener('animate-images:loading-progress', function (e){
@@ -92,55 +90,35 @@ document.addEventListener("DOMContentLoaded", function() {
         document.querySelector('.js-reset').addEventListener('click', () => {
             instance1.reset();
         });
+
         let reverse = instance1.getOption('reverse');
-        let reverseButton = document.querySelector('.js-reverse');
-        reverseButton.addEventListener('click', () => {
+        document.querySelector('.js-reverse').addEventListener('change', () => {
             reverse = !reverse;
             instance1.setReverse(reverse);
-            reverseButton.classList.remove('on', 'off');
-            reverseButton.classList.add( (reverse) ? 'on' : 'off' );
         });
-        reverseButton.classList.add( (reverse) ? 'on' : 'off' );
+        document.querySelector(".js-reverse").checked = reverse;
 
         let loop = instance1.getOption('loop');
-        let loopButton = document.querySelector('.js-loop');
-        loopButton.addEventListener('click', () => {
+        document.querySelector('.js-loop').addEventListener('change', () => {
             loop = !loop;
             instance1.setOption('loop', loop);
-            loopButton.classList.remove('on', 'off');
-            loopButton.classList.add( (loop) ? 'on' : 'off' );
         });
-        loopButton.classList.add( (loop) ? 'on' : 'off' );
+        document.querySelector('.js-loop').checked = loop;
 
         let draggable = instance1.getOption('draggable');
-        let draggableButton = document.querySelector('.js-draggable');
-        draggableButton.addEventListener('click', () => {
+        document.querySelector('.js-draggable').addEventListener('change', () => {
             draggable = !draggable;
             instance1.setOption('draggable', draggable);
-            draggableButton.classList.remove('on', 'off');
-            draggableButton.classList.add( (draggable) ? 'on' : 'off' );
         });
-        draggableButton.classList.add( (draggable) ? 'on' : 'off' );
+        document.querySelector('.js-draggable').checked = draggable;
 
         let fillMode = instance1.getOption('fillMode');
-        let coverBtn = document.querySelector('.js-cover');
-        let containBtn = document.querySelector('.js-contain');
-        let onBtn = (fillMode === 'cover') ? coverBtn : containBtn;
-        onBtn.classList.add('on');
-        coverBtn.addEventListener('click', () => {
-            changeFillMode('cover');
-            containBtn.classList.remove('on');
-            coverBtn.classList.add('on');
+        document.querySelector(".js-fill-mode[value='"+ fillMode +"']").checked = true;
+        document.querySelectorAll(".js-fill-mode").forEach(function (el){
+            el.addEventListener('change', function(){
+                instance1.setOption('fillMode', this.value);
+            });
         });
-        containBtn.addEventListener('click', () => {
-            changeFillMode('contain');
-            coverBtn.classList.remove('on');
-            containBtn.classList.add('on');
-        });
-        function changeFillMode(mode){
-            fillMode = mode;
-            instance1.setOption('fillMode', mode);
-        }
 
         let framesInput = document.querySelector('.js-frames-input');
         framesInput.setAttribute('max', instance1.getTotalImages());

@@ -24,7 +24,8 @@ export default class AnimateImages{
         loadedImagesArray: [], // images objects [0 - (images.length-1)]
         deferredAction: null, // call after full preload
         isAnyFrameChanged: false,
-        pluginApi: {},
+        /** @type AnimateImages */
+        pluginApi: undefined,
         canvas: {
             element: null,
             ratio: null,
