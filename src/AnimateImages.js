@@ -329,7 +329,7 @@ export default class AnimateImages{
      * @returns {AnimateImages} - plugin instance
      */
     setOption(option, value) {
-        const allowedOptions = ['fps', 'loop', 'reverse', 'inversion', 'ratio', 'fillMode', 'draggable', 'touchScrollMode',
+        const allowedOptions = ['fps', 'loop', 'reverse', 'inversion', 'ratio', 'fillMode', 'draggable', 'dragModifier', 'touchScrollMode',
             'pageScrollTimerDelay', 'onPreloadFinished', 'onPosterLoaded', 'onBeforeFrame', 'onAfterFrame'];
         if (allowedOptions.includes(option)) {
            this.#settings[option] = value;
@@ -337,6 +337,7 @@ export default class AnimateImages{
            if (option === 'ratio') this.#updateCanvasSizes();
            if (option === 'fillMode') this.#updateCanvasSizes();
            if (option === 'draggable') this.#toggleDrag(value);
+           if (option === 'dragModifier') this.#settings.dragModifier = Math.abs(+value);
         } else {
             console.warn(`${option} is not allowed in setOption`);
         }
@@ -398,6 +399,7 @@ export default class AnimateImages{
  * @property {'cover'|'contain'} [fillMode="cover"] - Fill mode to use if canvas and image aspect ratios are different
  * ("cover" or "contain")
  * @property {boolean} [draggable=false] - Draggable by mouse or touch
+ * @property {number} [dragModifier=1] - Sensitivity factor for user interaction. Only positive numbers are allowed
  * @property {'pageScrollTimer' | 'preventPageScroll' | 'allowPageScroll'} [touchScrollMode = "pageScrollTimer"] - Page
  * scroll behavior with touch events (preventPageScroll,allowPageScroll, pageScrollTimer)
  * @property {number} [pageScrollTimerDelay=1500] - Time in ms when touch scroll will be disabled during interaction

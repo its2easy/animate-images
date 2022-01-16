@@ -20,6 +20,7 @@ document.addEventListener("DOMContentLoaded", function() {
         //ratio: 2.56,
         fillMode: 'cover',
         draggable: true,
+        //dragModifier: 1.5,
         touchScrollMode: "allowPageScroll",
         //pageScrollTimerDelay: 2500,
         onPreloadFinished: (plugin) => {

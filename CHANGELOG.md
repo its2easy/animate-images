@@ -5,6 +5,7 @@
 - ```togglePlay()``` renamed to ```toggle()```
 - added types
 - new ```onAnimationEnd``` callback
+- new ```dragModifier``` option  
 - ```playTo``` and ```playFrames``` now return plugin instance instead of Promise
 - ```onBeforeFrame``` and ```onAfterFrame``` parameters changed
 - ```getOption()``` accepts all the options

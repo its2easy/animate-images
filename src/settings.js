@@ -20,6 +20,7 @@ export function validateInitParameters(node, options){
     // }
     if ('preloadNumber' in options) options.preloadNumber = Number.parseInt(options.preloadNumber); // Allow number as a string
     if ("fillMode" in options && !['cover', 'contain'].includes(options.fillMode))  delete options['fillMode'];
+    if ('dragModifier' in options) options.dragModifier = Math.abs(+options.dragModifier);
 }
 
 export const defaultSettings = {
@@ -35,6 +36,7 @@ export const defaultSettings = {
     fillMode: "cover",
 
     draggable: false,
+    dragModifier: 1,
     touchScrollMode: "pageScrollTimer",
     pageScrollTimerDelay: 1500,
 

@@ -229,6 +229,7 @@ options:
 | **ratio** | number | false | Canvas width/height ratio, it has higher priority than inline canvas width and height |
 | **fillMode** | string | 'cover' | Fill mode to use if canvas and image aspect ratios are different ("`cover`" or "`contain`") |
 | **draggable** | boolean | false | Draggable by mouse or touch |
+| **dragModifier** | number | 1 | Sensitivity factor for user interaction. Only positive numbers are allowed |
 | **touchScrollMode** | string | "pageScrollTimer" | Page scroll behavior with touch events _(only for events that fire in the plugin area)_. Available modes: `preventPageScroll` - touch scroll is always disabled. `allowPageScroll` - touch scroll is always enabled. `pageScrollTimer` - after the first interaction the scroll is not disabled; if the time between the end of the previous interaction and the start of a new one is less than _pageScrollTimerDelay_, then scroll will be disabled; if more time has passed, then scroll will be enabled again |
 | **pageScrollTimerDelay** | number | 1500 | Time in ms when touch scroll will be disabled after the last user interaction, if `touchScrollMode: "pageScrollTimer"` |
 | **onPreloadFinished** | function(AnimateImages) | | Callback, occurs when all image files have been loaded, receives plugin instance as a parameter |
