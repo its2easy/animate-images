@@ -132,7 +132,7 @@ or call `plugin.preload()`. The plugin loads each image only once, so it's safe 
 even after the load has been completed. If `autoplay: true`, full preload will start immediately.
 ```javascript
 let instance = new AnimateImages(element, {
-    images: imagesArray,
+    images: imagesArray, /* required */
     preload: "none", // if 'all', you don't need to call preload()
     onPreloadFinished: function (plugin){
         plugin.play();
@@ -215,27 +215,27 @@ element : HTMLCanvasElement - canvas DOM element (required)
 
 options:
 
-| Parameter | Type | Required | Default | Description |
-| :--- | :---: | :---:| :---: | :---  |
-| **images** | Array&lt;string&gt; | :heavy_check_mark: | | Array with images URLs |
-| **preload** | string | | 'all' | Preload mode ("`all`", "`none`", "`partial`") |
-| **preloadNumber** | number | | 0 | Number of images to preload when `preload: "partial"` (0 for all images) |
-| **poster** | string | | | URL of the poster image, works like poster in ```<video>``` |
-| **fps** | number | | 30 | FPS when playing. Determines the duration of the animation (for ex. 90 images and 60 fps = 1.5s, 90 images and 30fps = 3s) |
-| **loop** | boolean | | false | Loop the animation | 
-| **autoplay** | boolean | | false | Autoplay |
-| **reverse** | boolean | | false | Reverse direction |
-| **inversion** | boolean |  | false |  Inversion defines base direction. It differs from ```reverse``` in that reverse means forward or backward, and inversion determines which direction is forward. Affects animation and drag |
-| **ratio** | number | | false | Canvas width/height ratio, it has higher priority than inline canvas width and height |
-| **fillMode** | string | | 'cover' | Fill mode to use if canvas and image aspect ratios are different ("`cover`" or "`contain`") |
-| **draggable** | boolean | | false | Draggable by mouse or touch |
-| **touchScrollMode** | string | | "pageScrollTimer" | Page scroll behavior with touch events _(only for events that fire in the plugin area)_. Available modes: `preventPageScroll` - touch scroll is always disabled. `allowPageScroll` - touch scroll is always enabled. `pageScrollTimer` - after the first interaction the scroll is not disabled; if the time between the end of the previous interaction and the start of a new one is less than _pageScrollTimerDelay_, then scroll will be disabled; if more time has passed, then scroll will be enabled again |
-| **pageScrollTimerDelay** | number | | 1500 | Time in ms when touch scroll will be disabled after the last user interaction, if `touchScrollMode: "pageScrollTimer"` |
-| **onPreloadFinished** | function(AnimateImages) | | | Callback, occurs when all image files have been loaded, receives plugin instance as a parameter |
-| **onPosterLoaded** | function(AnimateImages) | | | Callback, occurs when poster image is fully loaded, receives plugin instance as a parameter |
-| **onAnimationEnd** | function(AnimateImages) | | |  Callback, occurs when animation has ended, receives plugin instance as a parameter |
-| **onBeforeFrame** | function(AnimateImages, {context, width, height}) | | | Callback, occurs before new frame, receives canvas context as a parameter. Can be used to change settings, for example ```imageSmoothingEnabled``` |
-| **onAfterFrame** | function(AnimateImages, {context, width, height}) | | | Callback, occurs after the frame was drawn, receives canvas context as a parameter. Can be used to change the image. |
+| Parameter | Type | Default | Description |
+| :--- | :---: | :---:| :---  |
+| **images** | Array&lt;string&gt; | | (Required) Array with images URLs |
+| **preload** | string | 'all' | Preload mode ("`all`", "`none`", "`partial`") |
+| **preloadNumber** | number | 0 | Number of images to preload when `preload: "partial"` (0 for all images) |
+| **poster** | string | | URL of the poster image, works like poster in ```<video>``` |
+| **fps** | number | 30 | FPS when playing. Determines the duration of the animation (for ex. 90 images and 60 fps = 1.5s, 90 images and 30fps = 3s) |
+| **loop** | boolean | false | Loop the animation | 
+| **autoplay** | boolean | false | Autoplay |
+| **reverse** | boolean | false | Reverse direction |
+| **inversion** | boolean | false |  Inversion defines base direction. It differs from ```reverse``` in that reverse means forward or backward, and inversion determines which direction is forward. Affects animation and drag |
+| **ratio** | number | false | Canvas width/height ratio, it has higher priority than inline canvas width and height |
+| **fillMode** | string | 'cover' | Fill mode to use if canvas and image aspect ratios are different ("`cover`" or "`contain`") |
+| **draggable** | boolean | false | Draggable by mouse or touch |
+| **touchScrollMode** | string | "pageScrollTimer" | Page scroll behavior with touch events _(only for events that fire in the plugin area)_. Available modes: `preventPageScroll` - touch scroll is always disabled. `allowPageScroll` - touch scroll is always enabled. `pageScrollTimer` - after the first interaction the scroll is not disabled; if the time between the end of the previous interaction and the start of a new one is less than _pageScrollTimerDelay_, then scroll will be disabled; if more time has passed, then scroll will be enabled again |
+| **pageScrollTimerDelay** | number | 1500 | Time in ms when touch scroll will be disabled after the last user interaction, if `touchScrollMode: "pageScrollTimer"` |
+| **onPreloadFinished** | function(AnimateImages) | | Callback, occurs when all image files have been loaded, receives plugin instance as a parameter |
+| **onPosterLoaded** | function(AnimateImages) | | Callback, occurs when poster image is fully loaded, receives plugin instance as a parameter |
+| **onAnimationEnd** | function(AnimateImages) | |  Callback, occurs when animation has ended, receives plugin instance as a parameter |
+| **onBeforeFrame** | function(AnimateImages, {context, width, height}) | | Callback, occurs before new frame, receives canvas context as a parameter. Can be used to change settings, for example ```imageSmoothingEnabled``` |
+| **onAfterFrame** | function(AnimateImages, {context, width, height}) | | Callback, occurs after the frame was drawn, receives canvas context as a parameter. Can be used to change the image. |
 
 ##### Callback example:
 ```javascript
