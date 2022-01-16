@@ -217,7 +217,7 @@ options:
 
 | Parameter | Type | Default | Description |
 | :--- | :---: | :---:| :---  |
-| **images** | Array&lt;string&gt; | | (Required) Array with images URLs |
+| **images** | Array&lt;string&gt; | | **(Required)** Array with images URLs |
 | **preload** | string | 'all' | Preload mode ("`all`", "`none`", "`partial`") |
 | **preloadNumber** | number | 0 | Number of images to preload when `preload: "partial"` (0 for all images) |
 | **poster** | string | | URL of the poster image, works like poster in ```<video>``` |

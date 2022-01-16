@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", function() {
         preload: "partial",
         preloadNumber: 20,
         poster: imagesArray[0],
-        fps: 45,
+        fps: 60,
         loop: true,
         reverse: false,
         //inversion: true,
