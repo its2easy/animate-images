@@ -6,7 +6,7 @@
 
 Demo - [codepen](https://codepen.io/its2easy/pen/powQJmd)
 
-**animate-images** is a lightweight (17kb without gzip) library that animates a sequence of images 
+**animate-images** is a lightweight (18kb without gzip) library that animates a sequence of images 
 to use in animations or pseudo 3d product view. It works WITHOUT BUILT-IN UI and mainly 
 developed for complex animations.
 
@@ -33,23 +33,22 @@ Or download <a href="https://unpkg.com/@its2easy/animate-images">minified versio
 <script src="animate-images.umd.min.js"></script>
 ```
 ```javascript
-let instance = animateImages.init(element, options)
+let instance = new AnimateImages(element, options);
 ```
 ### npm
 ```
 npm i @its2easy/animate-images --save
 ```
 ```javascript
-import { init as animateImages } from '@its2easy/animate-images';
-let instance = animateImages(element, options);
+import AnimateImages from "@its2easy/animate-images";
+let instance = new AnimateImages(element, options);
 ```
 
 It is possible to directly import untranspiled esm version, which is smaller:
 ```javascript
-import { init as animateImages } from '@its2easy/animate-images/build/untranspiled/animate-images.esm.min.js'; //or animate-images.esm.js
-let instance = animateImages(element, options);
+import AnimateImages from '@its2easy/animate-images/build/untranspiled/animate-images.esm.min.js'; //or animate-images.esm.js
 ```
-> :warning: You should probably add it to your build process if you use esm version. Example for webpack:
+> :warning: You should probably add it to your build process if you use untranspiled version. Example for webpack:
 ```javascript
 rules: [
     {
@@ -99,7 +98,7 @@ esm builds without babel transformation:
 
 `@its2easy/animate-images/build/untranspiled/animate-images.esm.js`
 
-:information_source: If you are using **webpack 4** and babel with quite modern target browsers,
+:information_source: If you are using **webpack 4** and babel with modern target browsers,
 then you might get an error while importing, because webpack 4 doesn't support some modern js
 syntax and babel doesn't transpile it because browsers support for this syntax is high enough now.
 Use **webpack 5** to fix it.
@@ -112,21 +111,19 @@ Create canvas element
 
 Initialize with options
 ```javascript
-let element = document.querySelector('.canvas_el');
+let element = document.querySelector('canvas.canvas_el');
 let imagesArray = Array.from(new Array(90), (v, k) => { // generate array of urls
     let number = String(k).padStart(4, "0");
     return `path/to/your/images/frame-${number}.jpg`;
 });
-let instance = animateImages.init(element,
-    {
-        images: imagesArray, /* required */
-        preload: "partial",
-        preloadNumber: 20,
-        loop: true,
-        fps: 60,
-        poster: 'path/to/poster/image.jpg',
-    }
-);
+let instance = new AnimateImages(element, {
+    images: imagesArray, /* required */
+    preload: "partial",
+    preloadNumber: 20,
+    loop: true,
+    fps: 60,
+    poster: 'path/to/poster/image.jpg',
+});
 instance.play();
 ```
 
@@ -134,19 +131,17 @@ Methods called from `onPreloadFinished` callback will start immediately, but you
 or call `plugin.preload()`. The plugin loads each image only once, so it's safe to call `preload` multiple times, 
 even after the load has been completed. If `autoplay: true`, full preload will start immediately.
 ```javascript
-let instance = animateImages.init(element,
-    {
-        images: imagesArray,
-        preload: "none", // if 'all', you don't need to call preload()
-        onPreloadFinished: function (lib){
-            lib.play();
-        }
+let instance = new AnimateImages(element, {
+    images: imagesArray,
+    preload: "none", // if 'all', you don't need to call preload()
+    onPreloadFinished: function (plugin){
+        plugin.play();
     }
-);
+});
 instance.preload(30);//load the first part
 
 setTimeout(() => {
- instance.preload(60);// laod the rest
+    instance.preload(60);// laod the rest
 }, 1000);
 // or instance.preload() to load all the images
 ```
@@ -201,56 +196,56 @@ of the animation will be recalculated.
 
 New frames count could be obtained in preload callback:
 ```javascript
-animateImages.init(element,
-    {
-        ...
-        onPreloadFinished: function (instance){
-            if ( instance.isLoadedWithErrors() ) {
-                let newFramesCount = instance.getTotalImages();
-            }
-        },
-    }
+new AnimateImages(element, {
+    ...
+    onPreloadFinished: function (instance){
+        if ( instance.isLoadedWithErrors() ) {
+            let newFramesCount = instance.getTotalImages();
+        }
+    },
+});
 ```
 
 ## <a name="options"></a>Options
 
 ```javascript
-animateImages(element, options);
+new AnimateImages(element, options);
 ```
-element : HTMLCanvasElement - required canvas DOM node (HTMLCanvasElement) 
+element : HTMLCanvasElement - canvas DOM element (required) 
 
 options:
 
 | Parameter | Type | Required | Default | Description |
 | :--- | :---: | :---:| :---: | :---  |
-| **images** | Array&lt;String&gt; | :heavy_check_mark: | | Array with images URLs |
-| **preload** | String | | 'all' | Preload mode ("all", "none", "partial") |
-| **preloadNumber** | Number | | 0 | Number of images to preload when `option.preload="partial"` (0 for all images) |
-| **fps** | Number | | 30 | FPS when playing. Determines the duration of the animation (for ex. 90 images and 60 fps = 1.5s, 90 images and 30fps = 3s) |
-| **poster** | String | | | URL of the poster image, to show before the full load |
-| **loop** | Boolean | | false | Whether to loop the animation | 
-| **reverse** | Boolean | | false | Reverse direction |
-| **inversion** | Boolean |  | false |  Inversion defines base direction. It differs from ```reverse``` in that reverse means forward or backward, and inversion determines which direction is forward. Affects animation and drag |
-| **autoplay** | Boolean | | false | If true, starts the animation automatically on load |
-| **draggable** | Boolean | | false | Draggable by mouse or touch |
-| **touchScrollMode** | String | | "pageScrollTimer" | Page scroll behavior with touch events _(only for events that fire in the plugin area)_. Available modes: **preventPageScroll** - touch scroll is always disabled. **allowPageScroll** - touch scroll is always enabled. **pageScrollTimer** - after the first interaction the scroll is not disabled; if the time between the end of the previous interaction and the start of a new one is less than _pageScrollTimerDelay_, then scroll will be disabled; if more time has passed, then scroll will be enabled again    |
-| **pageScrollTimerDelay** | Number | | 1500 | Time in ms when touch scroll will be disabled after the last user interaction, if touchScrollMode = "pageScrollTimer" |
-| **ratio** | Number | | false | Canvas width/height ratio, it takes precedence over canvas inline width and height |
-| **fillMode** | String | | 'cover' | Fill mode to use if canvas and image aspect ratios are different. Can be "cover" or "contain" |
-| **onPreloadFinished** | Function | | | Callback, occurs when all image files have been loaded, receives plugin instance as a parameter |
-| **onPosterLoaded** | Function | | | Callback, occurs when poster image is fully loaded, receives plugin instance as a parameter |
-| **onBeforeFrame** | Function | | | Callback, occurs before new frame, receives canvas context as a parameter. Can be used to change settings, for example ```imageSmoothingEnabled``` |
-| **onAfterFrame** | Function | | | Callback, occurs after the frame was drawn, receives canvas context as a parameter. Can be used to change the image. |
+| **images** | Array&lt;string&gt; | :heavy_check_mark: | | Array with images URLs |
+| **preload** | string | | 'all' | Preload mode ("`all`", "`none`", "`partial`") |
+| **preloadNumber** | number | | 0 | Number of images to preload when `preload: "partial"` (0 for all images) |
+| **poster** | string | | | URL of the poster image, works like poster in ```<video>``` |
+| **fps** | number | | 30 | FPS when playing. Determines the duration of the animation (for ex. 90 images and 60 fps = 1.5s, 90 images and 30fps = 3s) |
+| **loop** | boolean | | false | Loop the animation | 
+| **autoplay** | boolean | | false | Autoplay |
+| **reverse** | boolean | | false | Reverse direction |
+| **inversion** | boolean |  | false |  Inversion defines base direction. It differs from ```reverse``` in that reverse means forward or backward, and inversion determines which direction is forward. Affects animation and drag |
+| **ratio** | number | | false | Canvas width/height ratio, it has higher priority than inline canvas width and height |
+| **fillMode** | string | | 'cover' | Fill mode to use if canvas and image aspect ratios are different ("`cover`" or "`contain`") |
+| **draggable** | boolean | | false | Draggable by mouse or touch |
+| **touchScrollMode** | string | | "pageScrollTimer" | Page scroll behavior with touch events _(only for events that fire in the plugin area)_. Available modes: `preventPageScroll` - touch scroll is always disabled. `allowPageScroll` - touch scroll is always enabled. `pageScrollTimer` - after the first interaction the scroll is not disabled; if the time between the end of the previous interaction and the start of a new one is less than _pageScrollTimerDelay_, then scroll will be disabled; if more time has passed, then scroll will be enabled again |
+| **pageScrollTimerDelay** | number | | 1500 | Time in ms when touch scroll will be disabled after the last user interaction, if `touchScrollMode: "pageScrollTimer"` |
+| **onPreloadFinished** | function(AnimateImages) | | | Callback, occurs when all image files have been loaded, receives plugin instance as a parameter |
+| **onPosterLoaded** | function(AnimateImages) | | | Callback, occurs when poster image is fully loaded, receives plugin instance as a parameter |
+| **onAnimationEnd** | function(AnimateImages) | | |  Occurs when animation has ended, receives plugin instance as a parameter |
+| **onBeforeFrame** | function(AnimateImages, {context, width, height}) | | | Callback, occurs before new frame, receives canvas context as a parameter. Can be used to change settings, for example ```imageSmoothingEnabled``` |
+| **onAfterFrame** | function(AnimateImages, {context, width, height}) | | | Callback, occurs after the frame was drawn, receives canvas context as a parameter. Can be used to change the image. |
 
 ##### Callback example:
 ```javascript
- let instance1 = animateImages.init(element, {
+ let instance1 = new AnimateImages(element, {
     images: imagesArray,
     ...
-    onBeforeFrame(context, {width, height}){
+    onBeforeFrame(plugin, {context, width, height}){
         context.imageSmoothingEnabled = false;
     },
-    onAfterFrame(context, {width, height}){
+    onAfterFrame(plugin, {context, width, height}){
         context.fillStyle = "green";
         context.fillRect(10, 10, 100, 100);
     },
@@ -265,35 +260,35 @@ options:
 ### play
 Start animation
 
-`returns` {Object} - plugin instance
+`returns` {AnimateImages} - plugin instance
 
 ---
 
 ### stop
 Stop animation
 
-`returns` {Object} - plugin instance
+`returns` {AnimateImages} - plugin instance
 
 ---
 
-### togglePlay
+### toggle
 Toggle between start and stop
 
-`returns` {Object} - plugin instance
+`returns` {AnimateImages} - plugin instance
 
 ---
 
 ### next
 Show next frame
 
-`returns` {Object} - plugin instance
+`returns` {AnimateImages} - plugin instance
 
 ---
 
 ### prev
 Show previous frame
 
-`returns` {Object} - plugin instance
+`returns` {AnimateImages} - plugin instance
 
 ---
 
@@ -301,66 +296,58 @@ Show previous frame
 Show a frame with a specified number
 
 `parameters`
-- frameNumber {Number} - Frame number
+- frameNumber {number} - Number of the frame to show
 ```javascript
 instance.setFrame(35);
 ```
-`returns` {Object} - plugin instance
+`returns` {AnimateImages} - plugin instance
 
 ---
 
 ### playTo
-Starts the animation, which plays until the specified frame number
+Start animation. that plays until the specified frame number
 
 `parameters`
-- frameNumber {Number} - Target frame number
+- frameNumber {number} - Target frame number
 ```javascript
 // if current frame is 30 of 100, it will play from 30 to 85, 
 // if current frame is 95, it will play from 95 to 85
 instance.playTo(85);
 ```
-`returns` {Promise&lt;Object&gt;} - Promise, that resolves after the animation end, 
-receives plugin instance as a parameter to resolve function
+`returns` {AnimateImages} - plugin instance
 
 ---
 
 ### playFrames
-Starts animation in the current direction with the specified number 
-of frames in queue. If `options.loop: false` animation will stop 
-when it reaches the first or the last frame.
+Start animation in the current direction with the specified number of frames in queue.
+If `loop: false` animation will stop when it reaches the first or the last frame.
 
 `parameters`
-- numberOfFrames {Number} - Number of frames to play
+- numberOfFrames {number} - Number of frames to play
 ```javascript
 instance.playFrames(200);
 ```
-`returns` {Promise&lt;Object&gt;} - Promise, that resolves after the animation end,
-receives plugin instance as a parameter to resolve function
-
----
-
-### reset
-Stop the animation and return to the first frame
-
-`returns` {Object} - plugin instance
-
----
-
-### destroy
-Stop animation, clear the canvas and remove event handlers.
-Method doesn't remove canvas element from the DOM
+`returns` {AnimateImages} - plugin instance
 
 ---
 
 ### setReverse
-Changes `reverse` option
+Change the direction of the animation. Alias to ```setOption('reverse', true)```
 
 `parameters`
-- reverse {Boolean} - true for backward animation, false for forward
+- reverse {boolean} - true for backward animation, false for forward
 ```javascript
 instance.setReverse(true);
 ```
-`returns` {Object} - plugin instance
+`returns` {AnimateImages} - plugin instance
+
+---
+
+
+### getReverse
+Get current reverse option. Alias to ```getOption('reverse')```
+
+`returns` {boolean} - reverse or not
 
 ---
 
@@ -369,11 +356,11 @@ Start preloading specified number of images. Сan be called multiple times.
 If all the images are already loaded then nothing will happen
 
 `parameters`
-- number {Number} - number of images to load. If not specified, all remaining images will be loaded.
+- number {number} - Number of images to load. If not specified, all remaining images will be loaded.
 ```javascript
 instance.preloadImages(15);
 ```
-`returns` {Object} - plugin instance
+`returns` {AnimateImages} - plugin instance
 
 ---
 
@@ -381,7 +368,7 @@ instance.preloadImages(15);
 Calculate new canvas dimensions. Should be called after the canvas size was changed in 
 the browser
 
-`returns` {Object} - plugin instance
+`returns` {AnimateImages} - plugin instance
 
 ---
 
@@ -389,12 +376,11 @@ the browser
 Returns option value
 
 `parameters`
-- option {String} -  Option name. Allowed options: fps, loop, reverse, poster, autoplay, fillMode, 
-  draggable, touchScrollMode, pageScrollTimerDelay.
+- option {string} - Option name. All options are allowed
 ```javascript
 let reverse = instance.getOption('reverse');
 ```
-`returns` {*} - Option value
+`returns` {*} - current option value
 
 ---
 
@@ -402,9 +388,11 @@ let reverse = instance.getOption('reverse');
 Set new option value
 
 `parameters`
-- option {String} -  Option name. Allowed options: fps, loop, reverse, ratio, fillMode, 
-  draggable, touchScrollMode, pageScrollTimerDelay.
+- option {string} -  Option name. Allowed options: `fps`, `loop`, `reverse`, `inversion`, `ratio`, `fillMode`, 
+  `draggable`, `touchScrollMode`, `pageScrollTimerDelay`, `onPreloadFinished`, `onPosterLoaded`, `onBeforeFrame`, `onAfterFrame`
 - value {*} -  New value
+
+`returns` {AnimateImages} - plugin instance
 ```javascript
 instance.setOption('fps', 40);
 instance.setOption('ratio', 2.56);
@@ -415,29 +403,29 @@ instance.setOption('ratio', 2.56);
 ### getCurrentFrame
 Returns the current frame number. Frames start from 1
 
-`returns` {Number} - Frame number
+`returns` {number} - Frame number
 
 ---
 
 ### getTotalImages
-Returns the total images count
+Returns the total images count (considering loading errors)
 
-`returns` {Number}
+`returns` {number}
 
 ---
 
 ### getRatio
 Returns the current canvas ratio. It may differ from the 
-value in the options.ratio
+value in the `options.ratio`
 
-`returns` {Number}
+`returns` {number}
 
 ---
 
 ### isAnimating
 Returns true if the animation is running, and false if not
 
-`returns` {Boolean}
+`returns` {boolean}
 
 ---
 
@@ -445,14 +433,27 @@ Returns true if the animation is running, and false if not
 Returns true if all the images are loaded and plugin is ready to 
 change frames
 
-`returns` {Boolean}
+`returns` {boolean}
 
 ---
 
 ### isLoadedWithErrors
 Returns true if at least one image wasn't loaded because of error
 
-`returns` {Boolean}
+`returns` {boolean}
+
+---
+
+### reset
+Stop the animation and return to the first frame
+
+`returns` {AnimateImages} - plugin instance
+
+---
+
+### destroy
+Stop animation, remove event listeners and clear the canvas. 
+Method doesn't remove canvas element from the DOM
 
 ---
 
@@ -488,8 +489,8 @@ Fires when user stops dragging. Frame number is in `event.detail.frame`
 
 Example:
 ```javascript
-let element = document.querySelector('.canvas_el');
-let instance = animateImages.init(element, options);
+let element = document.querySelector('canvas.canvas_el');
+let instance = new AnimateImages(element, options);
 element.addEventListener('animate-images:loading-progress', function (e){
     console.log(Math.floor(e.detail.progress * 100) + '%');
 });

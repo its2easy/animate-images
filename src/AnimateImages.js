@@ -277,21 +277,22 @@ export default class AnimateImages{
         return this;
     }
     /**
-     * Change the direction of the animation. Alias to setOption('reverse', true)
-     * @param {boolean} reverse
+     * Change the direction of the animation. Alias to <b>setOption('reverse', true)</b>
+     * @param {boolean} reverse - True for backward animation, false for forward
      * @returns {AnimateImages} - plugin instance
      */
     setReverse(reverse = true){
         this.#settings.reverse = !!reverse;
         return this;
     }
-    /** Get current reverse option. Alias to getOption('reverse')
+    /** Get current reverse option. Alias to <b>getOption('reverse')</b>
      * @returns {boolean} - reverse or not
      */
     getReverse() { return this.#settings.reverse; }
     /**
-     * Start preloading specified number of images
-     * @param {number} number - number of images to load
+     * Start preloading specified number of images. Сan be called multiple times.
+     * If all the images are already loaded then nothing will happen
+     * @param {number} number - Number of images to load. If not specified, all remaining images will be loaded.
      * @returns {AnimateImages} - plugin instance
      */
     preloadImages(number= undefined){
@@ -300,7 +301,7 @@ export default class AnimateImages{
         return this;
     }
     /**
-     * Calculate new canvas dimensions after the canvas size changed in the browser
+     * Calculate new canvas dimensions. Should be called after the canvas size was changed in the browser
      * @returns {AnimateImages} - plugin instance
      */
     updateCanvas(){
@@ -310,7 +311,7 @@ export default class AnimateImages{
     /**
      * Returns option value
      * @param {string} option - Option name. All options are allowed
-     * @returns {*} - current option value
+     * @returns {*} - Current option value
      */
     getOption(option){
         if ( option in this.#settings ) {
@@ -323,7 +324,7 @@ export default class AnimateImages{
      * Set new option value
      * @param {string} option - Option name. Allowed options: fps, loop, reverse, inversion, ratio, fillMode, draggable,
      * touchScrollMode, pageScrollTimerDelay, onPreloadFinished, onPosterLoaded, onBeforeFrame, onAfterFrame
-     * @param {*} value - new value
+     * @param {*} value - New value
      * @returns {AnimateImages} - plugin instance
      */
     setOption(option, value) {
@@ -368,7 +369,7 @@ export default class AnimateImages{
         return this;
     }
     /**
-     * Stop animation and clear the canvas. Method doesn't remove canvas element from the DOM
+     * Stop animation, remove event listeners and clear the canvas. Method doesn't remove canvas element from the DOM
      */
     destroy(){
         this.stop();
@@ -383,22 +384,23 @@ export default class AnimateImages{
  * @typedef {Object} PluginOptions
  * @property {Array<string>} images - Array with images URLs (required)
  * @property {'all'|'partial'|'none'} [preload="all"] - Preload mode ("all", "none", "partial")
- * @property {number} [preloadNumber=0] - Number of preloaded images when option.preload="partial", 0 for all
+ * @property {number} [preloadNumber=0] - Number of preloaded images when <b>preload: "partial"</b>, 0 for all
  * @property {string} [poster] - Url of a poster image, to show before load
- * @property {number} [fps=30] - FPS when playing
- * @property {boolean} [loop=false] - Whether to loop the animation
+ * @property {number} [fps=30] - FPS when playing. Determines the duration of the animation (for ex. 90 images and 60
+ * fps = 1.5s, 90 images and 30fps = 3s)
+ * @property {boolean} [loop=false] - Loop the animation
  * @property {boolean} [autoplay=false] - Autoplay
  * @property {boolean} [reverse=false] - Reverse direction
  * @property {boolean} [inversion=false] - Inversion defines base direction. It differs from reverse in that
  * reverse means forward or backward, and inversion determines which direction is forward. Affects animation and drag
  * @property {number} [ratio] - Canvas width/height ratio, it has higher priority than inline canvas width and height
- * @property {'cover'|'contain'} [fillMode="cover"] - Fill mode to use if canvas and image aspect ratios are different.
- * Could be "cover" or "contain"
+ * @property {'cover'|'contain'} [fillMode="cover"] - Fill mode to use if canvas and image aspect ratios are different
+ * ("cover" or "contain")
  * @property {boolean} [draggable=false] - Draggable by mouse or touch
  * @property {'pageScrollTimer' | 'preventPageScroll' | 'allowPageScroll'} [touchScrollMode = "pageScrollTimer"] - Page
  * scroll behavior with touch events (preventPageScroll,allowPageScroll, pageScrollTimer)
  * @property {number} [pageScrollTimerDelay=1500] - Time in ms when touch scroll will be disabled during interaction
- * if touchScrollMode="pageScrollTimer"
+ * if <b>touchScrollMode: "pageScrollTimer"<b>
  * @property {function(AnimateImages):void} [onPreloadFinished] - Occurs when all image files have been loaded
  * @property {function(AnimateImages):void} [onPosterLoaded] - Occurs when poster image is fully loaded
  * @property {function(AnimateImages):void} [onAnimationEnd] - Occurs when animation has ended

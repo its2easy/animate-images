@@ -1,4 +1,13 @@
 # Changelog
+## 2.0.0
+- plugin import changed
+- new initialization with constructor instead of ```init``` method
+- ```togglePlay()``` renamed to ```toggle()```
+- added types
+- new ```onAnimationEnd``` callback
+- ```playTo``` and ```playFrames``` now return plugin instance instead of Promise
+- ```onBeforeFrame``` and ```onAfterFrame``` parameters changed
+- ```getOption()``` accepts all the options
 ## 1.6 
 - new ```inversion``` option
 ## 1.5.3
