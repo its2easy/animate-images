@@ -9,7 +9,8 @@ export default class Animation{
 
     isAnimating = false;
     framesLeftToPlay = undefined; // frames from playTo() and playFrames()
-    isFirstRAFCall = true;
+    framesQueue = 0; // save decimal part if deltaFrames is not round, to prevent rounding errors
+    progressThreshold = 0.35; // >35% means that there was a long task in callstack
 
     constructor( {settings, data, changeFrame} ) {
         this.settings = settings;
@@ -20,13 +21,14 @@ export default class Animation{
 
     play(){
         this.isAnimating = true;
+        this.stopRequested = false; // fix for the case when stopRequested was set inside getNextFrame that was called outside #animate
         if ( !this.data.isAnyFrameChanged ) { // 1st paint, direct call because 1st frame wasn't drawn
             this.changeFrame(1);
             // subtract 1 manually, because changeFrame is calling not from animate(), but directly
             this.framesLeftToPlay--;
         }
-        //this.updateLastUpdate();
-        this.isFirstRAFCall = true;
+
+        this.lastUpdate = null;// first 'lastUpdate' should be always set in the first raf of the current animation
         requestAnimationFrame(this.#animate.bind(this)); //todo second argument
     }
     stop(){
@@ -58,11 +60,11 @@ export default class Animation{
         // Handle loop
         if (this.settings.loop) { // loop and outside of the frames
             if (newFrameNumber <= 0) {
-                // ex. newFrame = -2, total = 50, newFrame = 50 - abs(-2) = 48
+                // for example newFrame = -2, total = 50, newFrame = 50 - abs(-2) = 48
                 newFrameNumber = this.data.totalImages - Math.abs(newFrameNumber);
             }
             else if (newFrameNumber > this.data.totalImages) {
-                //ex. newFrame = 53, total 50, newFrame = newFrame - totalFrames = 53 - 50 = 3
+                // for example newFrame = 53, total 50, newFrame = newFrame - totalFrames = 53 - 50 = 3
                 newFrameNumber = newFrameNumber - this.data.totalImages;
             }
         } else { // no loop and outside of the frames
@@ -75,54 +77,55 @@ export default class Animation{
                 this.stopRequested = true;
             }
         }
-
         return  newFrameNumber;
     }
 
-    // works inside RAF
-    #animate(time){
+    // RAF callback
+    // (chrome) 'timestamp' is timestamp from the moment the RAF callback was queued
+    // (firefox) 'timestamp' is timestamp from the moment the RAF callback was called
+    // the difference is equal to the time that the main thread was executing after raf callback was queued
+    #animate(timestamp){
         if ( !this.isAnimating ) return;
-        // (chrome) 'time' is timestamp from the moment the RAF callback was queued, not timestamp from when it was called,
-        // so if there are long task after raf, 'time' will differ from the actual time inside of this callback by the
-        // duration of the main thread
 
-        // (firefox) 'time' is timestamp from when raf cb is called, so to prevent jump we have to skip first frame and
-        // set 'lastUpdate' = 'time' when first raf cb was called. Skip one possible frame (if fps>=screen fps) is more
-        // reliable than compare the difference between 'time' and 'lastUpdate' to the animation duration
-        if (this.isFirstRAFCall) {
-            this.isFirstRAFCall = false;
-            this.lastUpdate = time;
+        // lastUpdate is setting here because the time between play() and #animate() is unpredictable, and
+        // lastUpdate = performance.now instead of timestamp because timestamp is unpredictable and depends on the browser.
+        // Possible frame change in the first raf will always be skipped, because time <= performance.now
+        if ( !this.lastUpdate) this.lastUpdate = performance.now();
+
+        let deltaFrames;
+        // Check if there was a long task between this and the last frame, if so move 1 fixed frame and change lastUpdate to now
+        // to prevent animation jump. (1,2,3,long task,75,76,77, ... => 1,2,3,long task,4,5,6,...)
+        // In this case the duration will be longer
+        let isLongTaskBeforeRaf = (Math.abs(timestamp - performance.now()) / this.duration) > this.progressThreshold; //chrome check
+        let progress = ( timestamp - this.lastUpdate ) / this.duration; // e.g. 0.01
+        if ( progress > this.progressThreshold ) isLongTaskBeforeRaf = true; // firefox check
+
+        if (isLongTaskBeforeRaf) deltaFrames = 1; // raf after long task, just move to the next frame
+        else { // normal execution, calculate progress after the last frame change
+            if (progress < 0) progress = 0; //it happens sometimes, when raf timestamp is from the past for some reason
+            deltaFrames = progress * this.data.totalImages; // Frame change step, e.g. 0.45 or 1.25
+            // e.g. progress is 0.8 frames, queue is 0.25 frames, so now deltaFrames is 1.05 frames and we need to update canvas,
+            // without this raf intervals will cause cumulative rounding errors, and actual fps will decrease
+            deltaFrames = deltaFrames + this.framesQueue;
         }
 
-        let deltaFrames = 0;
-        // more than 35% of the full duration in 1 raf.
-        // duration = 1000ms, main thread long task after play() = 700ms, so without this correction only the last 300ms will be played,
-        // which is more correct because exactly 'duration' time will elapse between play() and the last frame, but this will
-        // cause the animation looks shorter, to fix that new frame is changed by 1 and 'lastUpdate' will be timestamp after long task,
-        // and not 'time' which is timestamp before the long task
-        const isLongTaskBeforeRaf = (Math.abs(time - performance.now()) / this.duration) > 0.35;
-        if (isLongTaskBeforeRaf) deltaFrames = 1;
-        else { // normal execution
-            let progress = ( time - this.lastUpdate ) / this.duration; // ex. 0.01
-            if (progress < 0) progress = 0; //it happens somehow
-            deltaFrames = progress * this.data.totalImages; // Frame change step, Ex. 0.45 or 1.25
-        }
+        // calculate next frame only when we want to render
+        // if the getNextFrame check was outside, getNextFrame would be called at screen fps rate, not animation fps
+        // if screen fps 144 and animation fps 30, getNextFrame is calling now 30/s instead of 144/s.
+        // After the last frame, raf is repeating until the next frame calculation,
+        // between the last frame drawing and new frame time, reverse or loop could be changed, and animation won't stop
+        if ( deltaFrames >= 1) { // Calculate only if we need to update 1 frame or more
+            const newLastUpdate = isLongTaskBeforeRaf ? performance.now() : timestamp;
 
-
-        if ( deltaFrames >= 1) { // Animate only if we need to update 1 frame or more
-            const newLastUpdate = isLongTaskBeforeRaf ? performance.now() : time;
-            // calculate next frame only when we want to render
-            // if the getNextFrame check was outside, getNextFrame would be called at screen fps rate, not animation fps
-            // if screen fps 144 and animation fps 30, getNextFrame is calling now 30/s instead of 144/s,
-            // so after the last frame, raf is repeating until the next frame calculation
-            // Between the last frame drawing and new frame time, reverse or loop could be changed, and animation won't stop
+            this.framesQueue = deltaFrames % 1; // save decimal part for the next RAFs
             deltaFrames = Math.floor(deltaFrames) % this.data.totalImages;
-            if ( deltaFrames > this.framesLeftToPlay ) deltaFrames = this.framesLeftToPlay;// case when screen fps higher than animation fps
+            if ( deltaFrames > this.framesLeftToPlay ) deltaFrames = this.framesLeftToPlay;// case when  animation fps > device fps
             let newFrame = this.getNextFrame( deltaFrames );
             if ( this.stopRequested ) { // animation ended from check in getNextFrame()
                 this.data.pluginApi.stop();
                 this.stopRequested = false;
-            } else { // animation on
+                if (this.data.pluginApi.getCurrentFrame() !== newFrame ) this.changeFrame(newFrame); //last frame fix if fps > device fps
+            } else { // animation is on
                 this.lastUpdate = newLastUpdate;
                 this.changeFrame(newFrame);
                 if (typeof this.framesLeftToPlay !== 'undefined') {
@@ -135,13 +138,6 @@ export default class Animation{
         }
         if ( this.isAnimating ) requestAnimationFrame(this.#animate.bind(this));
     }
-
-    /**
-     * Set current time as last timestamp
-     */
-    // updateLastUpdate(){
-    //     this.lastUpdate = performance.now();
-    // }
 
     /**
      * Recalculate animation duration after fps or totalImages change

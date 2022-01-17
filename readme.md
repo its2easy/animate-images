@@ -221,7 +221,7 @@ options:
 | **preload** | string | 'all' | Preload mode ("`all`", "`none`", "`partial`") |
 | **preloadNumber** | number | 0 | Number of images to preload when `preload: "partial"` (0 for all images) |
 | **poster** | string | | URL of the poster image, works like poster in ```<video>``` |
-| **fps** | number | 30 | FPS when playing. Determines the duration of the animation (for ex. 90 images and 60 fps = 1.5s, 90 images and 30fps = 3s) |
+| **fps** | number | 30 | FPS when playing. Determines the duration of the animation (e.g. 90 images and 60 fps = 1.5s, 90 images and 30fps = 3s) |
 | **loop** | boolean | false | Loop the animation | 
 | **autoplay** | boolean | false | Autoplay |
 | **reverse** | boolean | false | Reverse direction |

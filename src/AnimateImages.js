@@ -388,7 +388,7 @@ export default class AnimateImages{
  * @property {'all'|'partial'|'none'} [preload="all"] - Preload mode ("all", "none", "partial")
  * @property {number} [preloadNumber=0] - Number of preloaded images when <b>preload: "partial"</b>, 0 for all
  * @property {string} [poster] - Url of a poster image, to show before load
- * @property {number} [fps=30] - FPS when playing. Determines the duration of the animation (for ex. 90 images and 60
+ * @property {number} [fps=30] - FPS when playing. Determines the duration of the animation (for example 90 images and 60
  * fps = 1.5s, 90 images and 30fps = 3s)
  * @property {boolean} [loop=false] - Loop the animation
  * @property {boolean} [autoplay=false] - Autoplay

@@ -9,6 +9,7 @@
 - ```playTo``` and ```playFrames``` now return plugin instance instead of Promise
 - ```onBeforeFrame``` and ```onAfterFrame``` parameters changed
 - ```getOption()``` accepts all the options
+- fix wrong animation duration
 ## 1.6 
 - new ```inversion``` option
 ## 1.5.3
