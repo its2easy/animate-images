@@ -4,5 +4,5 @@ module.exports =
 ` ${pkg.name} ${pkg.version}
  ${pkg.repository.url}
          
- Copyright (c) 2020-2022 ${pkg.author},
+ Copyright (c) 2020-present ${pkg.author},
  Released under the ${pkg.license} license`;

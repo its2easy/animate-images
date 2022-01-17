@@ -243,7 +243,7 @@ export default class AnimateImages{
         return this;
     }
     /**
-     * Start animation. that plays until the specified frame number
+     * Start animation, that plays until the specified frame number
      * @param {number} frameNumber - Target frame number
      * @returns {AnimateImages} - plugin instance
      */
@@ -255,7 +255,7 @@ export default class AnimateImages{
         return this.playFrames(Math.abs(frameNumber - this.#data.currentFrame))
     }
     /**
-     * Start animation in the current direction with the specified number of frames in queue
+     * Start animation in the current direction with the specified number of frames in the queue
      * @param {number} [numberOfFrames=0] - Number of frames to play
      * @returns {AnimateImages} - plugin instance
      */
@@ -291,8 +291,8 @@ export default class AnimateImages{
      */
     getReverse() { return this.#settings.reverse; }
     /**
-     * Start preloading specified number of images. Сan be called multiple times.
-     * If all the images are already loaded then nothing will happen
+     * Start preload specified number of images, can be called multiple times.
+     * If all the images are already loaded, then nothing will happen
      * @param {number} number - Number of images to load. If not specified, all remaining images will be loaded.
      * @returns {AnimateImages} - plugin instance
      */
@@ -323,14 +323,14 @@ export default class AnimateImages{
     }
     /**
      * Set new option value
-     * @param {string} option - Option name. Allowed options: fps, loop, reverse, inversion, ratio, fillMode, draggable,
-     * touchScrollMode, pageScrollTimerDelay, onPreloadFinished, onPosterLoaded, onBeforeFrame, onAfterFrame
+     * @param {string} option - Option name. Allowed options: fps, loop, reverse, inversion, ratio, fillMode, draggable, dragModifier,
+     * touchScrollMode, pageScrollTimerDelay, onPreloadFinished, onPosterLoaded, onAnimationEnd, onBeforeFrame, onAfterFrame
      * @param {*} value - New value
      * @returns {AnimateImages} - plugin instance
      */
     setOption(option, value) {
         const allowedOptions = ['fps', 'loop', 'reverse', 'inversion', 'ratio', 'fillMode', 'draggable', 'dragModifier', 'touchScrollMode',
-            'pageScrollTimerDelay', 'onPreloadFinished', 'onPosterLoaded', 'onBeforeFrame', 'onAfterFrame'];
+            'pageScrollTimerDelay', 'onPreloadFinished', 'onPosterLoaded', 'onAnimationEnd', 'onBeforeFrame', 'onAfterFrame'];
         if (allowedOptions.includes(option)) {
            this.#settings[option] = value;
            if (option === 'fps') this.#animation.updateDuration();

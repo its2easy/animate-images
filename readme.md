@@ -1,16 +1,16 @@
 <h1 align="center">
-   Animate Images
+   AnimateImages
 </h1>
 
 ![npm](https://img.shields.io/npm/v/@its2easy/animate-images)
 
 Demo - [codepen](https://codepen.io/its2easy/pen/powQJmd)
 
-**animate-images** is a lightweight (18kb without gzip) library that animates a sequence of images 
+**AnimateImages** is a lightweight library (18kb) that animates a sequence of images 
 to use in animations or pseudo 3d product view. It works WITHOUT BUILT-IN UI and mainly 
 developed for complex animations.
 
-To use it you have to get a series of frames from a video or 3d app. 
+To use it, you have to get a series of frames from a video or 3d app. 
 The frames must be separate images of the same size.
 
 * [Installation](#installation)
@@ -111,7 +111,7 @@ Create canvas element
 
 Initialize with options
 ```javascript
-let element = document.querySelector('canvas.canvas_el');
+let element = document.querySelector('canvas.canvas-el');
 let imagesArray = Array.from(new Array(90), (v, k) => { // generate array of urls
     let number = String(k).padStart(4, "0");
     return `path/to/your/images/frame-${number}.jpg`;
@@ -145,8 +145,8 @@ setTimeout(() => {
 }, 1000);
 // or instance.preload() to load all the images
 ```
-Methods that were called from outside of `onPreloadFinished` will trigger the load of all unloaded images, 
-wait for the full load, and then execute the action. if multiple methods have been called before 
+Methods that were called from outside of `onPreloadFinished` will trigger the load of all remaining images, 
+wait for the full load, and then execute the action. If multiple methods have been called before 
 load, only the last will be executed
 ```javascript
 let instance = animateImages.init(element,
@@ -155,30 +155,30 @@ let instance = animateImages.init(element,
         preload: "none", 
     }
 );
-// if preload: "none", it will trigger the load, and play after each image loaded
+// if preload: "none", it will trigger the load, and play after all the image loaded
 // if preload: "all", it will wait until full load and then start
 instance.play(); 
 ```
 In general, the plugin will load all the frames before any action, but you can preload a part of the 
-images in some cases, for example when user is scrolling to the section in which the animation will 
+images in some cases, for example, when the user is scrolling to the section in which the animation will 
 take place.
 
 ### Sizes and responsive behavior
-Width of the canvas is defined by page CSS. To calculate height, plugin uses ratio from
+The width of the canvas is defined by page CSS. To calculate height, plugin uses ratio of
 inline width and height canvas properties `<canvas width="1600" height="900">` (if they're not set, default
- are 300x150). This ratio can be overwritten by `options.ratio`. Height of the canvas should be `'auto'` and 
+ is 300x150). This ratio can be overwritten by `options.ratio`. Height of the canvas should be `'auto'` and 
 not fixed by CSS. If the height is fixed, the ratio can't be used, and the canvas will use its natural CSS 
 size. The dimensions of the images are taken from the image itself after load, and they do not need to be 
 set anywhere in the settings.
 
-If the canvas and images have the same ratio, full image will be displayed. If the ratios are the same, 
-but sizes are different, image will be scaled to fit the canvas. On the page the canvas with the image will
+If the canvas and images have the same ratio, the full image will be displayed. If the ratios are the same, 
+but sizes are different, the image will be scaled to fit the canvas. On the page the canvas with the image will
 be scaled to canvas CSS size.
 
 If canvas and image ratios are different, then image will use `options.fillMode`, which works like 
-background-size `cover` and `contain`. Image will be centered.
+background-size `cover` and `contain`, and the image will be centered.
 
-So to display the full image, check the image width and height, and set it as canvas inline `width` and `height` 
+To display the full image, check the image width and height, and set it as canvas inline `width` and `height` 
 (or set `options.ratio`).
 Then set canvas width by CSS (width="500px" or width="100%" or max-width="800px" etc), and don't set 
 canvas height. 
@@ -187,11 +187,11 @@ For example, &lt;canvas width="800" height="400"&gt;, image 1200x600, canvas has
 Image will be scaled to 800x400 inside canvas and fully visible, canvas on the page will be displayed 
 500px x 250px.
 
-After page resize, the sizes will be recalculated automatically, but if canvas was resized by script, call 
+After page resize, the sizes will be recalculated automatically, but if canvas was resized by a script, call 
 `instance.updateCanvas()`
 
-### Loading error
-All images that were loaded with errors will be removed from the array of frames. Duration 
+### Loading errors
+All images that have been loaded with errors will be removed from the array of frames. Duration 
 of the animation will be recalculated.  
 
 New frames count could be obtained in preload callback:
@@ -235,8 +235,8 @@ options:
 | **onPreloadFinished** | function(AnimateImages) | | Callback, occurs when all image files have been loaded, receives plugin instance as a parameter |
 | **onPosterLoaded** | function(AnimateImages) | | Callback, occurs when poster image is fully loaded, receives plugin instance as a parameter |
 | **onAnimationEnd** | function(AnimateImages) | |  Callback, occurs when animation has ended, receives plugin instance as a parameter |
-| **onBeforeFrame** | function(AnimateImages, {context, width, height}) | | Callback, occurs before new frame, receives canvas context as a parameter. Can be used to change settings, for example ```imageSmoothingEnabled``` |
-| **onAfterFrame** | function(AnimateImages, {context, width, height}) | | Callback, occurs after the frame was drawn, receives canvas context as a parameter. Can be used to change the image. |
+| **onBeforeFrame** | function(AnimateImages, {context, width, height}) | | Callback, occurs before new frame, receives plugin and canvas info as parameters. Can be used to change settings, for example ```imageSmoothingEnabled``` |
+| **onAfterFrame** | function(AnimateImages, {context, width, height}) | | Callback, occurs after the frame was drawn, receives plugin and canvas info as parameters. Can be used to change the image. |
 
 ##### Callback example:
 ```javascript
@@ -306,7 +306,7 @@ instance.setFrame(35);
 ---
 
 ### playTo
-Start animation. that plays until the specified frame number
+Start animation, that plays until the specified frame number
 
 `parameters`
 - frameNumber {number} - Target frame number
@@ -320,7 +320,7 @@ instance.playTo(85);
 ---
 
 ### playFrames
-Start animation in the current direction with the specified number of frames in queue.
+Start animation in the current direction with the specified number of frames in the queue.
 If `loop: false` animation will stop when it reaches the first or the last frame.
 
 `parameters`
@@ -353,8 +353,8 @@ Get current reverse option. Alias to ```getOption('reverse')```
 ---
 
 ### preloadImages
-Start preloading specified number of images. Сan be called multiple times. 
-If all the images are already loaded then nothing will happen
+Start preload specified number of images, can be called multiple times. 
+If all the images are already loaded, then nothing will happen
 
 `parameters`
 - number {number} - Number of images to load. If not specified, all remaining images will be loaded.
@@ -390,7 +390,8 @@ Set new option value
 
 `parameters`
 - option {string} -  Option name. Allowed options: `fps`, `loop`, `reverse`, `inversion`, `ratio`, `fillMode`, 
-  `draggable`, `touchScrollMode`, `pageScrollTimerDelay`, `onPreloadFinished`, `onPosterLoaded`, `onBeforeFrame`, `onAfterFrame`
+  `draggable`, `dragModifier`, `touchScrollMode`, `pageScrollTimerDelay`, `onPreloadFinished`, `onPosterLoaded`, `onAnimationEnd`, 
+  `onBeforeFrame`, `onAfterFrame`
 - value {*} -  New value
 
 `returns` {AnimateImages} - plugin instance
@@ -504,7 +505,7 @@ element.addEventListener('animate-images:loading-progress', function (e){
 * iOS Safari 13.4+
 
 ## <a name="license"></a>License
-Animate Images is provided under the [MIT License](https://opensource.org/licenses/MIT)
+AnimateImages is provided under the [MIT License](https://opensource.org/licenses/MIT)
 
 
   

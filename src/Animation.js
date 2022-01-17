@@ -29,7 +29,7 @@ export default class Animation{
         }
 
         this.lastUpdate = null;// first 'lastUpdate' should be always set in the first raf of the current animation
-        requestAnimationFrame(this.#animate.bind(this)); //todo second argument
+        requestAnimationFrame(this.#animate.bind(this));
     }
     stop(){
         if ( this.isAnimating ){
