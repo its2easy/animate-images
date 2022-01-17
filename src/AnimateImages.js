@@ -262,12 +262,16 @@ export default class AnimateImages{
     playFrames(numberOfFrames = 0){
         if ( this.#preloader.isPreloadFinished ) {
             numberOfFrames = Math.floor(numberOfFrames);
-            if (numberOfFrames < 0) return new Promise((resolve)=> { resolve(this)}); //empty animation
+            if (numberOfFrames < 0) { // first frame should be rendered to replace poster or transparent bg, so allow 0 for the first time
+                return this.stop(); //empty animation, stop() to trigger events and callbacks
+            }
 
             // if this is the 1st animation, we should add 1 frame to the queue to draw the 1st initial frame
-            // because 1st frame is not drawn by default
+            // because 1st frame is not drawn by default (1 frame will replace poster or transparent bg)
             if (!this.#data.isAnyFrameChanged) numberOfFrames += 1;
-            if (numberOfFrames <= 0) return new Promise((resolve)=> { resolve(this)}); //empty animation
+            if (numberOfFrames <= 0) { // with playFrames(0) before any actions numberOfFrames=1, after any frame change numberOfFrames=0
+                return this.stop(); //empty animation
+            }
 
             this.#animation.framesLeftToPlay = numberOfFrames;
             this.play();
