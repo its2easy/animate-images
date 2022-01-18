@@ -1,6 +1,6 @@
 {
   "name": "@its2easy/animate-images",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Javascript library that animates a sequence of images to use in complex animations or pseudo 3d product view",
   "author": "Dmitry Kovalev",
   "license": "MIT",
