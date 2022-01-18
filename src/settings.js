@@ -31,11 +31,11 @@ export const defaultSettings = {
     loop: false,
     autoplay: false,
     reverse: false,
-    inversion: false,
     ratio: undefined,
     fillMode: "cover",
 
     draggable: false,
+    inversion: false,
     dragModifier: 1,
     touchScrollMode: "pageScrollTimer",
     pageScrollTimerDelay: 1500,

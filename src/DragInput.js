@@ -126,7 +126,9 @@ export default class DragInput{
         // e.g one frame is 10px, swipeLength is 13px, we change 1 frame and add 3px to the next swipe,
         // so fullwidth swipe is always rotate sprite for 1 turn (with 'dragModifier' = 1)
         this.pixelsCorrection = swipeLength - (this.threshold * deltaFrames);
-        this.changeFrame(this.getNextFrame( deltaFrames, (direction === 'left') )); // left means backward (reverse: true)
+        let isReverse = (direction === 'left'); // left means backward (reverse: true)
+        if (this.settings.inversion) isReverse = !isReverse;// invert direction
+        this.changeFrame(this.getNextFrame( deltaFrames, isReverse )); // left means backward (reverse: true)
         this.data.canvas.element.dispatchEvent( new CustomEvent('animate-images:drag-change',
             { detail: {frame: this.data.currentFrame} })
         );

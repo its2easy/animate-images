@@ -283,7 +283,7 @@ export default class AnimateImages{
     }
     /**
      * Change the direction of the animation. Alias to <b>setOption('reverse', true)</b>
-     * @param {boolean} reverse - True for backward animation, false for forward
+     * @param {boolean} [reverse=true] - True for backward animation, false for forward
      * @returns {AnimateImages} - plugin instance
      */
     setReverse(reverse = true){
@@ -306,7 +306,8 @@ export default class AnimateImages{
         return this;
     }
     /**
-     * Calculate new canvas dimensions. Should be called after the canvas size was changed in the browser
+     * Calculate new canvas dimensions. Should be called after the canvas size was changed manually
+     * Called automatically after page resize
      * @returns {AnimateImages} - plugin instance
      */
     updateCanvas(){
@@ -397,12 +398,12 @@ export default class AnimateImages{
  * @property {boolean} [loop=false] - Loop the animation
  * @property {boolean} [autoplay=false] - Autoplay
  * @property {boolean} [reverse=false] - Reverse direction
- * @property {boolean} [inversion=false] - Inversion defines base direction. It differs from reverse in that
  * reverse means forward or backward, and inversion determines which direction is forward. Affects animation and drag
  * @property {number} [ratio] - Canvas width/height ratio, it has higher priority than inline canvas width and height
  * @property {'cover'|'contain'} [fillMode="cover"] - Fill mode to use if canvas and image aspect ratios are different
  * ("cover" or "contain")
  * @property {boolean} [draggable=false] - Draggable by mouse or touch
+ * @property {boolean} [inversion=false] - Inversion changes drag direction
  * @property {number} [dragModifier=1] - Sensitivity factor for user interaction. Only positive numbers are allowed
  * @property {'pageScrollTimer' | 'preventPageScroll' | 'allowPageScroll'} [touchScrollMode = "pageScrollTimer"] - Page
  * scroll behavior with touch events (preventPageScroll,allowPageScroll, pageScrollTimer)
