@@ -13,6 +13,7 @@
             max-width: 800px;
             margin-left:  auto;
             margin-right:  auto;
+            position: relative;
         }
         .canvas{
             /*border: 1px solid red;*/
@@ -24,6 +25,11 @@
             cursor: grab;
         }
         .loading{
+            position: absolute;
+            z-index: 5;
+            right: 0;
+            top: 0;
+            background-color: rgba(255, 255, 255, 0.7);
             max-width: 280px;
             text-align: center;
             margin-left: auto;
@@ -179,9 +185,10 @@
             <!--CANVAS BLOCK-->
             <div class="canvas1-block">
                 <canvas id="canvas1" class="canvas canvas1" width="800" height="500"></canvas>
+                <div class="loading loading1">Loading <span>0</span>%</div>
             </div>
             <!-- ============  -->
-            <div class="loading loading1">Loading <span>0</span>%</div>
+
 
         </div>
 

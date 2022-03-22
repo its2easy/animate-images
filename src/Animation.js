@@ -38,7 +38,6 @@ export default class Animation{
         }
         this.isAnimating = false;
         this.framesLeftToPlay = undefined;
-        this.animationPromise = null;
     }
 
     /**
