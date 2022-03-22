@@ -252,7 +252,20 @@ export default class AnimateImages{
         if (frameNumber > this.#data.currentFrame)   this.setReverse(false); // move forward
         else  this.setReverse(true); // move backward
 
-        return this.playFrames(Math.abs(frameNumber - this.#data.currentFrame))
+        let numberOfFramesToPlay = Math.abs(frameNumber - this.#data.currentFrame);
+
+        if (this.#settings.loop && numberOfFramesToPlay > this.#data.totalImages / 2) {
+          // take the shortest path
+          if (this.#data.currentFrame > frameNumber) {
+            numberOfFramesToPlay = (this.#data.totalImages - this.#data.currentFrame) + frameNumber;
+            this.setReverse(false);
+          } else {
+            numberOfFramesToPlay = (this.#data.totalImages - frameNumber) + this.#data.currentFrame;
+            this.setReverse(true);
+          }
+        }
+
+        return this.playFrames(numberOfFramesToPlay);
     }
     /**
      * Start animation in the current direction with the specified number of frames in the queue
