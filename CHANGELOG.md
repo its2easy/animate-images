@@ -1,4 +1,6 @@
 # Changelog
+## 2.1.1
+- new ```shortestPath``` option for ```playTo()```
 ## 2.1.0
 - ```inversion``` is now only used while dragging and doesn't affect animation
 ## 2.0.0

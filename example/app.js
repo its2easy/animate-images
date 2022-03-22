@@ -134,6 +134,11 @@ document.addEventListener("DOMContentLoaded", function() {
         document.querySelector('.js-play-to').addEventListener('click', function() {
             instance1.playTo(+this.closest('.js-option-block').querySelector('input').value);
         });
+        document.querySelector('.js-play-to-shortest').addEventListener('click', function() {
+            instance1.playTo(+this.closest('.js-option-block').querySelector('input').value, {
+                shortestPath: true,
+            });
+        });
         document.querySelector('.js-play-frames').addEventListener('click', function() {
             instance1.playFrames(+this.closest('.js-option-block').querySelector('input').value);
         });

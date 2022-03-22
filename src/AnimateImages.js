@@ -245,27 +245,27 @@ export default class AnimateImages{
     /**
      * Start animation, that plays until the specified frame number
      * @param {number} frameNumber - Target frame number
+     * @param {Object} [options] - Options
+     * @param {boolean} [options.shortestPath=false] - If set to true and loop enabled, will use the shortest path
      * @returns {AnimateImages} - plugin instance
      */
-    playTo(frameNumber){
+    playTo(frameNumber, options){
         frameNumber = normalizeFrameNumber(frameNumber, this.#data.totalImages);
-        if (frameNumber > this.#data.currentFrame)   this.setReverse(false); // move forward
-        else  this.setReverse(true); // move backward
 
-        let numberOfFramesToPlay = Math.abs(frameNumber - this.#data.currentFrame);
+        const innerPathDistance = Math.abs(frameNumber - this.#data.currentFrame), // not crossing edge frames
+            outerPathDistance = this.#data.totalImages - innerPathDistance, // crossing edges frames
+            shouldUseOuterPath = this.#settings.loop && options?.shortestPath && (outerPathDistance < innerPathDistance);
 
-        if (this.#settings.loop && numberOfFramesToPlay > this.#data.totalImages / 2) {
-          // take the shortest path
-          if (this.#data.currentFrame > frameNumber) {
-            numberOfFramesToPlay = (this.#data.totalImages - this.#data.currentFrame) + frameNumber;
-            this.setReverse(false);
-          } else {
-            numberOfFramesToPlay = (this.#data.totalImages - frameNumber) + this.#data.currentFrame;
-            this.setReverse(true);
-          }
+        if ( !shouldUseOuterPath ) { // Inner path (default)
+            // long conditions to make them more readable
+            if (frameNumber > this.#data.currentFrame) this.setReverse(false); // move forward
+            else this.setReverse(true); // move backward
+        } else { // Outer path
+            if (frameNumber < this.#data.currentFrame) this.setReverse(false); // move forward
+            else this.setReverse(true); // move backward
         }
 
-        return this.playFrames(numberOfFramesToPlay);
+        return this.playFrames( (shouldUseOuterPath) ? outerPathDistance : innerPathDistance );
     }
     /**
      * Start animation in the current direction with the specified number of frames in the queue

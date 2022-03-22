@@ -310,10 +310,21 @@ Start animation, that plays until the specified frame number
 
 `parameters`
 - frameNumber {number} - Target frame number
+- options {Object}
+    - options.shortestPath {boolean} - If set to true and loop is enabled, function will use the shortest path to the target frame,
+      even if the path crosses edge frames. Default is **false**.
 ```javascript
 // if current frame is 30 of 100, it will play from 30 to 85, 
 // if current frame is 95, it will play from 95 to 85
 instance.playTo(85);
+
+// shortestPath
+// if current frame is 2, it will play 1, 100, 99, 98
+instance.playTo(98, {
+    shortestPath: true
+});
+// (default) if current frame is 2, it will play 3, 4, 5 ... 97, 98
+instance.playTo(98);
 ```
 `returns` {AnimateImages} - plugin instance
 
