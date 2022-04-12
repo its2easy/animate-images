@@ -1,4 +1,6 @@
 # Changelog
+## 2.1.2
+- fix wrong ```onPosterLoaded``` call
 ## 2.1.1
 - new ```shortestPath``` option for ```playTo()```
 ## 2.1.0
