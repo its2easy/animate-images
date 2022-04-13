@@ -40,6 +40,8 @@ export const defaultSettings = {
     touchScrollMode: "pageScrollTimer",
     pageScrollTimerDelay: 1500,
 
+    fastPreview: false,
+
     onPreloadFinished: undefined,
     onPosterLoaded: undefined,
     onAnimationEnd: undefined,

@@ -99,7 +99,11 @@ export default class DragInput{
         }
     }
     #swipeStart(){
-        if ( !this.data.pluginApi.isPreloadFinished() ) return;
+        if ( !(this.data.pluginApi.isFastPreviewPreloadFinished() || this.data.pluginApi.isPreloadFinished()) ) return;
+        // trigger full load after user interaction after fast preload finished
+        if (this.settings.fastPreview && !this.data.pluginApi.isPreloadFinished() && this.data.pluginApi.isFastPreviewPreloadFinished()) {
+            this.data.pluginApi.preloadImages();
+        }
         this.data.pluginApi.stop();
         this.isSwiping = true;
         this.data.canvas.element.style.cursor = 'grabbing';

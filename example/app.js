@@ -10,9 +10,9 @@ document.addEventListener("DOMContentLoaded", function() {
     let instance1 = new AnimateImages(element, {
         images: imagesArray,
         preload: "partial",
-        preloadNumber: 20,
+        preloadNumber: 5,
         poster: imagesArray[0],
-        fps: 60,
+        fps: 5,
         loop: true,
         //reverse: true,
         autoplay: false,
@@ -23,9 +23,20 @@ document.addEventListener("DOMContentLoaded", function() {
         //dragModifier: 1.5,
         touchScrollMode: "allowPageScroll",
         //pageScrollTimerDelay: 2500,
+        fastPreview: {
+            images: [imagesArray[0], imagesArray[10], imagesArray[20], imagesArray[30], imagesArray[40], imagesArray[50], imagesArray[60],
+                imagesArray[70], imagesArray[80]],
+            mapFrame: function (currentFrame){
+                return currentFrame * 10;
+            },
+            fpsAfter: 60,
+        },
         onPreloadFinished: (plugin) => {
             console.log('Callback: onPreloadFinished');
             //plugin.play();
+        },
+        onFastPreviewPreloadFinished: (plugin) => {
+            console.log('Callback: onFastPreviewPreloadFinished');
         },
         onPosterLoaded(plugin){
             console.log('Callback: onPosterLoaded');
@@ -40,17 +51,23 @@ document.addEventListener("DOMContentLoaded", function() {
         //
         // },
     });
-    instance1.preloadImages();
+    //instance1.preloadImages();
     setupControls();
+    setTimeout(()=> {
+        console.log(instance1.getTotalImages());
+    }, 4000)
 
     // Events
     element.addEventListener('animate-images:loading-progress', function (e){
         //console.log(`Event: loading progress: ${e.detail.progress}`);
         loadingBlock.querySelector('span').textContent = Math.floor( +e.detail.progress * 100);
     });
-    element.addEventListener('animate-images:preload-finished', function (e){
-        console.log(`Event: animate-images:preload-finished`);
-    });
+    // element.addEventListener('animate-images:preload-finished', function (e){
+    //     console.log(`Event: animate-images:preload-finished`);
+    // });
+    // element.addEventListener('animate-images:fast-preview-preload-finished', function (e){
+    //     console.log(`Event: animate-images:fast-preview-preload-finished`);
+    // });
     element.addEventListener('animate-images:animation-end', function () {
         console.log(`Event: animate-images:animation-end`);
     });

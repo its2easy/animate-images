@@ -47,7 +47,7 @@ export default class AnimateImages{
     constructor(node, options){
         validateInitParameters(node, options);
         this.#settings = {...defaultSettings, ...options};
-        this.#data.totalImages = options.images.length;
+        this.#data.totalImages = this.#settings.images.length;
         this.#data.canvas.element = node;
         this.#data.pluginApi = this;
         this.#boundUpdateCanvasSizes = this.#updateCanvasSizes.bind(this)
@@ -174,8 +174,9 @@ export default class AnimateImages{
      */
     play(){
         if ( this.#animation.isAnimating ) return this;
-        if ( this.#preloader.isPreloadFinished ) {
+        if ( this.#preloader.isAnyPreloadFinished ) {
             this.#animation.play();
+            this.#preloader.maybePreloadAll();
         } else {
             this.#data.deferredAction = this.play.bind(this);
             this.#preloader.startLoadingImages();
@@ -204,9 +205,10 @@ export default class AnimateImages{
      * @returns {AnimateImages} - plugin instance
      */
     next(){
-        if ( this.#preloader.isPreloadFinished ) {
+        if ( this.#preloader.isAnyPreloadFinished ) {
             this.stop();
             this.#changeFrame( this.#animation.getNextFrame(1) );
+            this.#preloader.maybePreloadAll();
         } else {
             this.#data.deferredAction = this.next.bind(this);
             this.#preloader.startLoadingImages();
@@ -218,9 +220,10 @@ export default class AnimateImages{
      * @returns {AnimateImages} - plugin instance
      */
     prev(){
-        if ( this.#preloader.isPreloadFinished ) {
+        if ( this.#preloader.isAnyPreloadFinished ) {
             this.stop();
             this.#changeFrame( this.#animation.getNextFrame(1, !this.#settings.reverse) );
+            this.#preloader.maybePreloadAll();
         } else {
             this.#data.deferredAction = this.prev.bind(this);
             this.#preloader.startLoadingImages();
@@ -233,9 +236,10 @@ export default class AnimateImages{
      * @returns {AnimateImages} - plugin instance
      */
     setFrame(frameNumber){
-        if ( this.#preloader.isPreloadFinished ) {
+        if ( this.#preloader.isAnyPreloadFinished ) {
             this.stop();
             this.#changeFrame(normalizeFrameNumber(frameNumber, this.#data.totalImages));
+            this.#preloader.maybePreloadAll();
         } else {
             this.#data.deferredAction = this.setFrame.bind(this, frameNumber);
             this.#preloader.startLoadingImages();
@@ -273,7 +277,7 @@ export default class AnimateImages{
      * @returns {AnimateImages} - plugin instance
      */
     playFrames(numberOfFrames = 0){
-        if ( this.#preloader.isPreloadFinished ) {
+        if ( this.#preloader.isAnyPreloadFinished ) {
             numberOfFrames = Math.floor(numberOfFrames);
             if (numberOfFrames < 0) { // first frame should be rendered to replace poster or transparent bg, so allow 0 for the first time
                 return this.stop(); //empty animation, stop() to trigger events and callbacks
@@ -288,6 +292,7 @@ export default class AnimateImages{
 
             this.#animation.framesLeftToPlay = numberOfFrames;
             this.play();
+            this.#preloader.maybePreloadAll();
         } else {
             this.#data.deferredAction = this.playFrames.bind(this, numberOfFrames);
             this.#preloader.startLoadingImages();
@@ -314,7 +319,7 @@ export default class AnimateImages{
      * @returns {AnimateImages} - plugin instance
      */
     preloadImages(number= undefined){
-        number = number ?? this.#data.totalImages;
+        number = number ?? this.#settings.images.length;
         this.#preloader.startLoadingImages(number);
         return this;
     }
@@ -371,6 +376,8 @@ export default class AnimateImages{
     isAnimating() { return this.#animation.isAnimating }
     /** @returns {boolean} - is preload finished */
     isPreloadFinished() { return this.#preloader.isPreloadFinished }
+    /** @returns {boolean} - is fast preview mode preload finished */
+    isFastPreviewPreloadFinished() { return this.#preloader.isFastPreviewPreloadFinished }
     /** @returns {boolean} - is loaded with errors */
     isLoadedWithErrors() { return this.#preloader.isLoadedWithErrors }
 
@@ -379,9 +386,10 @@ export default class AnimateImages{
      * @returns {AnimateImages} - plugin instance
      */
     reset(){
-        if ( this.#preloader.isPreloadFinished ) {
+        if ( this.#preloader.isAnyPreloadFinished ) {
             this.stop();
             this.#changeFrame(normalizeFrameNumber(1, this.#data.totalImages));
+            this.#preloader.maybePreloadAll();
         } else {
             this.#data.deferredAction = this.reset.bind(this);
             this.#preloader.startLoadingImages();
