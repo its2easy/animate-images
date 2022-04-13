@@ -430,7 +430,13 @@ export default class AnimateImages{
  * scroll behavior with touch events (preventPageScroll,allowPageScroll, pageScrollTimer)
  * @property {number} [pageScrollTimerDelay=1500] - Time in ms when touch scroll will be disabled during interaction
  * if <b>touchScrollMode: "pageScrollTimer"<b>
+ * @property {Object|false} [fastPreview=false] - Special mode for interactivity after loading only a part of the pictures
+ * @property {Array<string>} [fastPreview.images] - images urls for fastPreview mode (<b>Required</b> if fastPreview is enabled)
+ * @property {number} [fastPreview.fpsAfter] - fps value that will be applied after the full list of images is loaded
+ * @property {function(number):number} [fastPreview.mapFrame] - A function that takes the frame number of the short set
+ * and returns the frame number of the full set, to prevent jump after full load.
  * @property {function(AnimateImages):void} [onPreloadFinished] - Occurs when all image files have been loaded
+ * @property {function(AnimateImages):void} [onFastPreloadFinished] - Occurs when all fastPreview mode images have been loaded
  * @property {function(AnimateImages):void} [onPosterLoaded] - Occurs when poster image is fully loaded
  * @property {function(AnimateImages):void} [onAnimationEnd] - Occurs when animation has ended
  * @property {function(AnimateImages, FrameInfo):void} [onBeforeFrame] - Occurs before new frame

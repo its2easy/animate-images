@@ -232,7 +232,12 @@ options:
 | **dragModifier** | number | 1 | Sensitivity factor for user interaction. Only positive numbers are allowed |
 | **touchScrollMode** | string | "pageScrollTimer" | Page scroll behavior with touch events _(only for events that fire in the plugin area)_. Available modes: `preventPageScroll` - touch scroll is always disabled. `allowPageScroll` - touch scroll is always enabled. `pageScrollTimer` - after the first interaction the scroll is not disabled; if the time between the end of the previous interaction and the start of a new one is less than _pageScrollTimerDelay_, then scroll will be disabled; if more time has passed, then scroll will be enabled again |
 | **pageScrollTimerDelay** | number | 1500 | Time in ms when touch scroll will be disabled after the last user interaction, if `touchScrollMode: "pageScrollTimer"` |
+| **fastPreview** | Object &#124; false | false | Special mode when you want interactivity as quickly as possible, but you have a lot of images. It will only load a small set of images, after which it will be possible to interact with the plugin, and then full set of the images will be loaded. If enabled, ```preload```, ```preloadNumber``` and ```fps``` options will be applied to **fastPreview** images. See [examples below](#fast-preview) |
+| **fastPreview.images** | Array&lt;string&gt; |  | Required if ```fastPreview``` is enabled. Array with urls of preview mode images. You could use a part of **options.images** array or completely different pictures, they will be replaces when full sequence is loaded  |
+| **fastPreview.fpsAfter** | number |  | fps value that will be applied after the full list of images is loaded |
+| **fastPreview.mapFrame** | function(frameNumber) |  | A function that takes the frame number of the short set and returns the frame number of the full set, so that the animation doesn't jump after full load. Frame numbers start from 1. If not specified, first frame will be set |
 | **onPreloadFinished** | function(AnimateImages) | | Callback, occurs when all image files have been loaded, receives plugin instance as a parameter |
+| **onFastPreloadFinished** | function(AnimateImages) | | Callback, occurs when all ```fastPreview``` mode images have been loaded, receives plugin instance as a parameter |
 | **onPosterLoaded** | function(AnimateImages) | | Callback, occurs when poster image is fully loaded, receives plugin instance as a parameter |
 | **onAnimationEnd** | function(AnimateImages) | |  Callback, occurs when animation has ended, receives plugin instance as a parameter |
 | **onBeforeFrame** | function(AnimateImages, {context, width, height}) | | Callback, occurs before new frame, receives plugin and canvas info as parameters. Can be used to change settings, for example ```imageSmoothingEnabled``` |
@@ -450,6 +455,14 @@ change frames
 
 ---
 
+### isFastPreloadFinished
+Returns true if ```fastPreview``` mode preload finished and plugin is ready to
+change frames
+
+`returns` {boolean}
+
+---
+
 ### isLoadedWithErrors
 Returns true if at least one image wasn't loaded because of error
 
@@ -483,6 +496,10 @@ Fires after every image.onerror
 **animate-images:preload-finished** -
 Fires when all the images have been loaded, and the plugin is ready to play
 
+**animate-images:fast-preload-finished** -
+Fires when all ```fastPreview``` images have been loaded, and the plugin is 
+ready to play
+
 **animate-images:poster-loaded** -
 Fires when poster has been loaded
 
@@ -507,6 +524,67 @@ let instance = new AnimateImages(element, options);
 element.addEventListener('animate-images:loading-progress', function (e){
     console.log(Math.floor(e.detail.progress * 100) + '%');
 });
+```
+
+### <a name="fast-preview"></a>fastPreview mode examples:
+```javascript
+// load only part of all images, start playing at 5 fps, then load all the images, 
+// replace small set with full as soon as it loads, and continue playing it at 30fps
+let instance1 = new AnimateImages(element, {
+    images: imagesArray,
+    autoplay: true,
+    fps: 5, //fps for fastPreview
+    ...
+    fastPreview: {
+        images: imagesArray.filter( (val, i) => i % 5 === 0 ),// use every 5th image (imagesArray[0], imagesArray[6], etc)
+        fpsAfter: 30, 
+        mapFrame: function (currentFrame){
+            return ((currentFrame-1) * 5) + 1; // 1 => 1, 2 => 6, 3 => 11, etc
+        },
+    }
+}
+
+// preload only 3 images, wait until user interaction, load the rest of fastPreview images, start playing,
+// then load full sequence and replace with it
+let instance1 = new AnimateImages(element, {
+    images: imagesArray,
+    preload: "partial", // preload is applied to fastPreview only
+    preloadNumber: 3,
+    ...
+    fastPreview: {
+        images: imagesArray.filter( (val, i) => i % 10 === 0 ),// use every 10th image (imagesArray[0], imagesArray[6], etc)
+    }
+}
+button.addEventListener("click", () => { instance1.play() });
+
+// start loading only after some event, then wait until user interaction, play and load the rest
+let instance1 = new AnimateImages(element, {
+    images: imagesArray,
+    preload: "none",
+    fastPreview: {
+        images: imagesArray.filter( (val, i) => i % 10 === 0 ),
+    }
+}
+...
+someModalOpenCallback(){
+    instance1.preloadImages(); // will load only fastPreview images
+}
+...
+buttonInsedeModal.addEventListener("click", () => { instance1.play() }); // it's safe to call even withput any preload
+
+// preload all fastPreview images, start loading full sequnce after that, but wait for interaction to play
+let instance1 = new AnimateImages(element, {
+    images: imagesArray,
+    preload: "all", // will load only fastPreview.images
+    fastPreview: {
+        images: imagesArray.filter( (val, i) => i % 10 === 0 ),
+    },
+    onFastPreloadFinished: (plugin) => {
+        plugin.preloadImages();
+    }
+}
+// initially will start short sequnce if full in not ready, otherwise will start the full
+buttonInsedeModal.addEventListener("click", () => { instance1.play() });
 ```
 
 ## <a name="browser_support"></a>Browser support

@@ -1,4 +1,7 @@
 # Changelog
+## 2.2.0
+- new ```fastPreview``` option, ```onFastPreloadFinished``` callback, 
+  ```animate-images:fast-preload-finished``` event, ```isFastPreloadFinished``` method
 ## 2.1.2
 - fix wrong ```onPosterLoaded``` call
 ## 2.1.1

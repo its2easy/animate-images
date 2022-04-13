@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", function() {
         preload: "all",
         preloadNumber: 5,
         poster: imagesArray[0],
-        fps: 5,
+        fps: 45,
         loop: true,
         //reverse: true,
         autoplay: false,
@@ -24,10 +24,9 @@ document.addEventListener("DOMContentLoaded", function() {
         touchScrollMode: "allowPageScroll",
         //pageScrollTimerDelay: 2500,
         // fastPreview: {
-        //     images: [imagesArray[0], imagesArray[10], imagesArray[20], imagesArray[30], imagesArray[40], imagesArray[50], imagesArray[60],
-        //         imagesArray[70], imagesArray[80]],
+        //     images: imagesArray.filter( (val, i) => i % 5 === 0 ),
         //     mapFrame: function (currentFrame){
-        //         return currentFrame * 10;
+        //         return ((currentFrame-1) * 5) + 1;
         //     },
         //     fpsAfter: 60,
         // },
@@ -54,17 +53,21 @@ document.addEventListener("DOMContentLoaded", function() {
     //instance1.preloadImages();
     setupControls();
 
+    setTimeout(()=>{
+        instance1.preloadImages();
+    }, 3000);
+
     // Events
     element.addEventListener('animate-images:loading-progress', function (e){
         //console.log(`Event: loading progress: ${e.detail.progress}`);
         loadingBlock.querySelector('span').textContent = Math.floor( +e.detail.progress * 100);
     });
-    // element.addEventListener('animate-images:preload-finished', function (e){
-    //     console.log(`Event: animate-images:preload-finished`);
-    // });
-    // element.addEventListener('animate-images:fast-preload-finished', function (e){
-    //     console.log(`Event: animate-images:fast-preload-finished`);
-    // });
+    element.addEventListener('animate-images:preload-finished', function (e){
+        console.log(`Event: animate-images:preload-finished`);
+    });
+    element.addEventListener('animate-images:fast-preload-finished', function (e){
+        console.log(`Event: animate-images:fast-preload-finished`);
+    });
     element.addEventListener('animate-images:animation-end', function () {
         console.log(`Event: animate-images:animation-end`);
     });
