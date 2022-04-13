@@ -10,6 +10,14 @@ const banner = require("./banner");
 const bannerWithComments = "/*!\n" + banner + "\n*/";
 const { LIB_FILE_NAME } = require( './shared');
 
+const terserOptions = {
+    // mangle: {
+    //     properties: {
+    //          regex: /^_/,
+    //     }
+    // },
+}
+
 export default defineConfig([
     { // Transpiled bundle
         input: `./src/index.js`,
@@ -34,7 +42,7 @@ export default defineConfig([
                 format: 'es',
                 banner: bannerWithComments,
                 sourcemap: true,
-                plugins: [ terser() ]
+                plugins: [ terser(terserOptions) ]
             }
         ],
     },
@@ -55,7 +63,7 @@ export default defineConfig([
                 format: 'es',
                 banner: bannerWithComments,
                 sourcemap: true,
-                plugins: [ terser() ]
+                plugins: [ terser(terserOptions) ]
             }
         ],
     },

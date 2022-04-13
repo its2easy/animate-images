@@ -31,13 +31,13 @@ export default class Render{
         }
 
         //console.log(`sx= ${sx}, sy=${sy}, sWidth=${sWidth}, sHeight=${sHeight}, dx=${dx}, dy=${dy}, dWidth=${dWidth}, dHeight=${dHeight}`);
-        if ( this.settings.onBeforeFrame ) this.settings.onBeforeFrame(this.data.pluginApi,
-            { context: this.context, width: this.data.canvas.element.width, height: this.data.canvas.element.height });
+        this.settings.onBeforeFrame(this.data.pluginApi,
+            {context: this.context, width: this.data.canvas.element.width, height: this.data.canvas.element.height});
 
-        this.context.drawImage(this.image, sx, sy, sWidth, sHeight,  dx, dy, dWidth, dHeight);
+        this.context.drawImage(this.image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
 
-        if ( this.settings.onAfterFrame ) this.settings.onAfterFrame(this.data.pluginApi,
-            { context: this.context, width: this.data.canvas.element.width, height: this.data.canvas.element.height });
+        this.settings.onAfterFrame(this.data.pluginApi,
+            {context: this.context, width: this.data.canvas.element.width, height: this.data.canvas.element.height});
     }
 
     clearCanvas(){

@@ -1,6 +1,6 @@
 export function validateInitParameters(node, options){
     if ( !(node instanceof HTMLCanvasElement) ) { // Check dom node
-        throw new TypeError('Node is required and should be canvas element');
+        throw new TypeError('node is required and should be canvas element');
     }
     if (!options.images || !Array.isArray(options.images) || options.images.length <= 1 ) { // Check images list
         throw new TypeError('options.images is required and must be an array with more than 1 element');
@@ -42,9 +42,14 @@ export const defaultSettings = {
 
     fastPreview: false,
 
-    onPreloadFinished: undefined,
-    onPosterLoaded: undefined,
-    onAnimationEnd: undefined,
-    onBeforeFrame: undefined,
-    onAfterFrame: undefined,
+    onFastPreloadFinished: noOp,
+    onPreloadFinished: noOp,
+    onPosterLoaded: noOp,
+    onAnimationEnd: noOp,
+    onBeforeFrame: noOp,
+    onAfterFrame: noOp,
 }
+
+export const eventPrefix = "animate-images:";
+
+function noOp(){}

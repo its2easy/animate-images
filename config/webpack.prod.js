@@ -14,6 +14,13 @@ module.exports = [
             minimizer: [ // fix license.txt from bannerPlugin
                 new TerserPlugin({
                     extractComments: false,
+                    terserOptions: {
+                        // mangle: {
+                        //     properties: {
+                        //         regex: /^_/,
+                        //     }
+                        // },
+                    }
                 }),
             ]
         },

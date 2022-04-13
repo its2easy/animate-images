@@ -1,3 +1,5 @@
+import { eventPrefix } from "./settings";
+
 export default class DragInput{
     static SWIPE_EVENTS = ['mousedown', 'mousemove', 'mouseup', 'touchstart', 'touchmove', 'touchend', 'touchcancel'];
 
@@ -99,9 +101,9 @@ export default class DragInput{
         }
     }
     #swipeStart(){
-        if ( !(this.data.pluginApi.isFastPreviewPreloadFinished() || this.data.pluginApi.isPreloadFinished()) ) return;
+        if ( !(this.data.pluginApi.isFastPreloadFinished() || this.data.pluginApi.isPreloadFinished()) ) return;
         // trigger full load after user interaction after fast preload finished
-        if (this.settings.fastPreview && !this.data.pluginApi.isPreloadFinished() && this.data.pluginApi.isFastPreviewPreloadFinished()) {
+        if (this.settings.fastPreview && !this.data.pluginApi.isPreloadFinished() && this.data.pluginApi.isFastPreloadFinished()) {
             this.data.pluginApi.preloadImages();
         }
         this.data.pluginApi.stop();
@@ -109,7 +111,7 @@ export default class DragInput{
         this.data.canvas.element.style.cursor = 'grabbing';
         this.prevX = this.curX;
         this.prevY = this.curY;
-        this.data.canvas.element.dispatchEvent( new CustomEvent('animate-images:drag-start',
+        this.data.canvas.element.dispatchEvent( new CustomEvent(eventPrefix + 'drag-start',
             { detail: {frame: this.data.currentFrame} })
         );
     }
@@ -133,7 +135,7 @@ export default class DragInput{
         let isReverse = (direction === 'left'); // left means backward (reverse: true)
         if (this.settings.inversion) isReverse = !isReverse;// invert direction
         this.changeFrame(this.getNextFrame( deltaFrames, isReverse )); // left means backward (reverse: true)
-        this.data.canvas.element.dispatchEvent( new CustomEvent('animate-images:drag-change',
+        this.data.canvas.element.dispatchEvent( new CustomEvent(eventPrefix + 'drag-change',
             { detail: {frame: this.data.currentFrame} })
         );
     }
@@ -143,7 +145,7 @@ export default class DragInput{
         this.isSwiping = false;
         this.data.canvas.element.style.cursor = null;
         this.lastInteractionTime = new Date().getTime();
-        this.data.canvas.element.dispatchEvent( new CustomEvent('animate-images:drag-end',
+        this.data.canvas.element.dispatchEvent( new CustomEvent(eventPrefix + 'drag-end',
             { detail: {frame: this.data.currentFrame} })
         );
     }

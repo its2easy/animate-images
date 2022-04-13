@@ -69,7 +69,7 @@ export default class AnimateImages{
         if (this.#settings.preload === 'all' || this.#settings.preload === "partial"){
             let preloadNumber = (this.#settings.preload === 'all') ? this.#data.totalImages : this.#settings.preloadNumber;
             if (preloadNumber === 0) preloadNumber = this.#data.totalImages;
-            this.#preloader.startLoadingImages(preloadNumber);
+            this.#preloader.startLoading(preloadNumber);
         }
         if (this.#settings.autoplay) this.play();
         if ( this.#settings.draggable ) this.#toggleDrag(true);
@@ -179,7 +179,7 @@ export default class AnimateImages{
             this.#preloader.maybePreloadAll();
         } else {
             this.#data.deferredAction = this.play.bind(this);
-            this.#preloader.startLoadingImages();
+            this.#preloader.startLoading();
         }
         return this;
     }
@@ -211,7 +211,7 @@ export default class AnimateImages{
             this.#preloader.maybePreloadAll();
         } else {
             this.#data.deferredAction = this.next.bind(this);
-            this.#preloader.startLoadingImages();
+            this.#preloader.startLoading();
         }
         return this;
     }
@@ -226,7 +226,7 @@ export default class AnimateImages{
             this.#preloader.maybePreloadAll();
         } else {
             this.#data.deferredAction = this.prev.bind(this);
-            this.#preloader.startLoadingImages();
+            this.#preloader.startLoading();
         }
         return this;
     }
@@ -242,7 +242,7 @@ export default class AnimateImages{
             this.#preloader.maybePreloadAll();
         } else {
             this.#data.deferredAction = this.setFrame.bind(this, frameNumber);
-            this.#preloader.startLoadingImages();
+            this.#preloader.startLoading();
         }
         return this;
     }
@@ -295,7 +295,7 @@ export default class AnimateImages{
             this.#preloader.maybePreloadAll();
         } else {
             this.#data.deferredAction = this.playFrames.bind(this, numberOfFrames);
-            this.#preloader.startLoadingImages();
+            this.#preloader.startLoading();
         }
         return this;
     }
@@ -320,7 +320,7 @@ export default class AnimateImages{
      */
     preloadImages(number= undefined){
         number = number ?? this.#settings.images.length;
-        this.#preloader.startLoadingImages(number);
+        this.#preloader.startLoading(number);
         return this;
     }
     /**
@@ -377,7 +377,7 @@ export default class AnimateImages{
     /** @returns {boolean} - is preload finished */
     isPreloadFinished() { return this.#preloader.isPreloadFinished }
     /** @returns {boolean} - is fast preview mode preload finished */
-    isFastPreviewPreloadFinished() { return this.#preloader.isFastPreviewPreloadFinished }
+    isFastPreloadFinished() { return this.#preloader.isFastPreloadFinished }
     /** @returns {boolean} - is loaded with errors */
     isLoadedWithErrors() { return this.#preloader.isLoadedWithErrors }
 
@@ -392,7 +392,7 @@ export default class AnimateImages{
             this.#preloader.maybePreloadAll();
         } else {
             this.#data.deferredAction = this.reset.bind(this);
-            this.#preloader.startLoadingImages();
+            this.#preloader.startLoading();
         }
         return this;
     }

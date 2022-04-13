@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", function() {
     // Initialization
     let instance1 = new AnimateImages(element, {
         images: imagesArray,
-        preload: "partial",
+        preload: "all",
         preloadNumber: 5,
         poster: imagesArray[0],
         fps: 5,
@@ -23,20 +23,20 @@ document.addEventListener("DOMContentLoaded", function() {
         //dragModifier: 1.5,
         touchScrollMode: "allowPageScroll",
         //pageScrollTimerDelay: 2500,
-        fastPreview: {
-            images: [imagesArray[0], imagesArray[10], imagesArray[20], imagesArray[30], imagesArray[40], imagesArray[50], imagesArray[60],
-                imagesArray[70], imagesArray[80]],
-            mapFrame: function (currentFrame){
-                return currentFrame * 10;
-            },
-            fpsAfter: 60,
-        },
+        // fastPreview: {
+        //     images: [imagesArray[0], imagesArray[10], imagesArray[20], imagesArray[30], imagesArray[40], imagesArray[50], imagesArray[60],
+        //         imagesArray[70], imagesArray[80]],
+        //     mapFrame: function (currentFrame){
+        //         return currentFrame * 10;
+        //     },
+        //     fpsAfter: 60,
+        // },
         onPreloadFinished: (plugin) => {
             console.log('Callback: onPreloadFinished');
             //plugin.play();
         },
-        onFastPreviewPreloadFinished: (plugin) => {
-            console.log('Callback: onFastPreviewPreloadFinished');
+        onFastPreloadFinished: (plugin) => {
+            console.log('Callback: onFastPreloadFinished');
         },
         onPosterLoaded(plugin){
             console.log('Callback: onPosterLoaded');
@@ -53,9 +53,6 @@ document.addEventListener("DOMContentLoaded", function() {
     });
     //instance1.preloadImages();
     setupControls();
-    setTimeout(()=> {
-        console.log(instance1.getTotalImages());
-    }, 4000)
 
     // Events
     element.addEventListener('animate-images:loading-progress', function (e){
@@ -65,8 +62,8 @@ document.addEventListener("DOMContentLoaded", function() {
     // element.addEventListener('animate-images:preload-finished', function (e){
     //     console.log(`Event: animate-images:preload-finished`);
     // });
-    // element.addEventListener('animate-images:fast-preview-preload-finished', function (e){
-    //     console.log(`Event: animate-images:fast-preview-preload-finished`);
+    // element.addEventListener('animate-images:fast-preload-finished', function (e){
+    //     console.log(`Event: animate-images:fast-preload-finished`);
     // });
     element.addEventListener('animate-images:animation-end', function () {
         console.log(`Event: animate-images:animation-end`);

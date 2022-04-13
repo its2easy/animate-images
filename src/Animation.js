@@ -1,3 +1,5 @@
+import { eventPrefix } from "./settings";
+
 export default class Animation{
     settings;
     data;
@@ -33,8 +35,8 @@ export default class Animation{
     }
     stop(){
         if ( this.isAnimating ){
-            this.data.canvas.element.dispatchEvent( new Event('animate-images:animation-end') );
-            if ( this.settings.onAnimationEnd ) this.settings.onAnimationEnd(this.data.pluginApi);
+            this.data.canvas.element.dispatchEvent( new Event(eventPrefix + 'animation-end') );
+            this.settings.onAnimationEnd(this.data.pluginApi);
         }
         this.isAnimating = false;
         this.framesLeftToPlay = undefined;
