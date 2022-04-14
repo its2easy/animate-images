@@ -44,7 +44,10 @@ import AnimateImages from "@its2easy/animate-images";
 let instance = new AnimateImages(element, options);
 ```
 
-It is possible to directly import untranspiled esm version, which is smaller:
+<details>
+<summary>It is possible to directly import untranspiled esm version</summary>
+
+This version has not been processed by babel:
 ```javascript
 import AnimateImages from '@its2easy/animate-images/build/untranspiled/animate-images.esm.min.js'; //or animate-images.esm.js
 ```
@@ -81,7 +84,12 @@ rules: [
     },
 ]
 ```
-#### All available versions:
+
+</details>
+
+<details>
+<summary>All available versions</summary>
+
 umd build:
 
 `@its2easy/animate-images/build/animate-images.umd.min.js` - default for browser script tag and legacy bundlers
@@ -102,6 +110,8 @@ esm builds without babel transformation:
 then you might get an error while importing, because webpack 4 doesn't support some modern js
 syntax and babel doesn't transpile it because browsers support for this syntax is high enough now.
 Use **webpack 5** to fix it.
+</details>   
+
 
 ## <a name="usage"></a>Usage
 Create canvas element 
@@ -187,7 +197,7 @@ For example, &lt;canvas width="800" height="400"&gt;, image 1200x600, canvas has
 Image will be scaled to 800x400 inside canvas and fully visible, canvas on the page will be displayed 
 500px x 250px.
 
-After page resize, the sizes will be recalculated automatically, but if canvas was resized by a script, call 
+After page resize, the sizes will be recalculated automatically, but if canvas was resized **by a script**, call 
 `instance.updateCanvas()`
 
 ### Loading errors
@@ -226,28 +236,33 @@ options:
 | **autoplay** | boolean | false | Autoplay |
 | **reverse** | boolean | false | Reverse direction |
 | **ratio** | number | false | Canvas width/height ratio, it has higher priority than inline canvas width and height |
-| **fillMode** | string | 'cover' | Fill mode to use if canvas and image aspect ratios are different ("`cover`" or "`contain`") |
+| **fillMode** | string | 'cover' | Fill mode to use **if canvas and image aspect ratios are different** ("`cover`" or "`contain`") |
 | **draggable** | boolean | false | Draggable by mouse or touch |
-| **inversion** | boolean | false | Inversion changes drag direction |
+| **inversion** | boolean | false | Inversion changes drag direction. Use it if animation direction doesn't match swipe direction  |
 | **dragModifier** | number | 1 | Sensitivity factor for user interaction. Only positive numbers are allowed |
 | **touchScrollMode** | string | "pageScrollTimer" | Page scroll behavior with touch events _(only for events that fire in the plugin area)_. Available modes: `preventPageScroll` - touch scroll is always disabled. `allowPageScroll` - touch scroll is always enabled. `pageScrollTimer` - after the first interaction the scroll is not disabled; if the time between the end of the previous interaction and the start of a new one is less than _pageScrollTimerDelay_, then scroll will be disabled; if more time has passed, then scroll will be enabled again |
 | **pageScrollTimerDelay** | number | 1500 | Time in ms when touch scroll will be disabled after the last user interaction, if `touchScrollMode: "pageScrollTimer"` |
-| **fastPreview** | Object &#124; false | false | Special mode when you want interactivity as quickly as possible, but you have a lot of images. It will only load a small set of images, after which it will be possible to interact with the plugin, and then full set of the images will be loaded. If enabled, ```preload```, ```preloadNumber``` and ```fps``` options will be applied to **fastPreview** images. See [examples below](#fast-preview) |
-| **fastPreview.images** | Array&lt;string&gt; |  | Required if ```fastPreview``` is enabled. Array with urls of preview mode images. You could use a part of **options.images** array or completely different pictures, they will be replaces when full sequence is loaded  |
+| **fastPreview** | Object &#124; false | false | Special mode when you want interactivity as quickly as possible, but you have a lot of pictures. It will only load a small set of images, after which it will be possible to interact with the plugin, and then full set of the images will be loaded. If enabled, ```preload```, ```preloadNumber``` and ```fps``` options will be applied to **fastPreview** images. See [examples below](#fast-preview) |
+| **fastPreview.images** | Array&lt;string&gt; |  | Required if ```fastPreview``` is enabled. Array with urls of preview mode images. You could use a part of **options.images** array or completely different pictures, they will be replaced when full sequence is loaded  |
 | **fastPreview.fpsAfter** | number |  | fps value that will be applied after the full list of images is loaded |
-| **fastPreview.mapFrame** | function(frameNumber) |  | A function that takes the frame number of the short set and returns the frame number of the full set, so that the animation doesn't jump after full load. Frame numbers start from 1. If not specified, first frame will be set |
+| **fastPreview.matchFrame** | function(frameNumber) |  | A function that takes the frame number of the short set and returns the frame number of the full set. The function is called when the plugin switches to the full set of images, so that the animation doesn't jump after full load. Frame numbers start from 1. If not specified, first frame will be set |
 | **onPreloadFinished** | function(AnimateImages) | | Callback, occurs when all image files have been loaded, receives plugin instance as a parameter |
 | **onFastPreloadFinished** | function(AnimateImages) | | Callback, occurs when all ```fastPreview``` mode images have been loaded, receives plugin instance as a parameter |
 | **onPosterLoaded** | function(AnimateImages) | | Callback, occurs when poster image is fully loaded, receives plugin instance as a parameter |
 | **onAnimationEnd** | function(AnimateImages) | |  Callback, occurs when animation has ended, receives plugin instance as a parameter |
 | **onBeforeFrame** | function(AnimateImages, {context, width, height}) | | Callback, occurs before new frame, receives plugin and canvas info as parameters. Can be used to change settings, for example ```imageSmoothingEnabled``` |
-| **onAfterFrame** | function(AnimateImages, {context, width, height}) | | Callback, occurs after the frame was drawn, receives plugin and canvas info as parameters. Can be used to change the image. |
+| **onAfterFrame** | function(AnimateImages, {context, width, height}) | | Callback, occurs after the frame was drawn, receives plugin and canvas info as parameters. Can be used to modify the canvas appearance. |
 
 ##### Callback example:
 ```javascript
  let instance1 = new AnimateImages(element, {
     images: imagesArray,
+    poster: imagesArray[0],
+    preload: "none",
     ...
+    onPosterLoaded(plugin){
+        plugin.preloadImages();// load all
+    },
     onBeforeFrame(plugin, {context, width, height}){
         context.imageSmoothingEnabled = false;
     },
@@ -262,6 +277,9 @@ options:
 
 ## <a name="methods"></a>Methods
 >  Most methods can be chained (```instance.setReverse(true).play()```)
+
+>  Methods that involve a frame change can be called before full load or even without any preload.
+> Plugin will add this action to the queue and start downloading the frames. Only one last action is saved in the plugin
 
 ### play
 Start animation
@@ -299,7 +317,7 @@ Show previous frame
 ---
 
 ### setFrame
-Show a frame with a specified number
+Show a frame with a specified number (without animation)
 
 `parameters`
 - frameNumber {number} - Number of the frame to show
@@ -373,7 +391,7 @@ Start preload specified number of images, can be called multiple times.
 If all the images are already loaded, then nothing will happen
 
 `parameters`
-- number {number} - Number of images to load. If not specified, all remaining images will be loaded.
+- number {number} - (optional) Number of images to load. If not specified, all remaining images will be loaded.
 ```javascript
 instance.preloadImages(15);
 ```
@@ -383,7 +401,7 @@ instance.preloadImages(15);
 
 ### updateCanvas
 Calculate new canvas dimensions. Should be called after the canvas size was changed in 
-the browser
+the browser.  It's called automatically after window ```resize``` event
 
 `returns` {AnimateImages} - plugin instance
 
@@ -406,8 +424,8 @@ Set new option value
 
 `parameters`
 - option {string} -  Option name. Allowed options: `fps`, `loop`, `reverse`, `inversion`, `ratio`, `fillMode`, 
-  `draggable`, `dragModifier`, `touchScrollMode`, `pageScrollTimerDelay`, `onPreloadFinished`, `onPosterLoaded`, `onAnimationEnd`, 
-  `onBeforeFrame`, `onAfterFrame`
+  `draggable`, `dragModifier`, `touchScrollMode`, `pageScrollTimerDelay`, `onPreloadFinished`, `onFastPreloadFinished`, 
+  `onPosterLoaded`, `onAnimationEnd`, `onBeforeFrame`, `onAfterFrame`
 - value {*} -  New value
 
 `returns` {AnimateImages} - plugin instance
@@ -442,6 +460,13 @@ value in the `options.ratio`
 
 ### isAnimating
 Returns true if the animation is running, and false if not
+
+`returns` {boolean}
+
+---
+
+### isDragging
+Returns true if a drag action is in progress
 
 `returns` {boolean}
 
@@ -526,25 +551,28 @@ element.addEventListener('animate-images:loading-progress', function (e){
 });
 ```
 
-### <a name="fast-preview"></a>fastPreview mode examples:
+## <a name="fast-preview"></a>fastPreview mode
+<details>
+    <summary>Examples</summary>
+
 ```javascript
 // load only part of all images, start playing at 5 fps, then load all the images, 
-// replace small set with full as soon as it loads, and continue playing it at 30fps
-let instance1 = new AnimateImages(element, {
+// replace small set with full as soon as it loads, and continue playing at 30fps
+new AnimateImages(element, {
     images: imagesArray,
     autoplay: true,
     fps: 5, //fps for fastPreview
     ...
     fastPreview: {
-        images: imagesArray.filter( (val, i) => i % 5 === 0 ),// use every 5th image (imagesArray[0], imagesArray[6], etc)
-        fpsAfter: 30, 
-        mapFrame: function (currentFrame){
-            return ((currentFrame-1) * 5) + 1; // 1 => 1, 2 => 6, 3 => 11, etc
+        images: imagesArray.filter( (val, i) => i % 5 === 0 ),// use every 5th image (imagesArray[0], imagesArray[6], ...)
+        fpsAfter: 30, // continue with 30fps
+        matchFrame: function (currentFrame){
+            return ((currentFrame-1) * 5) + 1; // 1 => 1, 2 => 6, 3 => 11, ...
         },
     }
 }
 
-// preload only 3 images, wait until user interaction, load the rest of fastPreview images, start playing,
+// preload only 3 images, wait for user interaction, load the rest of fastPreview images, start playing,
 // then load full sequence and replace with it
 let instance1 = new AnimateImages(element, {
     images: imagesArray,
@@ -555,10 +583,10 @@ let instance1 = new AnimateImages(element, {
         images: imagesArray.filter( (val, i) => i % 10 === 0 ),// use every 10th image (imagesArray[0], imagesArray[6], etc)
     }
 }
-button.addEventListener("click", () => { instance1.play() });
+button.addEventListener("click", () => { instance1.play() }); // play() always loads the rest before playing
 
-// start loading only after some event, then wait until user interaction, play and load the rest
-let instance1 = new AnimateImages(element, {
+// start loading only after some event, play after user interaction, then load the rest
+let instance2 = new AnimateImages(element, {
     images: imagesArray,
     preload: "none",
     fastPreview: {
@@ -567,13 +595,13 @@ let instance1 = new AnimateImages(element, {
 }
 ...
 someModalOpenCallback(){
-    instance1.preloadImages(); // will load only fastPreview images
+    instance2.preloadImages(); // will load only fastPreview images
 }
 ...
-buttonInsedeModal.addEventListener("click", () => { instance1.play() }); // it's safe to call even withput any preload
+buttonInsedeModal.addEventListener("click", () => { instance2.play() }); // it's safe to call even without any preload
 
 // preload all fastPreview images, start loading full sequnce after that, but wait for interaction to play
-let instance1 = new AnimateImages(element, {
+let instance3 = new AnimateImages(element, {
     images: imagesArray,
     preload: "all", // will load only fastPreview.images
     fastPreview: {
@@ -584,8 +612,9 @@ let instance1 = new AnimateImages(element, {
     }
 }
 // initially will start short sequnce if full in not ready, otherwise will start the full
-buttonInsedeModal.addEventListener("click", () => { instance1.play() });
+buttonInsedeModal.addEventListener("click", () => { instance3.play() });
 ```
+</details>
 
 ## <a name="browser_support"></a>Browser support
 

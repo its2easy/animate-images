@@ -354,7 +354,7 @@ export default class AnimateImages{
      */
     setOption(option, value) {
         const allowedOptions = ['fps', 'loop', 'reverse', 'inversion', 'ratio', 'fillMode', 'draggable', 'dragModifier', 'touchScrollMode',
-            'pageScrollTimerDelay', 'onPreloadFinished', 'onPosterLoaded', 'onAnimationEnd', 'onBeforeFrame', 'onAfterFrame'];
+            'pageScrollTimerDelay', 'onPreloadFinished', 'onFastPreloadFinished', 'onPosterLoaded', 'onAnimationEnd', 'onBeforeFrame', 'onAfterFrame'];
         if (allowedOptions.includes(option)) {
            this.#settings[option] = value;
            if (option === 'fps') this.#animation._updateDuration();
@@ -375,7 +375,7 @@ export default class AnimateImages{
     getRatio() { return this.#data.canvas.ratio }
     /** @returns {boolean} - animating or not */
     isAnimating() { return this.#animation._isAnimating }
-    /** @returns {boolean} - returns true if a drag operation is in progress */
+    /** @returns {boolean} - returns true if a drag action is in progress */
     isDragging() {
         if ( this.#dragInput ) return this.#dragInput._isSwiping;
         return false
@@ -412,7 +412,12 @@ export default class AnimateImages{
         this.#toggleResizeHandler(false);
     }
 }
-
+/**
+ * NOTE
+ * All internal classes have public methods and properties start with _, that's for terser plugin that can mangle internal names
+ * by regexp. It's reducing size by about 20%. Private (#) properties are not used in internal classes because babel use wrapper
+ * functions for these properties, which increases the size even though private names are minified
+ */
 
 /**
  * @typedef {Object} PluginOptions
@@ -439,7 +444,7 @@ export default class AnimateImages{
  * @property {Object|false} [fastPreview=false] - Special mode for interactivity after loading only a part of the pictures
  * @property {Array<string>} [fastPreview.images] - images urls for fastPreview mode (<b>Required</b> if fastPreview is enabled)
  * @property {number} [fastPreview.fpsAfter] - fps value that will be applied after the full list of images is loaded
- * @property {function(number):number} [fastPreview.mapFrame] - A function that takes the frame number of the short set
+ * @property {function(number):number} [fastPreview.matchFrame] - A function that takes the frame number of the short set
  * and returns the frame number of the full set, to prevent jump after full load.
  * @property {function(AnimateImages):void} [onPreloadFinished] - Occurs when all image files have been loaded
  * @property {function(AnimateImages):void} [onFastPreloadFinished] - Occurs when all fastPreview mode images have been loaded

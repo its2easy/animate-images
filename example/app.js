@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", function() {
         //pageScrollTimerDelay: 2500,
         // fastPreview: {
         //     images: imagesArray.filter( (val, i) => i % 5 === 0 ),
-        //     mapFrame: function (currentFrame){
+        //     matchFrame: function (currentFrame){
         //         return ((currentFrame-1) * 5) + 1;
         //     },
         //     fpsAfter: 60,

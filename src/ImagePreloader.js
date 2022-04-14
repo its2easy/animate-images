@@ -119,8 +119,8 @@ export default class ImagePreloader{
             // replace small sequence with full and change frame
             if (this._settings?.fastPreview.fpsAfter) plugin.setOption("fps", this._settings?.fastPreview.fpsAfter)
             const wasAnimating = plugin.isAnimating();
-            const mapFrame = this._settings?.fastPreview.mapFrame;
-            plugin.setFrame( mapFrame ? mapFrame(this._data.currentFrame) : 1 );
+            const matchFrame = this._settings?.fastPreview.matchFrame;
+            plugin.setFrame( matchFrame ? matchFrame(this._data.currentFrame) : 1 );
             if ( wasAnimating ) plugin.play();
         }
 
