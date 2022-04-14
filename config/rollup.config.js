@@ -8,16 +8,9 @@ import dts from "rollup-plugin-dts";
 
 const banner = require("./banner");
 const bannerWithComments = "/*!\n" + banner + "\n*/";
-const { LIB_FILE_NAME } = require( './shared');
+const { LIB_FILE_NAME, TERSER_OPTIONS } = require( './shared');
 
-const terserOptions = {
-    mangle: {
-        properties: {
-            regex: /^_/,
-            //debug: true,
-        }
-    },
-}
+const terserOptions = TERSER_OPTIONS;
 
 export default defineConfig([
     { // Transpiled bundle

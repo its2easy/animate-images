@@ -85,39 +85,40 @@ export default class AnimateImages{
 
     #animateCanvas(frameNumber){
         this.#render._clearCanvas();
-        this.#render._drawFrame(frameNumber);
+        this.#render._drawFrame( this.#data.loadedImagesArray[frameNumber - 1] );
     }
 
 
     #updateCanvasSizes(){
+        const canvas = this.#data.canvas;
         /**
          * If no options.ratio, inline canvas width/height will be used (2:1 if not set)
          * Real canvas size is controlled by CSS, inner size will be set based on CSS width and ratio (height should be "auto")
          * If height if fixed in CSS, ratio can't be used and inner height will be equal to CSS-defined height
          */
-        if ( this.#settings.ratio ) this.#data.canvas.ratio = this.#settings.ratio;
+        if ( this.#settings.ratio ) canvas.ratio = this.#settings.ratio;
         // Initial ratio shouldn't be changed. Ratio will only modified after setOption("ratio", newRatio),
         // or after setting css height and plugin.updateCanvas()
-        else if ( !this.#data.canvas.ratio ) {
-            this.#data.canvas.ratio = this.#data.canvas.element.width / this.#data.canvas.element.height;
+        else if ( !canvas.ratio ) {
+            canvas.ratio = canvas.element.width / canvas.element.height;
         }
 
-        let dpr = window.devicePixelRatio || 1;
+        const dpr = window.devicePixelRatio || 1;
         // changing width and height won't change real clientWidth and clientHeight if size is fixed by CSS
-        let initialClientWidth = this.#data.canvas.element.clientWidth;
-        this.#data.canvas.element.width = this.#data.canvas.element.clientWidth * dpr;
+        const initialClientWidth = canvas.element.clientWidth;
+        canvas.element.width = canvas.element.clientWidth * dpr;
         // if canvas css width was not defined, clientWidth was changed based on new width, we need to recalculate width based on new clientWidth
-        if (initialClientWidth !== this.#data.canvas.element.clientWidth) {
-            this.#data.canvas.element.width = this.#data.canvas.element.clientWidth * dpr;
+        if (initialClientWidth !== canvas.element.clientWidth) {
+            canvas.element.width = canvas.element.clientWidth * dpr;
         }
-        this.#data.canvas.element.height = Math.round(this.#data.canvas.element.clientWidth / this.#data.canvas.ratio) * dpr; // "round" for partial fix to rounding pixels error
+        canvas.element.height = Math.round(canvas.element.clientWidth / canvas.ratio) * dpr; // "round" for partial fix to rounding pixels error
 
-        let heightDifference = Math.abs(this.#data.canvas.element.height - this.#data.canvas.element.clientHeight * dpr);// diff in pixels
+        const heightDifference = Math.abs(canvas.element.height - canvas.element.clientHeight * dpr);// diff in pixels
         if ( heightDifference >= 1) { // if height set by CSS
-            this.#data.canvas.element.height = this.#data.canvas.element.clientHeight * dpr;
-            this.#data.canvas.ratio = this.#data.canvas.element.width / this.#data.canvas.element.height;
+            canvas.element.height = canvas.element.clientHeight * dpr;
+            canvas.ratio = canvas.element.width / canvas.element.height;
         } else if (heightDifference > 0 && heightDifference <1 ) { // rare case, height is auto, but pixels are fractional
-            this.#data.canvas.element.height = this.#data.canvas.element.clientHeight * dpr; // so just update inner canvas size baser on rounded real height
+            canvas.element.height = canvas.element.clientHeight * dpr; // so just update inner canvas size baser on rounded real height
         }
 
         if ( this.#dragInput ) this.#dragInput._updateThreshold()
@@ -173,8 +174,8 @@ export default class AnimateImages{
      * @returns {AnimateImages} - plugin instance
      */
     play(){
-        if ( this.#animation.isAnimating ) return this;
-        if ( this.#preloader.isAnyPreloadFinished ) {
+        if ( this.#animation._isAnimating ) return this;
+        if ( this.#preloader._isAnyPreloadFinished ) {
             this.#animation._play();
             this.#preloader._maybePreloadAll();
         } else {
@@ -196,7 +197,7 @@ export default class AnimateImages{
      * @returns {AnimateImages} - plugin instance
      */
     toggle(){
-        if ( !this.#animation.isAnimating ) this.play();
+        if ( !this.#animation._isAnimating ) this.play();
         else this.stop();
         return this;
     }
@@ -205,7 +206,7 @@ export default class AnimateImages{
      * @returns {AnimateImages} - plugin instance
      */
     next(){
-        if ( this.#preloader.isAnyPreloadFinished ) {
+        if ( this.#preloader._isAnyPreloadFinished ) {
             this.stop();
             this.#changeFrame( this.#animation._getNextFrame(1) );
             this.#preloader._maybePreloadAll();
@@ -220,7 +221,7 @@ export default class AnimateImages{
      * @returns {AnimateImages} - plugin instance
      */
     prev(){
-        if ( this.#preloader.isAnyPreloadFinished ) {
+        if ( this.#preloader._isAnyPreloadFinished ) {
             this.stop();
             this.#changeFrame( this.#animation._getNextFrame(1, !this.#settings.reverse) );
             this.#preloader._maybePreloadAll();
@@ -236,7 +237,7 @@ export default class AnimateImages{
      * @returns {AnimateImages} - plugin instance
      */
     setFrame(frameNumber){
-        if ( this.#preloader.isAnyPreloadFinished ) {
+        if ( this.#preloader._isAnyPreloadFinished ) {
             this.stop();
             this.#changeFrame(normalizeFrameNumber(frameNumber, this.#data.totalImages));
             this.#preloader._maybePreloadAll();
@@ -277,7 +278,7 @@ export default class AnimateImages{
      * @returns {AnimateImages} - plugin instance
      */
     playFrames(numberOfFrames = 0){
-        if ( this.#preloader.isAnyPreloadFinished ) {
+        if ( this.#preloader._isAnyPreloadFinished ) {
             numberOfFrames = Math.floor(numberOfFrames);
             if (numberOfFrames < 0) { // first frame should be rendered to replace poster or transparent bg, so allow 0 for the first time
                 return this.stop(); //empty animation, stop() to trigger events and callbacks
@@ -290,7 +291,7 @@ export default class AnimateImages{
                 return this.stop(); //empty animation
             }
 
-            this.#animation.framesLeftToPlay = numberOfFrames;
+            this.#animation._framesLeftToPlay = numberOfFrames;
             this.play();
             this.#preloader._maybePreloadAll();
         } else {
@@ -373,20 +374,25 @@ export default class AnimateImages{
     /** @returns {number} - current canvas ratio */
     getRatio() { return this.#data.canvas.ratio }
     /** @returns {boolean} - animating or not */
-    isAnimating() { return this.#animation.isAnimating }
+    isAnimating() { return this.#animation._isAnimating }
+    /** @returns {boolean} - returns true if a drag operation is in progress */
+    isDragging() {
+        if ( this.#dragInput ) return this.#dragInput._isSwiping;
+        return false
+    }
     /** @returns {boolean} - is preload finished */
-    isPreloadFinished() { return this.#preloader.isPreloadFinished }
+    isPreloadFinished() { return this.#preloader._isPreloadFinished }
     /** @returns {boolean} - is fast preview mode preload finished */
-    isFastPreloadFinished() { return this.#preloader.isFastPreloadFinished }
+    isFastPreloadFinished() { return this.#preloader._isFastPreloadFinished }
     /** @returns {boolean} - is loaded with errors */
-    isLoadedWithErrors() { return this.#preloader.isLoadedWithErrors }
+    isLoadedWithErrors() { return this.#preloader._isLoadedWithErrors }
 
     /**
      * Stop the animation and return to the first frame
      * @returns {AnimateImages} - plugin instance
      */
     reset(){
-        if ( this.#preloader.isAnyPreloadFinished ) {
+        if ( this.#preloader._isAnyPreloadFinished ) {
             this.stop();
             this.#changeFrame(normalizeFrameNumber(1, this.#data.totalImages));
             this.#preloader._maybePreloadAll();

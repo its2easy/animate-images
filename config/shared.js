@@ -1,3 +1,12 @@
 const LIB_FILE_NAME = 'animate-images';
 const LIB_NAME = 'AnimateImages';
-module.exports = {LIB_FILE_NAME, LIB_NAME};
+const TERSER_OPTIONS = {
+    mangle: {
+        properties: {
+            regex: /^_/,
+        }
+    },
+}
+module.exports = {LIB_FILE_NAME, LIB_NAME, TERSER_OPTIONS};
+
+

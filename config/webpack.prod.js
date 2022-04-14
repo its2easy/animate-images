@@ -5,6 +5,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 const common = require('./webpack.common.js');
 const banner = require("./banner");
+const { TERSER_OPTIONS } = require( './shared');
 
 module.exports = [
     merge(common, { // Minified
@@ -14,13 +15,7 @@ module.exports = [
             minimizer: [ // fix license.txt from bannerPlugin
                 new TerserPlugin({
                     extractComments: false,
-                    terserOptions: {
-                        mangle: {
-                            properties: {
-                                regex: /^_/,
-                            }
-                        },
-                    }
+                    terserOptions: TERSER_OPTIONS
                 }),
             ]
         },

@@ -1,48 +1,43 @@
-import { normalizeFrameNumber } from "./utils";
 import { eventPrefix } from "./settings";
 
 export default class ImagePreloader{
-    settings;
-    data;
-    updateImagesCount;
-
-    isPreloadFinished = false; // onload on all the images
-    isFastPreloadFinished = false; // images from fastPreload mode
-    isAnyPreloadFinished = false;
-
-    preloadOffset = 0; // images already in queue
-    preloadedCount = 0; // count of loaded images
-    totalImages; // all images count
-    isLoadedWithErrors = false;
-    tempImagesArray = []; // store images before they are fully loaded
-    failedImages = [];
-    currentMode = "default"; // "default" or "fast"
-    modes;
 
     constructor( {settings, data, updateImagesCount} ) {
-        this.settings = settings;
-        this.data = data;
-        this.updateImagesCount = updateImagesCount;
+        this._settings = settings;
+        this._data = data;
+        this._updateImagesCount = updateImagesCount;
 
-        // set mode if fast preview
-        if (this.settings.fastPreview) {
-            this.currentMode = "fast";
-            this.data.totalImages = this.settings.fastPreview.images.length;
-        }
+        // Public
+        this._isPreloadFinished = false;// onload on all the images
+        this._isFastPreloadFinished = false;// images from fastPreload mode
+        this._isAnyPreloadFinished = false;
+        this._isLoadedWithErrors = false;
 
-        this.totalImages = this.data.totalImages; // get initial value for the first time, update when fast => default mode
-        this.modes = {
+        // Internal
+        this._preloadOffset = 0;// images already in queue
+        this._preloadedCount = 0;// count of loaded images
+        this._tempImagesArray = []; // store images before they are fully loaded
+        this._failedImages = [];
+        this._currentMode = "default";// "default" or "fast"
+        this._modes = {
             default: {
-                images: this.settings.images,
+                images: this._settings.images,
                 event: eventPrefix + "preload-finished",
-                callback: this.settings.onPreloadFinished,
+                callback: this._settings.onPreloadFinished,
             },
             fast: {
-                images: this.settings?.fastPreview.images,
+                images: this._settings?.fastPreview.images,
                 event: eventPrefix + "fast-preload-finished",
-                callback: this.settings.onFastPreloadFinished,
+                callback: this._settings.onFastPreloadFinished,
             }
         }
+
+        // set mode if fast preview
+        if (this._settings.fastPreview) {
+            this._currentMode = "fast";
+            this._data.totalImages = this._settings.fastPreview.images.length;
+        }
+        this._totalImages = this._data.totalImages; // get initial value for the first time, update when fast => default mode
     }
 
     /**
@@ -50,12 +45,12 @@ export default class ImagePreloader{
      * @param {number} [preloadNumber] - number of images to load
      */
     _startLoading(preloadNumber){
-        if (this.isPreloadFinished) return;
-        if ( !preloadNumber ) preloadNumber = this.totalImages;
+        if (this._isPreloadFinished) return;
+        if ( !preloadNumber ) preloadNumber = this._totalImages;
         preloadNumber = Math.round(preloadNumber);
 
         // if too many, load just the rest
-        let unloadedCount = this.totalImages - this.preloadOffset;
+        const unloadedCount = this._totalImages - this._preloadOffset;
         if (preloadNumber > unloadedCount){
             preloadNumber = unloadedCount;
         }
@@ -63,28 +58,28 @@ export default class ImagePreloader{
         // true when all the images are in queue but not loaded yet, (unloadedCount = preloadNumber = 0)
         if (preloadNumber <= 0) return;
 
-        //console.log(`start loop, preloadNumber=${preloadNumber}, offset=${this.preloadOffset}`);
-        for (let i = this.preloadOffset; i < (preloadNumber + this.preloadOffset); i++){
+        //console.log(`start loop, preloadNumber=${preloadNumber}, offset=${this._preloadOffset}`);
+        for (let i = this._preloadOffset; i < (preloadNumber + this._preloadOffset); i++){
             let img = new Image();
             img.onload = img.onerror = this.#onImageLoad.bind(this);
-            img.src = this.modes[this.currentMode].images[i]
-            this.tempImagesArray[i] = img;
+            img.src = this._modes[this._currentMode].images[i]
+            this._tempImagesArray[i] = img;
         }
-        this.preloadOffset = this.preloadOffset + preloadNumber;
+        this._preloadOffset = this._preloadOffset + preloadNumber;
     }
 
     #onImageLoad(e){
-        this.preloadedCount++;
-        let progress = Math.floor((this.preloadedCount/this.totalImages) * 1000) / 1000 ;
-        this.data.canvas.element.dispatchEvent( new CustomEvent(eventPrefix + 'loading-progress', {detail: {progress}}) );
+        this._preloadedCount++;
+        const progress = Math.floor((this._preloadedCount/this._totalImages) * 1000) / 1000 ;
+        this._data.canvas.element.dispatchEvent( new CustomEvent(eventPrefix + 'loading-progress', {detail: {progress}}) );
         if (e.type === "error") {
-            this.isLoadedWithErrors = true;
+            this._isLoadedWithErrors = true;
             const path = e.path || (e.composedPath && e.composedPath());
-            this.failedImages.push(path[0]);
-            this.data.canvas.element.dispatchEvent( new Event(eventPrefix + 'loading-error') );
+            this._failedImages.push(path[0]);
+            this._data.canvas.element.dispatchEvent( new Event(eventPrefix + 'loading-error') );
         }
-        if (this.preloadedCount >= this.totalImages) {
-            if ( this.isLoadedWithErrors ) this.#clearImagesArray();
+        if (this._preloadedCount >= this._totalImages) {
+            if ( this._isLoadedWithErrors ) this.#clearImagesArray();
             this.#afterPreloadFinishes();
         }
     }
@@ -93,48 +88,46 @@ export default class ImagePreloader{
      * Remove failed images from array
      */
     #clearImagesArray(){
-        if ( this.failedImages.length < 1) return;
-        this.tempImagesArray = this.tempImagesArray.filter((el) => {
-            return !this.failedImages.includes(el);
+        if ( this._failedImages.length < 1) return;
+        this._tempImagesArray = this._tempImagesArray.filter((el) => {
+            return !this._failedImages.includes(el);
         });
     }
 
     #afterPreloadFinishes(){ // check what to do next
-        if (this.currentMode === "default"){
-            this.isPreloadFinished = true;
+        if (this._currentMode === "default"){
+            this._isPreloadFinished = true;
         } else {
-            this.isFastPreloadFinished = true;
+            this._isFastPreloadFinished = true;
         }
-        this.isAnyPreloadFinished = true; // variable for checks from main plugin
-        this.data.loadedImagesArray = [...this.tempImagesArray];
-        this.data.totalImages = this.tempImagesArray.length;
-        this.updateImagesCount();
+        this._isAnyPreloadFinished = true; // variable for checks from main plugin
+        this._data.loadedImagesArray = [...this._tempImagesArray];
+        this._data.totalImages = this._tempImagesArray.length;
+        this._updateImagesCount();
 
-        let savedMode = this.currentMode;
+        const savedMode = this._currentMode;
+        const plugin = this._data.pluginApi;
         // code below executes only if fastPreview is set
-        if ( this.currentMode === "fast" ) { // fast preload has ended
-            this.currentMode = "default";
-            this.tempImagesArray = [];
-            this.preloadOffset = 0;
-            this.preloadedCount = 0;
-            this.totalImages = this.settings.images.length; // update for default preload mode
+        if ( this._currentMode === "fast" ) { // fast preload has ended
+            this._currentMode = "default";
+            this._tempImagesArray = [];
+            this._preloadOffset = this._preloadedCount = 0;
+            this._totalImages = this._settings.images.length; // update for default preload mode
             // start preload full list if we have action, that started after fast preload end
-            if ( this.data.deferredAction ) this._startLoading();
-        } else if ( this.currentMode === "default" && this.settings.fastPreview ) { // default preload has ended (only after fast)
+            if ( this._data.deferredAction ) this._startLoading();
+        } else if ( this._currentMode === "default" && this._settings.fastPreview ) { // default preload has ended (only after fast)
             // replace small sequence with full and change frame
-            if (this.settings?.fastPreview.fpsAfter) this.data.pluginApi.setOption("fps", this.settings?.fastPreview.fpsAfter)
-            let wasAnimating = this.data.pluginApi.isAnimating();
-            this.data.pluginApi.setFrame(normalizeFrameNumber(
-                (this.settings?.fastPreview.mapFrame ? this.settings.fastPreview.mapFrame(this.data.currentFrame) : 1),
-                this.data.totalImages
-                ));
-            if ( wasAnimating ) this.data.pluginApi.play();
+            if (this._settings?.fastPreview.fpsAfter) plugin.setOption("fps", this._settings?.fastPreview.fpsAfter)
+            const wasAnimating = plugin.isAnimating();
+            const mapFrame = this._settings?.fastPreview.mapFrame;
+            plugin.setFrame( mapFrame ? mapFrame(this._data.currentFrame) : 1 );
+            if ( wasAnimating ) plugin.play();
         }
 
         // actions and callbacks
-        if (this.data.deferredAction) this.data.deferredAction();
-        this.data.canvas.element.dispatchEvent( new Event(this.modes[savedMode].event) );
-        this.modes[savedMode].callback(this.data.pluginApi);
+        if (this._data.deferredAction) this._data.deferredAction();
+        this._data.canvas.element.dispatchEvent( new Event(this._modes[savedMode].event) );
+        this._modes[savedMode].callback(plugin);
 
     }
 
@@ -143,7 +136,7 @@ export default class ImagePreloader{
     // and we have to start full preload here.
     // This function is called only after frame change was requested.
     _maybePreloadAll(){
-        if (this.settings.fastPreview && !this.isPreloadFinished) this._startLoading();
+        if (this._settings.fastPreview && !this._isPreloadFinished) this._startLoading();
     }
 
 }

@@ -6,7 +6,7 @@
 
 Demo - [codepen](https://codepen.io/its2easy/pen/powQJmd)
 
-**AnimateImages** is a lightweight library (18kb) that animates a sequence of images 
+**AnimateImages** is a lightweight library (17kb) that animates a sequence of images 
 to use in animations or pseudo 3d product view. It works WITHOUT BUILT-IN UI and mainly 
 developed for complex animations.
 

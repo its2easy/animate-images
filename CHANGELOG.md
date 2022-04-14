@@ -2,6 +2,8 @@
 ## 2.2.0
 - new ```fastPreview``` option, ```onFastPreloadFinished``` callback, 
   ```animate-images:fast-preload-finished``` event, ```isFastPreloadFinished``` method
+- new ```isDragging``` method
+- reduce bundle size by 20%
 ## 2.1.2
 - fix wrong ```onPosterLoaded``` call
 ## 2.1.1
