@@ -11,11 +11,12 @@ const bannerWithComments = "/*!\n" + banner + "\n*/";
 const { LIB_FILE_NAME } = require( './shared');
 
 const terserOptions = {
-    // mangle: {
-    //     properties: {
-    //          regex: /^_/,
-    //     }
-    // },
+    mangle: {
+        properties: {
+            regex: /^_/,
+            //debug: true,
+        }
+    },
 }
 
 export default defineConfig([

@@ -17,7 +17,7 @@ export default class Poster{
     /**
      * Start loading poster, then  show if needed
      */
-    loadAndShowPoster(){
+    _loadAndShowPoster(){
         if (this.settings.poster && !this.data.isAnyFrameChanged) {
             this.imageObject = new Image();
             this.imageObject.onload = this.imageObject.onerror = this.#onPosterLoaded.bind(this);
@@ -28,7 +28,7 @@ export default class Poster{
     /**
      * Redraw poster after canvas change if the poster was loaded
      */
-    redrawPoster(){
+    _redrawPoster(){
         if ( this.data.isAnyFrameChanged || !this.isPosterLoaded ) return;
         this.#drawPoster();
     }

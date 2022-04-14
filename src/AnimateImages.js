@@ -69,7 +69,7 @@ export default class AnimateImages{
         if (this.#settings.preload === 'all' || this.#settings.preload === "partial"){
             let preloadNumber = (this.#settings.preload === 'all') ? this.#data.totalImages : this.#settings.preloadNumber;
             if (preloadNumber === 0) preloadNumber = this.#data.totalImages;
-            this.#preloader.startLoading(preloadNumber);
+            this.#preloader._startLoading(preloadNumber);
         }
         if (this.#settings.autoplay) this.play();
         if ( this.#settings.draggable ) this.#toggleDrag(true);
@@ -84,8 +84,8 @@ export default class AnimateImages{
     }
 
     #animateCanvas(frameNumber){
-        this.#render.clearCanvas();
-        this.#render.drawFrame(frameNumber);
+        this.#render._clearCanvas();
+        this.#render._drawFrame(frameNumber);
     }
 
 
@@ -120,19 +120,19 @@ export default class AnimateImages{
             this.#data.canvas.element.height = this.#data.canvas.element.clientHeight * dpr; // so just update inner canvas size baser on rounded real height
         }
 
-        if ( this.#dragInput ) this.#dragInput.updateThreshold()
+        if ( this.#dragInput ) this.#dragInput._updateThreshold()
         this.#maybeRedrawFrame(); // canvas is clear after resize
     }
 
     #updateImagesCount(){
-        if ( this.#dragInput ) this.#dragInput.updateThreshold();
-        this.#animation.updateDuration();
+        if ( this.#dragInput ) this.#dragInput._updateThreshold();
+        this.#animation._updateDuration();
     }
     #maybeRedrawFrame(){
         if ( this.#data.isAnyFrameChanged ) { // frames were drawn
             this.#animateCanvas(this.#data.currentFrame);
         } else if ( this.#poster ) { // poster exists
-            this.#poster.redrawPoster();
+            this.#poster._redrawPoster();
         }
         // don't redraw in initial state, or if poster onLoad is not finished yet
     }
@@ -143,11 +143,11 @@ export default class AnimateImages{
                 data: this.#data,
                 settings: this.#settings,
                 changeFrame: this.#changeFrame.bind(this),
-                getNextFrame: this.#animation.getNextFrame.bind(this.#animation)
+                getNextFrame: this.#animation._getNextFrame.bind(this.#animation)
             });
-            this.#dragInput.enableDrag();
+            this.#dragInput._enableDrag();
         } else {
-            if (this.#dragInput) this.#dragInput.disableDrag();
+            if (this.#dragInput) this.#dragInput._disableDrag();
         }
     }
 
@@ -156,9 +156,9 @@ export default class AnimateImages{
             {
                 settings: this.#settings,
                 data: this.#data,
-                drawFrame: this.#render.drawFrame.bind(this.#render)
+                drawFrame: this.#render._drawFrame.bind(this.#render)
             });
-        this.#poster.loadAndShowPoster();
+        this.#poster._loadAndShowPoster();
     }
 
     #toggleResizeHandler(add = true) {
@@ -175,11 +175,11 @@ export default class AnimateImages{
     play(){
         if ( this.#animation.isAnimating ) return this;
         if ( this.#preloader.isAnyPreloadFinished ) {
-            this.#animation.play();
-            this.#preloader.maybePreloadAll();
+            this.#animation._play();
+            this.#preloader._maybePreloadAll();
         } else {
             this.#data.deferredAction = this.play.bind(this);
-            this.#preloader.startLoading();
+            this.#preloader._startLoading();
         }
         return this;
     }
@@ -188,7 +188,7 @@ export default class AnimateImages{
      * @returns {AnimateImages} - plugin instance
      */
     stop(){
-        this.#animation.stop();
+        this.#animation._stop();
         return this;
     }
     /**
@@ -207,11 +207,11 @@ export default class AnimateImages{
     next(){
         if ( this.#preloader.isAnyPreloadFinished ) {
             this.stop();
-            this.#changeFrame( this.#animation.getNextFrame(1) );
-            this.#preloader.maybePreloadAll();
+            this.#changeFrame( this.#animation._getNextFrame(1) );
+            this.#preloader._maybePreloadAll();
         } else {
             this.#data.deferredAction = this.next.bind(this);
-            this.#preloader.startLoading();
+            this.#preloader._startLoading();
         }
         return this;
     }
@@ -222,11 +222,11 @@ export default class AnimateImages{
     prev(){
         if ( this.#preloader.isAnyPreloadFinished ) {
             this.stop();
-            this.#changeFrame( this.#animation.getNextFrame(1, !this.#settings.reverse) );
-            this.#preloader.maybePreloadAll();
+            this.#changeFrame( this.#animation._getNextFrame(1, !this.#settings.reverse) );
+            this.#preloader._maybePreloadAll();
         } else {
             this.#data.deferredAction = this.prev.bind(this);
-            this.#preloader.startLoading();
+            this.#preloader._startLoading();
         }
         return this;
     }
@@ -239,10 +239,10 @@ export default class AnimateImages{
         if ( this.#preloader.isAnyPreloadFinished ) {
             this.stop();
             this.#changeFrame(normalizeFrameNumber(frameNumber, this.#data.totalImages));
-            this.#preloader.maybePreloadAll();
+            this.#preloader._maybePreloadAll();
         } else {
             this.#data.deferredAction = this.setFrame.bind(this, frameNumber);
-            this.#preloader.startLoading();
+            this.#preloader._startLoading();
         }
         return this;
     }
@@ -292,10 +292,10 @@ export default class AnimateImages{
 
             this.#animation.framesLeftToPlay = numberOfFrames;
             this.play();
-            this.#preloader.maybePreloadAll();
+            this.#preloader._maybePreloadAll();
         } else {
             this.#data.deferredAction = this.playFrames.bind(this, numberOfFrames);
-            this.#preloader.startLoading();
+            this.#preloader._startLoading();
         }
         return this;
     }
@@ -320,7 +320,7 @@ export default class AnimateImages{
      */
     preloadImages(number= undefined){
         number = number ?? this.#settings.images.length;
-        this.#preloader.startLoading(number);
+        this.#preloader._startLoading(number);
         return this;
     }
     /**
@@ -356,7 +356,7 @@ export default class AnimateImages{
             'pageScrollTimerDelay', 'onPreloadFinished', 'onPosterLoaded', 'onAnimationEnd', 'onBeforeFrame', 'onAfterFrame'];
         if (allowedOptions.includes(option)) {
            this.#settings[option] = value;
-           if (option === 'fps') this.#animation.updateDuration();
+           if (option === 'fps') this.#animation._updateDuration();
            if (option === 'ratio') this.#updateCanvasSizes();
            if (option === 'fillMode') this.#updateCanvasSizes();
            if (option === 'draggable') this.#toggleDrag(value);
@@ -389,10 +389,10 @@ export default class AnimateImages{
         if ( this.#preloader.isAnyPreloadFinished ) {
             this.stop();
             this.#changeFrame(normalizeFrameNumber(1, this.#data.totalImages));
-            this.#preloader.maybePreloadAll();
+            this.#preloader._maybePreloadAll();
         } else {
             this.#data.deferredAction = this.reset.bind(this);
-            this.#preloader.startLoading();
+            this.#preloader._startLoading();
         }
         return this;
     }
@@ -401,7 +401,7 @@ export default class AnimateImages{
      */
     destroy(){
         this.stop();
-        this.#render.clearCanvas();
+        this.#render._clearCanvas();
         this.#toggleDrag(false);
         this.#toggleResizeHandler(false);
     }

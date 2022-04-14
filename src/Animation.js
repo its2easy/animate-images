@@ -18,10 +18,10 @@ export default class Animation{
         this.settings = settings;
         this.data = data;
         this.changeFrame = changeFrame;
-        this.updateDuration();
+        this._updateDuration();
     }
 
-    play(){
+    _play(){
         this.isAnimating = true;
         this.stopRequested = false; // fix for the case when stopRequested was set inside getNextFrame that was called outside #animate
         if ( !this.data.isAnyFrameChanged ) { // 1st paint, direct call because 1st frame wasn't drawn
@@ -33,7 +33,7 @@ export default class Animation{
         this.lastUpdate = null;// first 'lastUpdate' should be always set in the first raf of the current animation
         requestAnimationFrame(this.#animate.bind(this));
     }
-    stop(){
+    _stop(){
         if ( this.isAnimating ){
             this.data.canvas.element.dispatchEvent( new Event(eventPrefix + 'animation-end') );
             this.settings.onAnimationEnd(this.data.pluginApi);
@@ -48,7 +48,7 @@ export default class Animation{
      * @param {Boolean} reverse
      * @returns {number|*}
      */
-    getNextFrame(deltaFrames, reverse = undefined){
+    _getNextFrame(deltaFrames, reverse = undefined){
         deltaFrames = Math.floor(deltaFrames); //just to be safe
         // Handle reverse
         if ( reverse === undefined ) reverse = this.settings.reverse;
@@ -117,7 +117,7 @@ export default class Animation{
             this.framesQueue = deltaFrames % 1; // save decimal part for the next RAFs
             deltaFrames = Math.floor(deltaFrames) % this.data.totalImages;
             if ( deltaFrames > this.framesLeftToPlay ) deltaFrames = this.framesLeftToPlay;// case when  animation fps > device fps
-            let newFrame = this.getNextFrame( deltaFrames );
+            let newFrame = this._getNextFrame( deltaFrames );
             if ( this.stopRequested ) { // animation ended from check in getNextFrame()
                 this.data.pluginApi.stop();
                 this.stopRequested = false;
@@ -139,7 +139,7 @@ export default class Animation{
     /**
      * Recalculate animation duration after fps or totalImages change
      */
-    updateDuration(){
+    _updateDuration(){
         this.duration =  this.data.totalImages / this.settings.fps  * 1000;
     }
 }

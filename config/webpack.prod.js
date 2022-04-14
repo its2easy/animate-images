@@ -15,11 +15,11 @@ module.exports = [
                 new TerserPlugin({
                     extractComments: false,
                     terserOptions: {
-                        // mangle: {
-                        //     properties: {
-                        //         regex: /^_/,
-                        //     }
-                        // },
+                        mangle: {
+                            properties: {
+                                regex: /^_/,
+                            }
+                        },
                     }
                 }),
             ]

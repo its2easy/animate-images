@@ -15,7 +15,7 @@ export default class Render{
     /**
      * @param {number|HTMLImageElement} frameNumberOrImage - frame number or image object
      */
-    drawFrame(frameNumberOrImage){
+    _drawFrame(frameNumberOrImage){
         //this.context.imageSmoothingEnabled = false; // may reduce blurriness, but could make the image worse (resets to true  after resize)
         if (Number.isInteger(frameNumberOrImage)) {
             this.image = this.data.loadedImagesArray[frameNumberOrImage-1]
@@ -40,7 +40,7 @@ export default class Render{
             {context: this.context, width: this.data.canvas.element.width, height: this.data.canvas.element.height});
     }
 
-    clearCanvas(){
+    _clearCanvas(){
         this.context.clearRect(0, 0, this.data.canvas.element.width, this.data.canvas.element.height);
     }
 

@@ -24,13 +24,13 @@ export default class DragInput{
         this.changeFrame = changeFrame;
         this.getNextFrame = getNextFrame;
         this.boundSwipeHandler = this.#swipeHandler.bind(this);
-        this.updateThreshold();
+        this._updateThreshold();
     }
 
     /**
      * Enable rotating by mouse or touch drag
      */
-    enableDrag(){
+    _enableDrag(){
         DragInput.SWIPE_EVENTS.forEach( (value) => {
             this.data.canvas.element.addEventListener(value, this.boundSwipeHandler);
         })
@@ -39,7 +39,7 @@ export default class DragInput{
     /**
      * Disable rotating by mouse or touch drag
      */
-    disableDrag(){
+    _disableDrag(){
         DragInput.SWIPE_EVENTS.forEach( (value) => {
             this.data.canvas.element.removeEventListener(value, this.boundSwipeHandler);
         })
@@ -53,7 +53,7 @@ export default class DragInput{
      * Update one frame threshold in pixels
      * @param newValue
      */
-    updateThreshold(newValue = null){
+    _updateThreshold(newValue = null){
         if (newValue) {
             this.threshold = newValue;
         }

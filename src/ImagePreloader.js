@@ -49,7 +49,7 @@ export default class ImagePreloader{
      * Add number of images to loading queue
      * @param {number} [preloadNumber] - number of images to load
      */
-    startLoading(preloadNumber){
+    _startLoading(preloadNumber){
         if (this.isPreloadFinished) return;
         if ( !preloadNumber ) preloadNumber = this.totalImages;
         preloadNumber = Math.round(preloadNumber);
@@ -119,7 +119,7 @@ export default class ImagePreloader{
             this.preloadedCount = 0;
             this.totalImages = this.settings.images.length; // update for default preload mode
             // start preload full list if we have action, that started after fast preload end
-            if ( this.data.deferredAction ) this.startLoading();
+            if ( this.data.deferredAction ) this._startLoading();
         } else if ( this.currentMode === "default" && this.settings.fastPreview ) { // default preload has ended (only after fast)
             // replace small sequence with full and change frame
             if (this.settings?.fastPreview.fpsAfter) this.data.pluginApi.setOption("fps", this.settings?.fastPreview.fpsAfter)
@@ -142,8 +142,8 @@ export default class ImagePreloader{
     // this is possible only with preload="all"; or with any preload after plugin.preloadImages() before any action,
     // and we have to start full preload here.
     // This function is called only after frame change was requested.
-    maybePreloadAll(){
-        if (this.settings.fastPreview && !this.isPreloadFinished) this.startLoading();
+    _maybePreloadAll(){
+        if (this.settings.fastPreview && !this.isPreloadFinished) this._startLoading();
     }
 
 }
