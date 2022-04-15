@@ -245,7 +245,7 @@ options:
 | **fastPreview** | Object &#124; false | false | Special mode when you want interactivity as quickly as possible, but you have a lot of pictures. It will only load a small set of images, after which it will be possible to interact with the plugin, and then full set of the images will be loaded. If enabled, ```preload```, ```preloadNumber``` and ```fps``` options will be applied to **fastPreview** images. See [examples below](#fast-preview) |
 | **fastPreview.images** | Array&lt;string&gt; |  | Required if ```fastPreview``` is enabled. Array with urls of preview mode images. You could use a part of **options.images** array or completely different pictures, they will be replaced when full sequence is loaded  |
 | **fastPreview.fpsAfter** | number |  | fps value that will be applied after the full list of images is loaded |
-| **fastPreview.matchFrame** | function(frameNumber) |  | A function that takes the frame number of the short set and returns the frame number of the full set. The function is called when the plugin switches to the full set of images, so that the animation doesn't jump after full load. Frame numbers start from 1. If not specified, first frame will be set |
+| **fastPreview.matchFrame** | function(number):number |  | A function that takes the frame number of the short set and returns the frame number of the full set. The function is called when the plugin switches to the full set of images, so that the animation doesn't jump after full load. Frame numbers start from 1. If not specified, first frame will be set |
 | **onPreloadFinished** | function(AnimateImages) | | Callback, occurs when all image files have been loaded, receives plugin instance as a parameter |
 | **onFastPreloadFinished** | function(AnimateImages) | | Callback, occurs when all ```fastPreview``` mode images have been loaded, receives plugin instance as a parameter |
 | **onPosterLoaded** | function(AnimateImages) | | Callback, occurs when poster image is fully loaded, receives plugin instance as a parameter |
@@ -279,7 +279,7 @@ options:
 >  Most methods can be chained (```instance.setReverse(true).play()```)
 
 >  Methods that involve a frame change can be called before full load or even without any preload.
-> Plugin will add this action to the queue and start downloading the frames. Only one last action is saved in the plugin
+> Plugin will add this action to the queue and start downloading the frames. Only one last action is saved in the queue
 
 ### play
 Start animation
