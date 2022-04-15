@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", function() {
     let instance1 = new AnimateImages(element, {
         images: imagesArray,
         preload: "all",
-        preloadNumber: 5,
+        preloadNumber: 15,
         poster: imagesArray[0],
         fps: 45,
         loop: true,
@@ -52,10 +52,6 @@ document.addEventListener("DOMContentLoaded", function() {
     });
     //instance1.preloadImages();
     setupControls();
-
-    setTimeout(()=>{
-        instance1.preloadImages();
-    }, 3000);
 
     // Events
     element.addEventListener('animate-images:loading-progress', function (e){

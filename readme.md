@@ -556,12 +556,12 @@ element.addEventListener('animate-images:loading-progress', function (e){
     <summary>Examples</summary>
 
 ```javascript
-// load only part of all images, start playing at 5 fps, then load all the images, 
+// load only fastPreview images, start playing at 5 fps, then load all the images, 
 // replace small set with full as soon as it loads, and continue playing at 30fps
 new AnimateImages(element, {
     images: imagesArray,
     autoplay: true,
-    fps: 5, //fps for fastPreview
+    fps: 5, // fps for fastPreview
     ...
     fastPreview: {
         images: imagesArray.filter( (val, i) => i % 5 === 0 ),// use every 5th image (imagesArray[0], imagesArray[6], ...)
@@ -572,9 +572,19 @@ new AnimateImages(element, {
     }
 }
 
-// preload only 3 images, wait for user interaction, load the rest of fastPreview images, start playing,
-// then load full sequence and replace with it
+// call play(), it will load and start fastPreview, then switch to full sequence
 let instance1 = new AnimateImages(element, {
+    images: imagesArray,
+    ...
+    fastPreview: {
+        images: imagesArray.filter( (val, i) => i % 10 === 0 ),
+    }
+}
+button.addEventListener("click", () => { instance1.play() });
+
+// preload only 3 images, wait for user interaction, load the rest of fastPreview images, start playing,
+// then load full sequence
+let instance2 = new AnimateImages(element, {
     images: imagesArray,
     preload: "partial", // preload is applied to fastPreview only
     preloadNumber: 3,
@@ -583,10 +593,10 @@ let instance1 = new AnimateImages(element, {
         images: imagesArray.filter( (val, i) => i % 10 === 0 ),// use every 10th image (imagesArray[0], imagesArray[6], etc)
     }
 }
-button.addEventListener("click", () => { instance1.play() }); // play() always loads the rest before playing
+button.addEventListener("click", () => { instance2.play() }); // play() always loads the rest before playing
 
 // start loading only after some event, play after user interaction, then load the rest
-let instance2 = new AnimateImages(element, {
+let instance3 = new AnimateImages(element, {
     images: imagesArray,
     preload: "none",
     fastPreview: {
@@ -594,14 +604,11 @@ let instance2 = new AnimateImages(element, {
     }
 }
 ...
-someModalOpenCallback(){
-    instance2.preloadImages(); // will load only fastPreview images
-}
-...
-buttonInsedeModal.addEventListener("click", () => { instance2.play() }); // it's safe to call even without any preload
+someModalOpenCallback(){ instance3.preloadImages() } // will load only fastPreview images
+buttonInsedeModal.addEventListener("click", () => { instance3.play() }); // it's safe to call even without any preload
 
 // preload all fastPreview images, start loading full sequnce after that, but wait for interaction to play
-let instance3 = new AnimateImages(element, {
+let instance4 = new AnimateImages(element, {
     images: imagesArray,
     preload: "all", // will load only fastPreview.images
     fastPreview: {
@@ -612,7 +619,7 @@ let instance3 = new AnimateImages(element, {
     }
 }
 // initially will start short sequnce if full in not ready, otherwise will start the full
-buttonInsedeModal.addEventListener("click", () => { instance3.play() });
+buttonInsedeModal.addEventListener("click", () => { instance4.play() });
 ```
 </details>
 

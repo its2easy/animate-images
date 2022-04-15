@@ -34,6 +34,9 @@ export default class ImagePreloader{
 
         // set mode if fast preview
         if (this._settings.fastPreview) {
+            if ( !this._settings.fastPreview.images ) {
+                throw new TypeError('fastPreview.images is required when fastPreview is enabled');
+            }
             this._currentMode = "fast";
             this._data.totalImages = this._settings.fastPreview.images.length;
         }
@@ -105,6 +108,8 @@ export default class ImagePreloader{
         this._data.totalImages = this._tempImagesArray.length;
         this._updateImagesCount();
 
+        // we should call deferredAction and callback after "setFrame" inside next "if", because setFrame will replace
+        // these actions, so save current mode before it will be changed inside "if", and use for  deferredAction and callback
         const savedMode = this._currentMode;
         const plugin = this._data.pluginApi;
         // code below executes only if fastPreview is set
@@ -125,7 +130,11 @@ export default class ImagePreloader{
         }
 
         // actions and callbacks
-        if (this._data.deferredAction) this._data.deferredAction();
+        if (this._data.deferredAction) {
+            this._data.deferredAction();
+            // clear to prevent from being called twice when action was queued before the end of fastPreview preload
+            this._data.deferredAction = null;
+        }
         this._data.canvas.element.dispatchEvent( new Event(this._modes[savedMode].event) );
         this._modes[savedMode].callback(plugin);
 
