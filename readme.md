@@ -15,6 +15,7 @@ The frames must be separate images of the same size.
 
 * [Installation](#installation)
 * [Usage](#usage)
+* [Sizes and responsive behavior](#responsive)
 * [Options](#options)
 * [Methods](#methods)
 * [Events](#events)
@@ -173,36 +174,9 @@ In general, the plugin will load all the frames before any action, but you can p
 images in some cases, for example, when the user is scrolling to the section in which the animation will 
 take place.
 
-### Sizes and responsive behavior
-The width of the canvas is defined by page CSS. To calculate height, plugin uses ratio of
-inline width and height canvas properties `<canvas width="1600" height="900">` (if they're not set, default
- is 300x150). This ratio can be overwritten by `options.ratio`. Height of the canvas should be `'auto'` and 
-not fixed by CSS. If the height is fixed, the ratio can't be used, and the canvas will use its natural CSS 
-size. The dimensions of the images are taken from the image itself after load, and they do not need to be 
-set anywhere in the settings.
-
-If the canvas and images have the same ratio, the full image will be displayed. If the ratios are the same, 
-but sizes are different, the image will be scaled to fit the canvas. On the page the canvas with the image will
-be scaled to canvas CSS size.
-
-If canvas and image ratios are different, then image will use `options.fillMode`, which works like 
-background-size `cover` and `contain`, and the image will be centered.
-
-To display the full image, check the image width and height, and set it as canvas inline `width` and `height` 
-(or set `options.ratio`).
-Then set canvas width by CSS (width="500px" or width="100%" or max-width="800px" etc), and don't set 
-canvas height. 
-
-For example, &lt;canvas width="800" height="400"&gt;, image 1200x600, canvas has css max-width="500px". 
-Image will be scaled to 800x400 inside canvas and fully visible, canvas on the page will be displayed 
-500px x 250px.
-
-After page resize, the sizes will be recalculated automatically, but if canvas was resized **by a script**, call 
-`instance.updateCanvas()`
-
 ### Loading errors
-All images that have been loaded with errors will be removed from the array of frames. Duration 
-of the animation will be recalculated.  
+All images that have been loaded with errors will be removed from the array of frames. Duration
+of the animation will be recalculated.
 
 New frames count could be obtained in preload callback:
 ```javascript
@@ -215,6 +189,67 @@ new AnimateImages(element, {
     },
 });
 ```
+
+## <a name="responsive"></a>Sizes and responsive behavior
+**TL;DR**
+use your image dimensions as width and height canvas properties, add ```width: 100%``` to canvas, 
+add more css if you need:
+```html
+<canvas width="1600" height="768" style="width: 100%"></canvas>
+```
+
+---
+
+Size calculation is controlled by ```responsiveAspect```. Default is ```width``` which means that canvas **width** 
+should be defined or restricted by CSS, and **height** will be calculated by the plugin. With ```responsiveAspect: "height"``` 
+you should control **height** and leave **width** auto.
+
+Canvas itself should have ```width: 100%``` (```height: 100%``` if responsiveAspect is "height"). Size restrictions 
+could be set on canvas or on wrapper element:
+```html
+<canvas width="800" height="500" style="width: 100%; max-width: 1000px"></canvas>
+```
+<details>
+<summary>responsive height example</summary>
+
+```html
+<div class="wrapper" style="height: 100%;">
+    <canvas width="800" height="500" style="height: 100%; max-height: 400px"></canvas>
+</div>
+```
+
+</details>
+
+:information_source: Secondary side of the canvas should be ```auto``` and not fixed by CSS. If it's fixed, 
+the ratio can't be used, and the canvas will use its natural CSS size.
+
+#### Ratio
+To calculate secondary side, plugin uses ratio of
+inline width and height canvas properties `<canvas width="1600" height="900">` (if they're not set, default
+ is 300x150). This ratio can be overwritten by `options.ratio`.  
+
+#### Fill mode
+If **the canvas and images have the same ratio**, the full image will be displayed. If **the ratios are the same, 
+but sizes are different**, the image will be scaled to fit the canvas. The dimensions of the images are taken from the 
+image itself after load, and they do not need to be set anywhere in the settings.On the page the canvas 
+with the image will be scaled to canvas CSS size. 
+
+If **canvas and image ratios are different**, then image will use `options.fillMode`, which works like 
+background-size `cover` and `contain`, and the image will be centered.
+
+To display the full image, check the image width and height, and set it as canvas inline `width` and `height` 
+(or set `options.ratio`).
+Then set canvas width by CSS (width="500px" or width="100%" or max-width="800px" etc), and don't set 
+canvas height (with default responsiveAspect). 
+
+#### Other
+For example, &lt;canvas width="800" height="400"&gt;, image 1200x600, canvas has css max-width="500px". 
+Image will be scaled to 800x400 inside canvas and fully visible, canvas on the page will be displayed 
+500px x 250px.
+
+After page resize, the sizes will be recalculated automatically, but if canvas was resized **by a script**, call 
+`instance.updateCanvas()`
+
 
 ## <a name="options"></a>Options
 
@@ -240,8 +275,9 @@ options:
 | **draggable** | boolean | false | Draggable by mouse or touch |
 | **inversion** | boolean | false | Inversion changes drag direction. Use it if animation direction doesn't match swipe direction  |
 | **dragModifier** | number | 1 | Sensitivity factor for user interaction. Only positive numbers are allowed |
-| **touchScrollMode** | string | "pageScrollTimer" | Page scroll behavior with touch events _(only for events that fire in the plugin area)_. Available modes: `preventPageScroll` - touch scroll is always disabled. `allowPageScroll` - touch scroll is always enabled. `pageScrollTimer` - after the first interaction the scroll is not disabled; if the time between the end of the previous interaction and the start of a new one is less than _pageScrollTimerDelay_, then scroll will be disabled; if more time has passed, then scroll will be enabled again |
+| **touchScrollMode** | string | 'pageScrollTimer' | Page scroll behavior with touch events _(only for events that fire in the plugin area)_. Available modes: `preventPageScroll` - touch scroll is always disabled. `allowPageScroll` - touch scroll is always enabled. `pageScrollTimer` - after the first interaction the scroll is not disabled; if the time between the end of the previous interaction and the start of a new one is less than _pageScrollTimerDelay_, then scroll will be disabled; if more time has passed, then scroll will be enabled again |
 | **pageScrollTimerDelay** | number | 1500 | Time in ms when touch scroll will be disabled after the last user interaction, if `touchScrollMode: "pageScrollTimer"` |
+| **responsiveAspect** | string | 'width' | This option sets the side on which the sizes will be calculated. `width`: width should be controlled by css, height will be calculated by the plugin; `height`: use css to restrict height, width will be set by plugin. See [responsive behavior](#responsive) |
 | **fastPreview** | Object &#124; false | false | Special mode when you want interactivity as quickly as possible, but you have a lot of pictures. It will only load a small set of images, after which it will be possible to interact with the plugin, and then full set of the images will be loaded. If enabled, ```preload```, ```preloadNumber``` and ```fps``` options will be applied to **fastPreview** images. See [examples below](#fast-preview) |
 | **fastPreview.images** | Array&lt;string&gt; |  | Required if ```fastPreview``` is enabled. Array with urls of preview mode images. You could use a part of **options.images** array or completely different pictures, they will be replaced when full sequence is loaded  |
 | **fastPreview.fpsAfter** | number |  | fps value that will be applied after the full list of images is loaded |

@@ -10,19 +10,17 @@
 
     <style>
         .canvas1-block{
-            max-width: 800px;
+            max-width: 800px; /* this is to align loading block */
             margin-left:  auto;
             margin-right:  auto;
             position: relative;
         }
         .canvas{
-            /*border: 1px solid red;*/
-            width: 100%;
-            /*height: 350px;*/
-        }
-        .canvas1{
-            max-width: 100%;
             cursor: grab;
+            /*border: 1px solid red;*/
+            width: 100%; /* this is important! */
+            max-width: 800px;
+            /*height: 350px;*/
         }
         .loading{
             position: absolute;
@@ -70,6 +68,22 @@
                 flex-grow: 0;
             }
         }
+
+        /* setup for height test, comment .canvas1-block and .canvas above */
+        /*.row, h1{ display: none; }*/
+        /*html, body{ overflow-x: hidden; }*/
+        /*html, body, .container, .text-center, .block{ height: 100%; }*/
+        /*.canvas1-block{*/
+        /*    margin-left:  auto;*/
+        /*    margin-right:  auto;*/
+        /*    position: relative;*/
+        /*    max-height: 100%;*/
+        /*    height: 100%;*/
+        /*}*/
+        /*.canvas{*/
+        /*    height: 100%;*/
+        /*    max-height: 400px;*/
+        /*}*/
     </style>
 
 </head>
@@ -184,7 +198,7 @@
 
             <!--CANVAS BLOCK-->
             <div class="canvas1-block">
-                <canvas id="canvas1" class="canvas canvas1" width="800" height="500"></canvas>
+                <canvas id="canvas1" class="canvas" width="800" height="500"></canvas>
                 <div class="loading loading1">Loading <span>0</span>%</div>
             </div>
             <!-- ============  -->

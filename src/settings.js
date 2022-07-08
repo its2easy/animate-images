@@ -39,6 +39,7 @@ export const defaultSettings = {
     dragModifier: 1,
     touchScrollMode: "pageScrollTimer",
     pageScrollTimerDelay: 1500,
+    responsiveAspect: "width",
 
     fastPreview: false,
 

@@ -23,6 +23,7 @@ document.addEventListener("DOMContentLoaded", function() {
         //dragModifier: 1.5,
         touchScrollMode: "allowPageScroll",
         //pageScrollTimerDelay: 2500,
+        //responsiveAspect: "height",
         // fastPreview: {
         //     images: imagesArray.filter( (val, i) => i % 5 === 0 ),
         //     matchFrame: function (currentFrame){

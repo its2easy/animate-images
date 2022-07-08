@@ -11,3 +11,7 @@ export function normalizeFrameNumber(frameNumber, totalImages){
 export function calculateFullAnimationDuration(imagesNumber, fps){
     return imagesNumber / fps  * 1000;
 }
+
+export function uppercaseFirstChar(word){
+    return word.charAt(0).toUpperCase() + word.slice(1);
+}

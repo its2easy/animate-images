@@ -1,4 +1,4 @@
-import { normalizeFrameNumber } from "./utils";
+import { normalizeFrameNumber, uppercaseFirstChar } from "./utils";
 import { validateInitParameters, defaultSettings } from "./settings";
 import ImagePreloader from "./ImagePreloader";
 import Render from "./Render";
@@ -92,6 +92,7 @@ export default class AnimateImages{
     #updateCanvasSizes(){
         const canvas = this.#data.canvas;
         /**
+         * +++RATIO SECTION+++
          * If no options.ratio, inline canvas width/height will be used (2:1 if not set)
          * Real canvas size is controlled by CSS, inner size will be set based on CSS width and ratio (height should be "auto")
          * If height if fixed in CSS, ratio can't be used and inner height will be equal to CSS-defined height
@@ -103,22 +104,45 @@ export default class AnimateImages{
             canvas.ratio = canvas.element.width / canvas.element.height;
         }
 
-        const dpr = window.devicePixelRatio || 1;
-        // changing width and height won't change real clientWidth and clientHeight if size is fixed by CSS
-        const initialClientWidth = canvas.element.clientWidth;
-        canvas.element.width = canvas.element.clientWidth * dpr;
-        // if canvas css width was not defined, clientWidth was changed based on new width, we need to recalculate width based on new clientWidth
-        if (initialClientWidth !== canvas.element.clientWidth) {
-            canvas.element.width = canvas.element.clientWidth * dpr;
-        }
-        canvas.element.height = Math.round(canvas.element.clientWidth / canvas.ratio) * dpr; // "round" for partial fix to rounding pixels error
 
-        const heightDifference = Math.abs(canvas.element.height - canvas.element.clientHeight * dpr);// diff in pixels
-        if ( heightDifference >= 1) { // if height set by CSS
-            canvas.element.height = canvas.element.clientHeight * dpr;
-            canvas.ratio = canvas.element.width / canvas.element.height;
-        } else if (heightDifference > 0 && heightDifference <1 ) { // rare case, height is auto, but pixels are fractional
-            canvas.element.height = canvas.element.clientHeight * dpr; // so just update inner canvas size baser on rounded real height
+        // +++SIZE SECTION+++
+        // mainSide is the side from responsiveAspect, it should be controlled by CSS, secondarySide value will be
+        // controlled by script
+        const dpr = (window.devicePixelRatio).toFixed(2) || 1; // sometimes dpr is like 2.00000000234
+        let mainSide = this.#settings.responsiveAspect;// width or height
+        let clientMainSide =  "client" + uppercaseFirstChar(mainSide); // clientWidth or clientHeight
+        let secondarySide = (mainSide === "width") ? "height" : "width";
+        let clientSecondarySide = "client" + uppercaseFirstChar(secondarySide);// clientWidth or clientHeight
+
+        // changing width and height won't change real clientWidth and clientHeight if size is fixed by CSS
+        const initialClientMainSide = canvas.element[clientMainSide];
+        canvas.element[mainSide] = canvas.element[clientMainSide] * dpr;
+
+        // !!! ONLY if dpr != 1 and canvas css mainSide was not defined => changed width will change clientWidth
+        // so we need to recalculate width based on new clientWidth
+        if (initialClientMainSide !== canvas.element[clientMainSide]) {
+            canvas.element[mainSide] = canvas.element[clientMainSide] * dpr;
+        }
+
+        let rawNewValue = (mainSide === "width") ? canvas.element.clientWidth / canvas.ratio : canvas.element.clientHeight * canvas.ratio;
+        canvas.element[secondarySide] = Math.round(rawNewValue) * dpr; // "round" for partial fix to rounding pixels error
+
+
+        // +++CORRECTION SECTION+++
+        const secondaryValueDifference = Math.abs(canvas.element[secondarySide] - canvas.element[clientSecondarySide] * dpr);// diff in pixels
+        // previously I compared with 1px to check subpixel errors, but error is somehow related to dpr, so we compare with "1px * dpr" or just "dpr"
+        if ( secondaryValueDifference > dpr) { // if secondarySide is locked by CSS
+            let newRatio = canvas.element.clientWidth / canvas.element.clientHeight; // ratio from "real" canvas element
+            // <1% change => calculation error; >1% change => secondarySide size is locked with css
+            if ( Math.abs(canvas.ratio - newRatio) / canvas.ratio > 0.01 ) {
+                canvas.element[secondarySide] = canvas.element[clientSecondarySide] * dpr;
+                canvas.ratio = newRatio;
+            } else { // small diff between inner and real values, adjust to prevent errors accumulation
+                canvas.element[secondarySide] = (mainSide === "width") ? canvas.element.width / canvas.ratio : canvas.element.height * canvas.ratio;
+            }
+        } else if (secondaryValueDifference > 0 && secondaryValueDifference <= dpr ) { // rare case, pixels are fractional
+            // so just update inner canvas size baser on main side and ratio
+            canvas.element[secondarySide] = (mainSide === "width") ? canvas.element.width / canvas.ratio : canvas.element.height * canvas.ratio;
         }
 
         if ( this.#dragInput ) this.#dragInput._updateThreshold()
@@ -441,6 +465,7 @@ export default class AnimateImages{
  * scroll behavior with touch events (preventPageScroll,allowPageScroll, pageScrollTimer)
  * @property {number} [pageScrollTimerDelay=1500] - Time in ms when touch scroll will be disabled during interaction
  * if <b>touchScrollMode: "pageScrollTimer"<b>
+ * @property {'width'|'height'} [responsiveAspect="width"] - Which side will be responsive (controlled by css)
  * @property {Object|false} [fastPreview=false] - Special mode for interactivity after loading only a part of the pictures
  * @property {Array<string>} [fastPreview.images] - images urls for fastPreview mode (<b>Required</b> if fastPreview is enabled)
  * @property {number} [fastPreview.fpsAfter] - fps value that will be applied after the full list of images is loaded
