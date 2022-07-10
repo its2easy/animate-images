@@ -406,7 +406,7 @@ instance.playFrames(200);
 Change the direction of the animation. Alias to ```setOption('reverse', true)```
 
 `parameters`
-- reverse {boolean} - true for backward animation, false for forward
+- reverse {boolean} - true for backward animation, false for forward, default ```true```
 ```javascript
 instance.setReverse(true);
 ```
@@ -419,6 +419,17 @@ instance.setReverse(true);
 Get current reverse option. Alias to ```getOption('reverse')```
 
 `returns` {boolean} - reverse or not
+
+---
+
+### setForward
+Change the direction of the animation. It does the opposite effect 
+of ```setReverse()```
+
+`parameters`
+- forward {boolean} - true for forward animation, false for backward, default ```true```
+
+`returns` {AnimateImages} - plugin instance
 
 ---
 

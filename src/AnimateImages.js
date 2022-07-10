@@ -326,17 +326,27 @@ export default class AnimateImages{
     }
     /**
      * Change the direction of the animation. Alias to <b>setOption('reverse', true)</b>
-     * @param {boolean} [reverse=true] - True for backward animation, false for forward
+     * @param {boolean} [reverse=true] - true for backward animation, false for forward, default "true"
      * @returns {AnimateImages} - plugin instance
      */
     setReverse(reverse = true){
         this.#settings.reverse = !!reverse;
         return this;
     }
-    /** Get current reverse option. Alias to <b>getOption('reverse')</b>
+    /**
+     * Get current reverse option. Alias to <b>getOption('reverse')</b>
      * @returns {boolean} - reverse or not
      */
     getReverse() { return this.#settings.reverse; }
+    /**
+     * Change the direction of the animation. It does the opposite effect of <b>setReverse()</b>
+     * @param {boolean} [forward=true] - true for forward animation, false for backward, default "true"
+     * @returns {AnimateImages} - plugin instance
+     */
+    setForward(forward = true){
+
+        return this;
+    }
     /**
      * Start preload specified number of images, can be called multiple times.
      * If all the images are already loaded, then nothing will happen
