@@ -12,6 +12,7 @@ export default class DragInput{
     _threshold;
     _pixelsCorrection;
     _lastInteractionTime;
+    _prevDirection;
 
     constructor({ data, settings, changeFrame, getNextFrame }) {
         this._data = data;
@@ -83,7 +84,9 @@ export default class DragInput{
                 break;
             case 'mousemove':
             case 'touchmove': //move
-                if ( this._isSwiping ) {
+                // ignore mousemove without move (to prevent fake "left" movement)
+                const wasMoved = (this._prevX !== this._curX && this._prevY !== this._curX);
+                if ( this._isSwiping && wasMoved) {
                     //if ( event.type === 'touchmove' && event.cancelable) event.preventDefault();
                     this.#swipeMove();
                 }
@@ -118,26 +121,41 @@ export default class DragInput{
     }
     #swipeMove(){
         const direction = this.#swipeDirection();
-        const swipeLength = Math.round( Math.abs(this._curX - this._prevX) * this._settings.dragModifier ) + this._pixelsCorrection;
+        if (this._prevDirection && this._prevDirection !== direction) { // reset after direction change
+            this._pixelsCorrection = 0;
+        }
+        this._prevDirection = direction;
 
-        if ( swipeLength <= this._threshold) return;// Ignore if less than 1 frame
-        if ( direction !== 'left' && direction !== 'right') return; // Ignore vertical directions
+        const pixelDiffX = Math.abs(this._curX - this._prevX ); // save x diff before update
+        const swipeLength = (pixelDiffX + this._pixelsCorrection) * this._settings.dragModifier ;
 
-        this._prevX = this._curX;
-        this._prevY = this._curY; // Update Y to get right angle
+        this._prevX = this._curX; // update before any returns
+        this._prevY = this._curY; // update Y to prevent wrong angle after many vertical moves
 
-        const progress = swipeLength / this._data.canvas.element.width; // full width swipe means full animation
+
+        if ( (direction !== 'left' && direction !== 'right') || // Ignore vertical directions
+            (swipeLength < this._threshold) ) { // Ignore if less than 1 frame
+            this._pixelsCorrection += pixelDiffX; // skip this mousemove, but save horizontal movement
+            return;
+        }
+
+
+        const progress = swipeLength / this._data.canvas.element.clientWidth; // full width swipe means full length animation
         let deltaFrames = Math.floor(progress * this._data.totalImages);
         deltaFrames = deltaFrames % this._data.totalImages;
         // Add pixels to the next swipeMove if frames equivalent of swipe is not an integer number,
         // e.g one frame is 10px, swipeLength is 13px, we change 1 frame and add 3px to the next swipe,
-        // so fullwidth swipe is always rotate sprite for 1 turn (with 'dragModifier' = 1)
-        this._pixelsCorrection = swipeLength - (this._threshold * deltaFrames);
+        // so fullwidth swipe is always rotate sprite for 1 turn (with 'dragModifier' = 1).
+        // I divide the whole value by dragModifier because it seems to work as it should
+        this._pixelsCorrection = (swipeLength - (this._threshold * deltaFrames)) / this._settings.dragModifier;
         let isReverse = (direction === 'left'); // left means backward (reverse: true)
         if (this._settings.inversion) isReverse = !isReverse;// invert direction
         this._changeFrame(this._getNextFrame( deltaFrames, isReverse )); // left means backward (reverse: true)
         this._data.canvas.element.dispatchEvent( new CustomEvent(eventPrefix + 'drag-change',
-            { detail: {frame: this._data.currentFrame} })
+            { detail: {
+                frame: this._data.currentFrame,
+                direction,
+            } })
         );
     }
     #swipeEnd(){
@@ -151,9 +169,11 @@ export default class DragInput{
         );
     }
     #swipeDirection(){
-        let xDist, yDist, r, swipeAngle;
-        xDist = this._prevX - this._curX;
-        yDist = this._prevY - this._curY;
+        let r, swipeAngle,
+            xDist = this._prevX - this._curX,
+            yDist = this._prevY - this._curY;
+
+        // taken from slick.js
         r = Math.atan2(yDist, xDist);
         swipeAngle = Math.round(r * 180 / Math.PI);
         if (swipeAngle < 0) swipeAngle = 360 - Math.abs(swipeAngle);

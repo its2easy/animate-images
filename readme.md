@@ -573,7 +573,8 @@ second animation end.
 Fires when user starts dragging. Frame number is in `event.detail.frame`
 
 **animate-images:drag-change** -
-Fires on every frame change while dragging. Frame number is in `event.detail.frame`
+Fires on every frame change while dragging. Frame number is in `event.detail.frame`, direction 
+(`left` or `right`) is in `event.detail.direction`.
 
 **animate-images:drag-end** -
 Fires when user stops dragging. Frame number is in `event.detail.frame`

@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", function() {
         draggable: true,
         //inversion: true,
         //dragModifier: 1.5,
-        touchScrollMode: "allowPageScroll",
+        touchScrollMode: "pageScrollTimer",
         //pageScrollTimerDelay: 2500,
         //responsiveAspect: "height",
         // fastPreview: {
@@ -78,7 +78,8 @@ document.addEventListener("DOMContentLoaded", function() {
         console.log(`Event: animate-images:drag-start`);
     });
     element.addEventListener('animate-images:drag-change', function (e) {
-        console.log(`Event: animate-images:drag-change`);
+        //console.log(`Event: animate-images:drag-change`);
+        //console.log(`Drag direction: ${e.detail.direction}`);
     });
     element.addEventListener('animate-images:drag-end', function () {
         console.log(`Event: animate-images:drag-end`);
