@@ -1,4 +1,10 @@
 # Changelog
+## 2.3.0
+- new ```setForward``` method
+- new ```responsiveAspect``` option that allows to control height instead of width
+- add ```direction``` to event.detail of ```animate-images:drag-change``` event
+- reset pixels correction when changing drag direction
+- fix dragging when mousemove is called without real movement
 ## 2.2.0
 - new ```fastPreview``` option, ```onFastPreloadFinished``` callback, 
   ```animate-images:fast-preload-finished``` event, ```isFastPreloadFinished``` method

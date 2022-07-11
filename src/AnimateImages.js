@@ -344,7 +344,7 @@ export default class AnimateImages{
      * @returns {AnimateImages} - plugin instance
      */
     setForward(forward = true){
-
+        this.#settings.reverse = !forward;
         return this;
     }
     /**
