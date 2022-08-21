@@ -2,10 +2,11 @@ import { eventPrefix } from "./settings";
 
 export default class ImagePreloader{
 
-    constructor( {settings, data, updateImagesCount} ) {
+    constructor( {settings, data, updateImagesCount, getFramesLeft} ) {
         this._settings = settings;
         this._data = data;
         this._updateImagesCount = updateImagesCount;
+        this._getFramesLeft = getFramesLeft;
 
         // Public
         this._isPreloadFinished = false;// onload on all the images
@@ -120,13 +121,17 @@ export default class ImagePreloader{
             this._totalImages = this._settings.images.length; // update for default preload mode
             // start preload full list if we have action, that started after fast preload end
             if ( this._data.deferredAction ) this._startLoading();
-        } else if ( this._currentMode === "default" && this._settings.fastPreview ) { // default preload has ended (only after fast)
+        } else if ( this._currentMode === "default" && this._settings.fastPreview ) { // default preload has ended (only after fast),
             // replace small sequence with full and change frame
             if (this._settings?.fastPreview.fpsAfter) plugin.setOption("fps", this._settings?.fastPreview.fpsAfter)
             const wasAnimating = plugin.isAnimating();
+            const framesAreInQueue = typeof this._getFramesLeft() !== 'undefined'; // true if playTo or playFrames is active
             const matchFrame = this._settings?.fastPreview.matchFrame;
             plugin.setFrame( matchFrame ? matchFrame(this._data.currentFrame) : 1 );
-            if ( wasAnimating ) plugin.play();
+            // play() => continue, playTo() or playFrames() => stop, because it is impossible
+            // to calculate new target frame from _framesLeftToPlay
+            //https://github.com/its2easy/animate-images/issues/7#issuecomment-1210624687
+            if ( wasAnimating && !framesAreInQueue ) plugin.play();
         }
 
         // actions and callbacks

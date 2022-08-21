@@ -65,6 +65,7 @@ export default class AnimateImages{
             settings: this.#settings,
             data: this.#data,
             updateImagesCount: this.#updateImagesCount.bind(this),
+            getFramesLeft: this.#getFramesLeft.bind(this),
         });
         if (this.#settings.preload === 'all' || this.#settings.preload === "partial"){
             let preloadNumber = (this.#settings.preload === 'all') ? this.#data.totalImages : this.#settings.preloadNumber;
@@ -189,6 +190,10 @@ export default class AnimateImages{
     #toggleResizeHandler(add = true) {
         if ( add ) window.addEventListener("resize", this.#boundUpdateCanvasSizes);
         else window.removeEventListener("resize", this.#boundUpdateCanvasSizes);
+    }
+
+    #getFramesLeft(){
+        return this.#animation._framesLeftToPlay;
     }
 
     // Pubic API

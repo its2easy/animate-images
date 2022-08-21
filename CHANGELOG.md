@@ -1,4 +1,9 @@
 # Changelog
+## 2.3.1
+- animation started in ```playTo``` or ```playFrames``` in ```fastPreview``` mode now stops 
+  after full preload instead of playing endlessly
+- animation-end callback and event are now called after resetting values
+- reduced the number of operations in the animation function
 ## 2.3.0
 - new ```setForward``` method
 - new ```responsiveAspect``` option that allows to control height instead of width

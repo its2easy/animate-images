@@ -31,19 +31,20 @@ export default class Animation{
         if ( !this._data.isAnyFrameChanged ) { // 1st paint, direct call because 1st frame wasn't drawn
             this._changeFrame(1);
             // subtract 1 manually, because changeFrame is calling not from animate(), but directly
-            this._framesLeftToPlay--;
+            if ( Number.isFinite(this._framesLeftToPlay) ) this._framesLeftToPlay--; // undefined-- = NaN
         }
 
          this._lastUpdate = null;// first 'lastUpdate' should be always set in the first raf of the current animation
         requestAnimationFrame(this.#animate.bind(this));
     }
     _stop(){
-        if ( this._isAnimating ){
+        const wasAnimating = this._isAnimating;
+        this._isAnimating = false;
+        this._framesLeftToPlay = undefined;
+        if ( wasAnimating ){ // !!! callbacks and events should be called after all the values are reset
             this._data.canvas.element.dispatchEvent( new Event(eventPrefix + 'animation-end') );
             this._settings.onAnimationEnd(this._data.pluginApi);
         }
-        this._isAnimating = false;
-        this._framesLeftToPlay = undefined;
     }
 
     /**
