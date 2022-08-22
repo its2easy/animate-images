@@ -588,7 +588,8 @@ Fires on every frame change while dragging. Frame number is in `event.detail.fra
 (`left` or `right`) is in `event.detail.direction`.
 
 **animate-images:drag-end** -
-Fires when user stops dragging. Frame number is in `event.detail.frame`
+Fires when user stops dragging. Frame number is in `event.detail.frame`, direction
+(`left` or `right`) is in `event.detail.direction`.
 
 Example:
 ```javascript
@@ -612,7 +613,7 @@ new AnimateImages(element, {
     fps: 5, // fps for fastPreview
     ...
     fastPreview: {
-        images: imagesArray.filter( (val, i) => i % 5 === 0 ),// use every 5th image (imagesArray[0], imagesArray[6], ...)
+        images: imagesArray.filter( (val, i) => i % 5 === 0 ),// use every 5th image (imagesArray[0], imagesArray[5], ...)
         fpsAfter: 30, // continue with 30fps
         matchFrame: function (currentFrame){
             return ((currentFrame-1) * 5) + 1; // 1 => 1, 2 => 6, 3 => 11, ...
@@ -638,7 +639,7 @@ let instance2 = new AnimateImages(element, {
     preloadNumber: 3,
     ...
     fastPreview: {
-        images: imagesArray.filter( (val, i) => i % 10 === 0 ),// use every 10th image (imagesArray[0], imagesArray[6], etc)
+        images: imagesArray.filter( (val, i) => i % 10 === 0 ),// use every 10th image (imagesArray[0], imagesArray[10], etc)
     }
 }
 button.addEventListener("click", () => { instance2.play() }); // play() always loads the rest before playing
@@ -653,7 +654,7 @@ let instance3 = new AnimateImages(element, {
 }
 ...
 someModalOpenCallback(){ instance3.preloadImages() } // will load only fastPreview images
-buttonInsedeModal.addEventListener("click", () => { instance3.play() }); // it's safe to call even without any preload
+buttonInsideModal.addEventListener("click", () => { instance3.play() }); // it's safe to call even without any preload
 
 // preload all fastPreview images, start loading full sequnce after that, but wait for interaction to play
 let instance4 = new AnimateImages(element, {
@@ -667,7 +668,7 @@ let instance4 = new AnimateImages(element, {
     }
 }
 // initially will start short sequnce if full in not ready, otherwise will start the full
-buttonInsedeModal.addEventListener("click", () => { instance4.play() });
+buttonInsideModal.addEventListener("click", () => { instance4.play() });
 ```
 </details>
 

@@ -165,7 +165,10 @@ export default class DragInput{
         this._data.canvas.element.style.cursor = null;
         this._lastInteractionTime = new Date().getTime();
         this._data.canvas.element.dispatchEvent( new CustomEvent(eventPrefix + 'drag-end',
-            { detail: {frame: this._data.currentFrame} })
+            { detail: {
+                frame: this._data.currentFrame,
+                direction: this._prevDirection,
+            } })
         );
     }
     #swipeDirection(){

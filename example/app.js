@@ -81,8 +81,9 @@ document.addEventListener("DOMContentLoaded", function() {
         //console.log(`Event: animate-images:drag-change`);
         //console.log(`Drag direction: ${e.detail.direction}`);
     });
-    element.addEventListener('animate-images:drag-end', function () {
+    element.addEventListener('animate-images:drag-end', function (e) {
         console.log(`Event: animate-images:drag-end`);
+        //console.log(`Drag direction: ${e.detail.direction}`);
     });
 
     // Controls

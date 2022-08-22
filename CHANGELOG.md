@@ -5,6 +5,7 @@
 - animation-end callback and event are now called after resetting values
 - reduced the number of operations in the animation function
 - move ```core-js``` to ```devDependencies```
+- add ```direction``` to event.detail of ```animate-images:drag-end``` event
 ## 2.3.0
 - new ```setForward``` method
 - new ```responsiveAspect``` option that allows to control height instead of width
