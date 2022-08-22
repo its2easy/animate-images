@@ -3,9 +3,9 @@
     [
       "@babel/preset-env",
       {
-        "corejs": 3.17,
+        "corejs": 3.24,
         "useBuiltIns": "usage",
-        "exclude": ["es.promise"]
+        "exclude": ["es.promise", "es.error.cause"]
       }
     ]
   ]
