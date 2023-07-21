@@ -10,8 +10,8 @@ Demo - [codepen](https://codepen.io/its2easy/pen/powQJmd)
 to use in animations or pseudo 3d product view. It works WITHOUT BUILT-IN UI and mainly 
 developed for complex animations.
 
-To use it, you have to get a series of frames from a video or 3d app. 
-The frames must be separate images of the same size.
+To use it, you have to get a series of frames from a video or 3d app.
+The frames must be separated images of the same size.
 
 * [Installation](#installation)
 * [Usage](#usage)
@@ -46,7 +46,7 @@ let instance = new AnimateImages(element, options);
 ```
 
 <details>
-<summary>It is possible to directly import untranspiled esm version</summary>
+<summary>It is possible to directly import untranspiled esm version:</summary>
 
 This version has not been processed by babel:
 ```javascript
@@ -89,7 +89,7 @@ rules: [
 </details>
 
 <details>
-<summary>All available versions</summary>
+<summary>All available versions:</summary>
 
 umd build:
 
